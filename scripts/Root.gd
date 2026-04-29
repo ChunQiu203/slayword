@@ -57,8 +57,8 @@ func _apply_static_localization() -> void:
 	}
 	for node_path: String in label_updates.keys():
 		var node := get_node_or_null(NodePath(node_path))
-		if node != null:
-			node.text = I18N.tr_key(label_updates[node_path])
+		#if node != null:
+			#node.text = I18N.tr_key(label_updates[node_path])
 
 	var tooltip_updates: Dictionary = {
 		"%RunScreen/Combat/Energy": "combat.energy",

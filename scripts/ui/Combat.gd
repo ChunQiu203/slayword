@@ -1,33 +1,33 @@
 # maintains combat UI
 extends Control
 
-@onready var money_label: Label = $%MoneyLabel
-@onready var health_label: Label = $%HealthLabel
+@onready var money_label: Label = %MoneyLabel
+@onready var health_label: Label = %HealthLabel
 
-@onready var energy_count: Label = $Energy/EnergyCount
-@onready var energy: TextureButton = $Energy
-@onready var draw_count: Label = $DrawPile/DrawCount
-@onready var discard_count: Label = $DiscardPile/DiscardCount
-@onready var exhaust_count: Label = $ExhaustPile/ExhaustCount
+@onready var energy_count: Label = %EnergyCount
+@onready var energy: TextureButton = %Energy
+@onready var draw_count: Label = %DrawCount
+@onready var discard_count: Label = %DiscardCount
+@onready var exhaust_count: Label = %ExhaustCount
 
-@onready var deck_button: TextureButton = $DeckButton
-@onready var draw_pile_button: TextureButton = $DrawPile
-@onready var discard_pile_button: TextureButton = $DiscardPile
-@onready var exhaust_pile_button: TextureButton = $ExhaustPile
+@onready var deck_button: TextureButton = %DeckButton
+@onready var draw_pile_button: TextureButton = %DrawPile
+@onready var discard_pile_button: TextureButton = %DiscardPile
+@onready var exhaust_pile_button: TextureButton = %ExhaustPile
 
-@onready var card_selection_overlay = $%CardSelectionOverlay
+@onready var card_selection_overlay = %CardSelectionOverlay
 
 @onready var combat_animation_player: AnimationPlayer = $CombatAnimation
 @onready var enemy_container = $EnemyContainer
 
-@onready var player = $Player
-@onready var hand = $Hand
-@onready var chest = $Chest
-@onready var shop = $Shop
+@onready var player: Player = %Player
+@onready var hand = %Hand
+@onready var chest: CanvasItem = $Chest
+@onready var shop: CanvasItem = $Shop
 
 @onready var background_button: TextureButton = %BackgroundButton
 
-@onready var end_turn_button: Button = $EndTurnButton
+@onready var end_turn_button: Button = %EndTurnButton
 var end_turn_object: CombatEndTurn = null
 
 func _ready():
@@ -77,8 +77,8 @@ func _on_map_location_selected(location_data: LocationData):
 	# determine what to do when the player visits a new location
 	var location_type: int = location_data.location_type
 	
-	chest.visible = false
-	shop.visible = false
+	_set_visible_safe(chest, false)
+	_set_visible_safe(shop, false)
 	
 	set_combat_display_visibility(false)
 	
@@ -86,9 +86,9 @@ func _on_map_location_selected(location_data: LocationData):
 		LocationData.LOCATION_TYPES.COMBAT, LocationData.LOCATION_TYPES.MINIBOSS, LocationData.LOCATION_TYPES.BOSS:
 			ActionGenerator.generate_combat_start("") # emit empty event to get location's combat event
 		LocationData.LOCATION_TYPES.TREASURE:
-			chest.visible = true
+			_set_visible_safe(chest, true)
 		LocationData.LOCATION_TYPES.SHOP:
-			shop.visible = true
+			_set_visible_safe(shop, true)
 	
 	_update_background()
 
@@ -126,11 +126,15 @@ func _update_background() -> void:
 	
 
 func set_combat_display_visibility(display_visibility: bool) -> void:
-	energy.visible = display_visibility
-	draw_pile_button.visible = display_visibility
-	discard_pile_button.visible = display_visibility
-	exhaust_pile_button.visible = display_visibility
-	end_turn_button.visible = display_visibility
+	_set_visible_safe(energy, display_visibility)
+	_set_visible_safe(draw_pile_button, display_visibility)
+	_set_visible_safe(discard_pile_button, display_visibility)
+	_set_visible_safe(exhaust_pile_button, display_visibility)
+	_set_visible_safe(end_turn_button, display_visibility)
+
+func _set_visible_safe(node: CanvasItem, display_visibility: bool) -> void:
+	if node != null:
+		node.visible = display_visibility
 
 func _on_card_played(_card_play_request: CardPlayRequest):
 	update_combat_display()
