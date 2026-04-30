@@ -2,7 +2,7 @@
 extends Control
 
 @onready var title_screen: Control = $%TitleScreen
-@onready var back_button: Button = $BackButton
+@onready var back_button: TextureButton = $BackButton
 @onready var codex_card_container: GridContainer = $ScrollContainer/MarginContainer/CodexCardContainer
 
 func _ready():

@@ -2,7 +2,7 @@
 extends Control
 
 @onready var reward_container: VBoxContainer = $RewardContainer
-@onready var continue_button: Button = $ContinueButton
+@onready var continue_button: TextureButton = $ContinueButton
 
 @onready var map = $%Map
 

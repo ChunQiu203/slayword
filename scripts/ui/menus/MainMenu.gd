@@ -3,12 +3,12 @@ extends Control
 
 @onready var title_screen: Control = $%TitleScreen
 
-@onready var continue_button: Button = $VBoxContainer/ContinueButton
-@onready var forfeit_run_button: Button = $VBoxContainer/ForfeitRunButton
-@onready var new_run_button: Button = $VBoxContainer/NewRunButton
-@onready var codex_button: Button = $VBoxContainer/CodexButton
-@onready var language_button: Button = $VBoxContainer/SettingsButton
-@onready var exit_button: Button = $VBoxContainer/ExitButton
+@onready var continue_button: TextureButton = $VBoxContainer/ContinueButton
+@onready var forfeit_run_button: TextureButton = $VBoxContainer/ForfeitRunButton
+@onready var new_run_button: TextureButton = $VBoxContainer/NewRunButton
+@onready var codex_button: TextureButton = $VBoxContainer/CodexButton
+@onready var language_button: TextureButton = $VBoxContainer/SettingsButton
+@onready var exit_button: TextureButton = $VBoxContainer/ExitButton
 
 func _ready():
 	continue_button.button_up.connect(_on_continue_button_up)
@@ -61,6 +61,6 @@ func _on_locale_changed(_locale: String) -> void:
 
 func _update_language_button() -> void:
 	if I18N.current_locale == "zh_CN":
-		language_button.text = I18N.tr_key("menu.language_switch_to_en")
+		language_button.tooltip_text = I18N.tr_key("menu.language_switch_to_en")
 	else:
-		language_button.text = I18N.tr_key("menu.language_switch_to_zh")
+		language_button.tooltip_text = I18N.tr_key("menu.language_switch_to_zh")

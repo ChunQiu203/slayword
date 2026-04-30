@@ -5,7 +5,7 @@ extends Control
 @onready var artifact_container: VBoxContainer = $ArtifactContainer
 @onready var consumable_container: VBoxContainer = $ConsumableContainer
 
-@onready var continue_button: Button = $ContinueButton
+@onready var continue_button: TextureButton = $ContinueButton
 
 @onready var map = $%Map
 

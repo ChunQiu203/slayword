@@ -2,7 +2,7 @@
 extends Control
 
 @onready var rest_action_container: GridContainer = $ScrollContainer/MarginContainer/RestActionContainer
-@onready var continue_button: Button = $ContinueButton
+@onready var continue_button: TextureButton = $ContinueButton
 
 @onready var map = $%Map
 

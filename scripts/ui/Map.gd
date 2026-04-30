@@ -2,7 +2,7 @@ extends Control
 
 @onready var scroll_container = $ScrollContainer
 @onready var location_container = $ScrollContainer/LocationContainer
-@onready var back_button: Button = $BackButton
+@onready var back_button: TextureButton = $BackButton
 
 @onready var map_button = %MapButton
 

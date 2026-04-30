@@ -19,9 +19,9 @@ extends Control
 
 @onready var character_button_container = $CharacterButtonContainer
 
-@onready var start_run_button: Button = $StartRunButton
+@onready var start_run_button: TextureButton = $StartRunButton
 @onready var seed_input: LineEdit = $SeedInput
-@onready var back_button: Button = $BackButton
+@onready var back_button: TextureButton = $BackButton
 
 var selected_character_object_id: String = ""
 var selected_difficulty_level: int = 0

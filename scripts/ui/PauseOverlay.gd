@@ -1,8 +1,8 @@
 extends Control
 
-@onready var resume_button: Button = %ResumeButton
-@onready var return_to_title_button: Button = %ReturnToTitleButton
-@onready var forfeit_run_button: Button = %ForfeitRunButton
+@onready var resume_button: TextureButton = %ResumeButton
+@onready var return_to_title_button: TextureButton = %ReturnToTitleButton
+@onready var forfeit_run_button: TextureButton = %ForfeitRunButton
 
 func _ready() -> void:
 	resume_button.pressed.connect(_on_resume_button_pressed)
