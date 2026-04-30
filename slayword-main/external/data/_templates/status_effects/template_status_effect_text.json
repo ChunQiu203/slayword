@@ -1,9 +1,0 @@
-{
-	"patch_data": {},
-	"properties": {
-		"object_id": "status_example_id",
-		"status_effect_name": "Example Status",
-		"status_effect_texture_path": "external/sprites/status_effects/status_effect_generic.svg",
-		"status_effect_negative_charges_texture_path": ""
-	}
-}

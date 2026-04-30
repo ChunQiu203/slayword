@@ -27,7 +27,7 @@
 			}
 		],
 		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
-		"artifact_texture_path": "external/sprites/artifacts/artifact_white.png",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_shop_white.svg",
 		"artifact_turn_end_actions": [],
 		"artifact_turn_start_actions": [],
 		"object_id": "artifact_shop_white",

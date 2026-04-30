@@ -3,6 +3,7 @@ extends Control
 
 @onready var reward_container: VBoxContainer = $RewardContainer
 @onready var continue_button: Button = $ContinueButton
+@onready var reward_title_label: Label = $RewardTitleLabel
 
 @onready var map = $%Map
 
@@ -20,6 +21,9 @@ var reward_data: Dictionary = {
 }
 
 func _ready():
+	_apply_localized_text()
+	I18N.locale_changed.connect(_on_locale_changed)
+
 	Signals.combat_started.connect(_on_combat_started)
 	Signals.combat_ended.connect(_on_combat_ended)
 	
@@ -30,6 +34,13 @@ func _ready():
 	Signals.reward_clear_requested.connect(_on_reward_clear_requested)
 	
 	continue_button.button_up.connect(_on_continue_button_up)
+
+func _on_locale_changed(_locale: String) -> void:
+	_apply_localized_text()
+
+func _apply_localized_text() -> void:
+	reward_title_label.text = I18N.tr_key("overlay.rewards")
+	continue_button.text = I18N.tr_key("overlay.continue")
 
 #region Reward Display
 func populate_reward_display() -> void:

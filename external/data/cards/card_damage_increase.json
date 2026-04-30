@@ -1,4 +1,4 @@
-{
+﻿{
 	"patch_data": {
 
 	},
@@ -46,7 +46,7 @@
 		"card_retain_actions": [],
 		"card_right_click_actions": [],
 		"card_tags": [],
-		"card_texture_path": "",
+		"card_texture_path": "external/sprites/cards/generated/card_damage_increase.png",
 		"card_transform_in_deck_actions": [],
 		"card_type": 2,
 		"card_unremovable_from_deck": false,

@@ -47,6 +47,8 @@
   "overlay.back_to_main_menu": "Back To Main Menu",
   "overlay.victory": "Victory",
   "overlay.defeat": "Defeat",
+  "overlay.event": "Event",
+  "overlay.rewards": "Rewards",
   "map.unknown": "???",
   "map.starting": "Starting",
   "map.combat": "Combat",

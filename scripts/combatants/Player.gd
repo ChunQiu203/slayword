@@ -3,6 +3,7 @@ extends BaseCombatant
 class_name Player
 
 @onready var incoming_damage: Control = $Visible/IncomingDamage
+@onready var incoming_damage_texture: TextureRect = $Visible/IncomingDamage/TextureRect
 @onready var incoming_damage_amount_text: Label = $Visible/IncomingDamage/IncomingDamageAmount
 
 const INTENT_UPDATES_LAZILY: bool = true	# batches intent updates
@@ -10,6 +11,7 @@ var _intent_is_updating: bool = false
 
 func _ready():
 	super()
+	_setup_incoming_damage_badge()
 	Signals.enemy_intent_changed.connect(_on_enemy_intent_changed)
 	Signals.enemy_death_animation_finished.connect(_on_enemy_death_animation_finished)
 	Signals.player_health_changed.connect(_on_player_health_changed)
@@ -104,6 +106,11 @@ func update_incoming_damage_amount(recalculate_enemy_intent: bool = true) -> voi
 
 	incoming_damage_amount_text.text = str(incoming_damage_amount)
 	incoming_damage.visible = incoming_damage_amount > 0
+
+func _setup_incoming_damage_badge() -> void:
+	incoming_damage_texture.texture = FileLoader.load_texture(Enemy.INTENT_TEXTURE_ATTACK)
+	incoming_damage_texture.modulate = Color(1.0, 0.32, 0.22, 1.0)
+	incoming_damage_amount_text.add_theme_color_override("font_color", Color.WHITE)
 
 func is_alive() -> bool:
 	return Global.player_data.player_health > 0

@@ -1,4 +1,4 @@
-{
+﻿{
 	"patch_data": {
 
 	},
@@ -71,7 +71,7 @@
 		"card_retain_actions": [],
 		"card_right_click_actions": [],
 		"card_tags": [],
-		"card_texture_path": "external/sprites/cards/red/card_red.png",
+		"card_texture_path": "external/sprites/cards/generated/card_discard_block.png",
 		"card_transform_in_deck_actions": [],
 		"card_type": 1,
 		"card_unremovable_from_deck": false,

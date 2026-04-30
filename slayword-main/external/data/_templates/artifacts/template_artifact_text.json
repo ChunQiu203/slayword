@@ -1,9 +1,0 @@
-{
-	"patch_data": {},
-	"properties": {
-		"object_id": "artifact_example_id",
-		"artifact_name": "Example Artifact",
-		"artifact_description": "At the start of combat, gain 1 Strength.",
-		"artifact_texture_path": "external/sprites/artifacts/artifact_easy_mode.svg"
-	}
-}

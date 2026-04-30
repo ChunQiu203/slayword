@@ -16,7 +16,7 @@
 		"consumable_name": "Multiple Damage Item",
 		"consumable_rarity": 0,
 		"consumable_requires_target": false,
-		"consumable_texture_path": "res://icon.svg",
+		"consumable_texture_path": "external/sprites/consumables/consumable_multi_damaging.svg",
 		"object_id": "consumable_multi_damaging"
 	}
 }

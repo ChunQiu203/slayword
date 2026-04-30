@@ -95,7 +95,7 @@
 					"dialogue_pick_something_option_1",
 					"dialogue_pick_something_option_2"
 				],
-				"dialogue_state_dialogue_texture_path": "external/sprites/events/event_pick_something.png",
+				"dialogue_state_dialogue_texture_path": "external/sprites/events/event_pick_something.svg",
 				"dialogue_state_prompt_bbcode": "Test Event. Select an option...",
 				"object_id": "dialogue_state_pick_something_initial"
 			}

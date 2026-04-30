@@ -20,7 +20,7 @@
 				"custom_actions": [
 					{
 						"res://scripts/actions/status_actions/ActionApplyStatus.gd": {
-							"status_effect_charges": 2,
+							"status_charge_amount": 2,
 							"status_effect_object_id": "status_effect_vulnerable",
 							"target_override": 2
 						}
@@ -75,7 +75,7 @@
 		"enemy_is_minion": false,
 		"enemy_name": "Big Attack Enemy",
 		"enemy_object_id": "",
-		"enemy_texture_path": "external/sprites/enemies/enemy_purple_medium.png",
+		"enemy_texture_path": "external/sprites/enemies/enemy_purple_medium.svg",
 		"enemy_type": 0,
 		"object_id": "enemy_4",
 		"object_uid": ""

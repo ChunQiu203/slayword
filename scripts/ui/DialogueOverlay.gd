@@ -4,20 +4,33 @@ extends Control
 @onready var dialogue_prompt_label: RichTextLabel = $DialoguePromptLabel
 @onready var dialogue_texture_rect: TextureRect = $DialogueTextureRect
 @onready var dialogue_option_container: VBoxContainer = $DialogueOptionContainer
+@onready var dialogue_title_label: Label = $DialogueTitleLabel
 
 ## This will only appear if no other options are found, and will end the dialogue when clicked
 @onready var DEFAULT_DIALOGUE_OPTION_BBCODE: String = ""
+
+const DEFAULT_DIALOGUE_TEXTURE_PATH: String = "external/sprites/events/event_pick_something.svg"
 
 var current_dialogue_data: DialogueData = null # the current DialogueData object
 var current_dialogue_state: DialogueStateData = null # the current DialogueStateData object
 
 func _ready():
 	DEFAULT_DIALOGUE_OPTION_BBCODE = I18N.tr_key("dialogue.no_valid_options")
+	_apply_localized_text()
+	I18N.locale_changed.connect(_on_locale_changed)
+
 	Signals.run_started.connect(_on_run_started)
 	Signals.run_ended.connect(_on_run_ended)
 	Signals.dialogue_ended.connect(_on_dialogue_ended)
 	Signals.map_location_selected.connect(_on_map_location_selected)
 	Signals.player_killed.connect(_on_player_killed)
+
+func _on_locale_changed(_locale: String) -> void:
+	DEFAULT_DIALOGUE_OPTION_BBCODE = I18N.tr_key("dialogue.no_valid_options")
+	_apply_localized_text()
+
+func _apply_localized_text() -> void:
+	dialogue_title_label.text = I18N.tr_key("overlay.event")
 
 ## Initializes a dialogue given the player's current location/event
 func start_dialogue() -> void:
@@ -59,6 +72,8 @@ func populate_dialogue_options() -> void:
 	# set prompt image
 	if current_dialogue_state.dialogue_state_dialogue_texture_path != "":
 		dialogue_texture_rect.texture = FileLoader.load_texture(current_dialogue_state.dialogue_state_dialogue_texture_path)
+	else:
+		dialogue_texture_rect.texture = FileLoader.load_texture(DEFAULT_DIALOGUE_TEXTURE_PATH)
 	
 	# create and validate dialogue option buttons
 	# keep track of how many are actually clickable
@@ -148,7 +163,7 @@ func reset_dialogue() -> void:
 	clear_dialogue_options()
 	visible = false
 	dialogue_prompt_label.parse_bbcode("")
-	dialogue_texture_rect.texture = load("res://icon.svg")
+	dialogue_texture_rect.texture = FileLoader.load_texture(DEFAULT_DIALOGUE_TEXTURE_PATH)
 	
 	current_dialogue_data = null
 	current_dialogue_state = null
