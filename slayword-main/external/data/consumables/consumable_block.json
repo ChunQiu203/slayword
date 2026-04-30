@@ -15,7 +15,7 @@
 		"consumable_name": "Block Item",
 		"consumable_rarity": 0,
 		"consumable_requires_target": false,
-		"consumable_texture_path": "res://icon.svg",
+		"consumable_texture_path": "external/sprites/consumables/consumable_block.svg",
 		"object_id": "consumable_block"
 	}
 }

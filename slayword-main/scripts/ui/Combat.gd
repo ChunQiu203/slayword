@@ -10,6 +10,8 @@ extends Control
 @onready var discard_count: Label = %DiscardCount
 @onready var exhaust_count: Label = %ExhaustCount
 
+@onready var pause_button: TextureButton = %PauseButton
+@onready var map_button: TextureButton = %MapButton
 @onready var deck_button: TextureButton = %DeckButton
 @onready var draw_pile_button: TextureButton = %DrawPile
 @onready var discard_pile_button: TextureButton = %DiscardPile
@@ -22,15 +24,27 @@ extends Control
 
 @onready var player: Player = %Player
 @onready var hand = %Hand
-@onready var chest: CanvasItem = $Chest
-@onready var shop: CanvasItem = $Shop
+@onready var chest: TextureButton = $Chest
+@onready var shop: TextureButton = $Shop
 
 @onready var background_button: TextureButton = %BackgroundButton
 
 @onready var end_turn_button: Button = %EndTurnButton
 var end_turn_object: CombatEndTurn = null
 
+const PAUSE_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_pause_icon.svg"
+const MAP_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_map_icon.svg"
+const DECK_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_deck_icon.svg"
+const CHEST_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_chest_icon.svg"
+const SHOP_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_shop_icon.svg"
+const ENERGY_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_energy_orb.svg"
+const DRAW_PILE_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_draw_pile.svg"
+const DISCARD_PILE_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_discard_pile.svg"
+const EXHAUST_PILE_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_exhaust_pile.svg"
+
 func _ready():
+	_setup_external_ui_textures()
+
 	Signals.player_money_changed.connect(_on_player_money_changed)
 	Signals.player_health_changed.connect(_on_player_health_changed)
 	
@@ -72,6 +86,17 @@ func _ready():
 	Signals.run_ended.connect(_on_run_ended)
 	
 	Signals.map_location_selected.connect(_on_map_location_selected)
+
+func _setup_external_ui_textures() -> void:
+	pause_button.texture_normal = FileLoader.load_texture(PAUSE_ICON_TEXTURE_PATH)
+	map_button.texture_normal = FileLoader.load_texture(MAP_ICON_TEXTURE_PATH)
+	deck_button.texture_normal = FileLoader.load_texture(DECK_ICON_TEXTURE_PATH)
+	chest.texture_normal = FileLoader.load_texture(CHEST_ICON_TEXTURE_PATH)
+	shop.texture_normal = FileLoader.load_texture(SHOP_ICON_TEXTURE_PATH)
+	energy.texture_normal = FileLoader.load_texture(ENERGY_ICON_TEXTURE_PATH)
+	draw_pile_button.texture_normal = FileLoader.load_texture(DRAW_PILE_ICON_TEXTURE_PATH)
+	discard_pile_button.texture_normal = FileLoader.load_texture(DISCARD_PILE_ICON_TEXTURE_PATH)
+	exhaust_pile_button.texture_normal = FileLoader.load_texture(EXHAUST_PILE_ICON_TEXTURE_PATH)
 
 func _on_map_location_selected(location_data: LocationData):
 	# determine what to do when the player visits a new location

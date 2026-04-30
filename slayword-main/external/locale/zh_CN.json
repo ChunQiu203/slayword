@@ -47,6 +47,8 @@
   "overlay.back_to_main_menu": "\u8fd4\u56de\u4e3b\u83dc\u5355",
   "overlay.victory": "\u80dc\u5229",
   "overlay.defeat": "\u5931\u8d25",
+  "overlay.event": "\u4e8b\u4ef6",
+  "overlay.rewards": "\u6218\u5229\u54c1",
   "map.unknown": "???",
   "map.starting": "\u8d77\u70b9",
   "map.combat": "\u6218\u6597",

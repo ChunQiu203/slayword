@@ -1424,8 +1424,8 @@ func add_test_characters() -> void:
 	character_red.character_starting_artifact_pack_ids = ["artifact_pack_white", "artifact_pack_red"]
 	
 	character_red.character_starting_health = 80
-	character_red.character_texture_path = "external/sprites/characters/character_red/character_red.png"
-	character_red.character_icon_texture_path = "external/sprites/characters/character_red/character_red_icon.png"
+	character_red.character_texture_path = "external/sprites/characters/character_red/character_red.svg"
+	character_red.character_icon_texture_path = "external/sprites/characters/character_red/character_red_icon.svg"
 	character_red.character_text_energy_texture_path = "external/sprites/characters/character_red/character_red_text_energy.png"
 	character_red.character_starting_artifact_ids = ["artifact_block_on_attacks"]
 	character_red.character_starting_card_object_ids = [
@@ -1453,8 +1453,8 @@ func add_test_characters() -> void:
 	character_blue.character_description = "If they were green they would die."
 	character_blue.character_color_id = "color_blue"
 	character_blue.character_starting_health = 70
-	character_blue.character_texture_path = "external/sprites/characters/character_blue/character_blue.png"
-	character_blue.character_icon_texture_path = "external/sprites/characters/character_blue/character_blue_icon.png"
+	character_blue.character_texture_path = "external/sprites/characters/character_blue/character_blue.svg"
+	character_blue.character_icon_texture_path = "external/sprites/characters/character_blue/character_blue_icon.svg"
 	character_blue.character_text_energy_texture_path = "external/sprites/characters/character_blue/character_blue_text_energy.png"
 	character_blue.character_starting_artifact_ids = ["artifact_see_top_of_draw_pile"]
 	character_blue.character_starting_artifact_pack_ids = ["artifact_pack_white", "artifact_pack_blue"]
@@ -1476,8 +1476,8 @@ func add_test_characters() -> void:
 	character_green.character_description = "Puts pineapple on their pizza"
 	character_green.character_color_id = "color_green"
 	character_green.character_starting_health = 75
-	character_green.character_texture_path = "external/sprites/characters/character_green/character_green.png"
-	character_green.character_icon_texture_path = "external/sprites/characters/character_green/character_green_icon.png"
+	character_green.character_texture_path = "external/sprites/characters/character_green/character_green.svg"
+	character_green.character_icon_texture_path = "external/sprites/characters/character_green/character_green_icon.svg"
 	character_green.character_text_energy_texture_path = "external/sprites/characters/character_green/character_green_text_energy.png"
 	character_green.character_starting_artifact_ids = ["artifact_draw_on_combat_start"]
 	character_green.character_starting_artifact_pack_ids = ["artifact_pack_white", "artifact_pack_green"]
@@ -1499,8 +1499,8 @@ func add_test_characters() -> void:
 	character_orange.character_description = "Has a tragic backstory"
 	character_orange.character_color_id = "color_orange"
 	character_orange.character_starting_health = 70
-	character_orange.character_texture_path = "external/sprites/characters/character_orange/character_orange.png"
-	character_orange.character_icon_texture_path = "external/sprites/characters/character_orange/character_orange_icon.png"
+	character_orange.character_texture_path = "external/sprites/characters/character_orange/character_orange.svg"
+	character_orange.character_icon_texture_path = "external/sprites/characters/character_orange/character_orange_icon.svg"
 	character_orange.character_text_energy_texture_path = "external/sprites/characters/character_orange/character_orange_text_energy.png"
 	character_orange.character_starting_artifact_ids = ["artifact_increase_attack_on_rest", "artifact_see_top_of_draw_pile"]
 	character_orange.character_starting_artifact_pack_ids = ["artifact_pack_white", "artifact_pack_orange"]
@@ -1849,7 +1849,7 @@ func add_test_enemies() -> void:
 	enemy_1.enemy_health_max = 20
 	enemy_1.enemy_health = 20
 	enemy_1.enemy_initial_status_effects = {}# {"status_effect_negate_damage": 1}
-	enemy_1.enemy_texture_path = "external/sprites/enemies/enemy_red_small.png"
+	enemy_1.enemy_texture_path = "external/sprites/enemies/enemy_red_small.svg"
 	enemy_1.enemy_difficulty_to_enemy_modfiers = {
 	"1": {
 		"enemy_health": 25,
@@ -1862,7 +1862,7 @@ func add_test_enemies() -> void:
 	enemy_2.enemy_health_max = 5
 	enemy_2.enemy_health = 5
 	enemy_2.enemy_initial_status_effects = {}
-	enemy_2.enemy_texture_path = "external/sprites/enemies/enemy_blue_small.png"
+	enemy_2.enemy_texture_path = "external/sprites/enemies/enemy_blue_small.svg"
 	enemy_2.enemy_difficulty_to_enemy_modfiers = {
 	"1": {
 		"enemy_health": 8,
@@ -1875,7 +1875,7 @@ func add_test_enemies() -> void:
 	enemy_3.enemy_health_max = 25
 	enemy_3.enemy_health = 25
 	enemy_3.enemy_name = "Green Enemy"
-	enemy_3.enemy_texture_path = "external/sprites/enemies/enemy_green_small.png"
+	enemy_3.enemy_texture_path = "external/sprites/enemies/enemy_green_small.svg"
 	enemy_3.enemy_initial_status_effects = {"status_effect_negate_debuff": 1}
 	enemy_3.enemy_actions_on_death = [
 	{
@@ -1894,7 +1894,7 @@ func add_test_enemies() -> void:
 	enemy_4.enemy_health_max = 40
 	enemy_4.enemy_health = 40
 	enemy_4.enemy_name = "Big Attack Enemy"
-	enemy_4.enemy_texture_path = "external/sprites/enemies/enemy_purple_medium.png"
+	enemy_4.enemy_texture_path = "external/sprites/enemies/enemy_purple_medium.svg"
 	enemy_4.enemy_actions_on_death = [
 	{
 	Scripts.ACTION_APPLY_STATUS: {"status_charge_amount": 5, "status_effect_object_id": "status_effect_corrosion", "time_delay": 0.5, "target_override": BaseAction.TARGET_OVERRIDES.ALL_COMBATANTS}
@@ -1963,7 +1963,7 @@ func add_test_enemies() -> void:
 	enemy_act_1_miniboss_1.enemy_health = 100
 	enemy_act_1_miniboss_1.enemy_type = EnemyData.ENEMY_TYPES.MINIBOSS
 	enemy_act_1_miniboss_1.enemy_name = "Act 1 Miniboss"
-	enemy_act_1_miniboss_1.enemy_texture_path = "external/sprites/enemies/enemy_green_medium.png"
+	enemy_act_1_miniboss_1.enemy_texture_path = "external/sprites/enemies/enemy_green_medium.svg"
 	enemy_act_1_miniboss_1.enemy_difficulty_to_enemy_modfiers = {
 	"2": {
 		"enemy_health": 120,
@@ -1976,7 +1976,7 @@ func add_test_enemies() -> void:
 	enemy_act_1_miniboss_2.enemy_health = 45
 	enemy_act_1_miniboss_2.enemy_type = EnemyData.ENEMY_TYPES.MINIBOSS
 	enemy_act_1_miniboss_2.enemy_name = "Act 1 Miniboss"
-	enemy_act_1_miniboss_2.enemy_texture_path = "external/sprites/enemies/enemy_red_medium.png"
+	enemy_act_1_miniboss_2.enemy_texture_path = "external/sprites/enemies/enemy_red_medium.svg"
 	enemy_act_1_miniboss_2.enemy_difficulty_to_enemy_modfiers = {
 	"2": {
 		"enemy_health": 55,
@@ -1990,7 +1990,7 @@ func add_test_enemies() -> void:
 	enemy_act_1_boss_1.enemy_health = 200
 	enemy_act_1_boss_1.enemy_type = EnemyData.ENEMY_TYPES.BOSS
 	enemy_act_1_boss_1.enemy_name = "Act 1 Boss"
-	enemy_act_1_boss_1.enemy_texture_path =  "external/sprites/enemies/enemy_red_large.png"
+	enemy_act_1_boss_1.enemy_texture_path =  "external/sprites/enemies/enemy_red_large.svg"
 	enemy_act_1_boss_1.enemy_attack_states = {
 		"initial":	# dummy state used for random attacks at start of combat
 		{
@@ -2042,7 +2042,7 @@ func add_test_enemies() -> void:
 	enemy_minion_1.enemy_health_max = 4
 	enemy_minion_1.enemy_health = 4
 	enemy_minion_1.enemy_name = "Minion 1"
-	enemy_minion_1.enemy_texture_path = "external/sprites/enemies/enemy_purple_small.png"
+	enemy_minion_1.enemy_texture_path = "external/sprites/enemies/enemy_purple_small.svg"
 	enemy_minion_1.enemy_is_minion = true
 	enemy_minion_1.enemy_difficulty_to_enemy_modfiers = {
 	"1": {
@@ -2056,7 +2056,7 @@ func add_test_enemies() -> void:
 	enemy_minion_2.enemy_health_max = 3
 	enemy_minion_2.enemy_health = 3
 	enemy_minion_2.enemy_name = "Minion 2"
-	enemy_minion_2.enemy_texture_path = "external/sprites/enemies/enemy_green_small.png"
+	enemy_minion_2.enemy_texture_path = "external/sprites/enemies/enemy_green_small.svg"
 	enemy_minion_2.enemy_is_minion = true
 	enemy_minion_2.enemy_difficulty_to_enemy_modfiers = {
 	"1": {

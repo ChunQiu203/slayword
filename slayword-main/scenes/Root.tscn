@@ -67,6 +67,66 @@ texture = ExtResource("25_nownq")
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_u5j4q"]
 texture = ExtResource("25_nownq")
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reward_panel"]
+bg_color = Color(0.0823529, 0.0784314, 0.0862745, 0.901961)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.594, 0.508, 0.337, 0.95)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reward_continue"]
+bg_color = Color(0.361, 0.502, 0.486, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.722, 0.773, 0.647, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reward_continue_hover"]
+bg_color = Color(0.437, 0.592, 0.565, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.88, 0.827, 0.569, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialogue_panel"]
+bg_color = Color(0.0784314, 0.0745098, 0.0823529, 0.909804)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.594, 0.508, 0.337, 0.95)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialogue_image_frame"]
+bg_color = Color(0.105882, 0.117647, 0.129412, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.43, 0.38, 0.285, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [sub_resource type="Animation" id="Animation_m5prp"]
 resource_name = "end_turn"
 length = 0.5
@@ -1228,57 +1288,74 @@ script = ExtResource("25_tn5yy")
 layout_mode = 0
 offset_right = 1280.0
 offset_bottom = 720.0
-color = Color(0.203922, 0.188235, 0.215686, 0.635294)
+color = Color(0.0784314, 0.0745098, 0.0823529, 0.701961)
 
-[node name="Background2" type="ColorRect" parent="RunScreen/DialogueOverlay" unique_id=923393560]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.532
-anchor_top = 0.5
-anchor_right = 0.532
-anchor_bottom = 0.5
-offset_left = -606.4
-offset_top = -286.0
-offset_right = 605.6
-offset_bottom = 329.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.0941176, 0.0862745, 0.101961, 0.67451)
-
-[node name="DialogueTextureRect" type="TextureRect" parent="RunScreen/DialogueOverlay" unique_id=967071727]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 64.0
-offset_top = 88.0
-offset_right = 592.0
-offset_bottom = 616.0
-texture = ExtResource("3_8ax2e")
-expand_mode = 1
-
-[node name="DialoguePromptLabel" type="RichTextLabel" parent="RunScreen/DialogueOverlay" unique_id=419519732]
-layout_mode = 0
-offset_left = 608.0
-offset_top = 96.0
-offset_right = 1152.0
-offset_bottom = 392.0
-theme_override_font_sizes/normal_font_size = 16
-bbcode_enabled = true
-text = "[color=green]Dialogue Prompt Rich Text[/color]"
-
-[node name="DialogueOptionContainer" type="VBoxContainer" parent="RunScreen/DialogueOverlay" unique_id=1984808937]
+[node name="Background2" type="Panel" parent="RunScreen/DialogueOverlay" unique_id=923393560]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 8.0
-offset_top = -22.0
-offset_right = 544.0
-offset_bottom = 226.0
+offset_left = -560.0
+offset_top = -260.0
+offset_right = 560.0
+offset_bottom = 260.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+theme_override_styles/panel = SubResource("StyleBoxFlat_dialogue_panel")
+
+[node name="DialogueImageFrame" type="Panel" parent="RunScreen/DialogueOverlay" unique_id=752784413]
+layout_mode = 0
+offset_left = 70.0
+offset_top = 126.0
+offset_right = 478.0
+offset_bottom = 548.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_dialogue_image_frame")
+
+[node name="DialogueTextureRect" type="TextureRect" parent="RunScreen/DialogueOverlay" unique_id=967071727]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 90.0
+offset_top = 146.0
+offset_right = 458.0
+offset_bottom = 528.0
+texture = ExtResource("3_8ax2e")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DialogueTitleLabel" type="Label" parent="RunScreen/DialogueOverlay" unique_id=2021355297]
+layout_mode = 0
+offset_left = 544.0
+offset_top = 110.0
+offset_right = 1130.0
+offset_bottom = 149.0
+theme_override_colors/font_color = Color(0.95, 0.902, 0.741, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 25
+text = "Event"
+vertical_alignment = 1
+
+[node name="DialoguePromptLabel" type="RichTextLabel" parent="RunScreen/DialogueOverlay" unique_id=419519732]
+layout_mode = 0
+offset_left = 544.0
+offset_top = 158.0
+offset_right = 1130.0
+offset_bottom = 300.0
+theme_override_colors/default_color = Color(0.94, 0.91, 0.82, 1)
+theme_override_font_sizes/normal_font_size = 18
+bbcode_enabled = true
+text = "[color=green]Dialogue Prompt Rich Text[/color]"
+
+[node name="DialogueOptionContainer" type="VBoxContainer" parent="RunScreen/DialogueOverlay" unique_id=1984808937]
+layout_mode = 0
+offset_left = 544.0
+offset_top = 330.0
+offset_right = 1130.0
+offset_bottom = 528.0
+theme_override_constants/separation = 12
 
 [node name="RunSummaryOverlay" type="Control" parent="RunScreen" unique_id=1049986270]
 unique_name_in_owner = true
@@ -1373,22 +1450,44 @@ script = ExtResource("10_u2l48")
 layout_mode = 0
 offset_right = 1200.0
 offset_bottom = 700.0
-color = Color(0.203922, 0.188235, 0.215686, 0.635294)
+color = Color(0.0784314, 0.0745098, 0.0823529, 0.701961)
 
-[node name="Background2" type="ColorRect" parent="RunScreen/RewardOverlay" unique_id=2109457256]
+[node name="Background2" type="Panel" parent="RunScreen/RewardOverlay" unique_id=2109457256]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -224.0
-offset_top = -196.0
-offset_right = 224.0
-offset_bottom = 187.0
+offset_left = -284.0
+offset_top = -206.0
+offset_right = 284.0
+offset_bottom = 206.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.0941176, 0.0862745, 0.101961, 0.67451)
+theme_override_styles/panel = SubResource("StyleBoxFlat_reward_panel")
+
+[node name="RewardTitleLabel" type="Label" parent="RunScreen/RewardOverlay" unique_id=1441712723]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -256.0
+offset_top = -184.0
+offset_right = 256.0
+offset_bottom = -142.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.95, 0.902, 0.741, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 24
+text = "Rewards"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="RewardContainer" type="VBoxContainer" parent="RunScreen/RewardOverlay" unique_id=1400740465]
 layout_mode = 1
@@ -1397,20 +1496,34 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -216.0
-offset_top = -190.0
-offset_right = 216.0
-offset_bottom = 170.0
+offset_left = -236.0
+offset_top = -126.0
+offset_right = 236.0
+offset_bottom = 116.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 10
 
 [node name="ContinueButton" type="Button" parent="RunScreen/RewardOverlay" unique_id=1975309752]
-layout_mode = 0
-offset_left = 528.0
-offset_top = 544.0
-offset_right = 672.0
-offset_bottom = 575.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -86.0
+offset_top = 142.0
+offset_right = 86.0
+offset_bottom = 178.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_reward_continue")
+theme_override_styles/hover = SubResource("StyleBoxFlat_reward_continue_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_reward_continue")
 text = "Continue"
 
 [node name="CardSelectionOverlay" type="Control" parent="RunScreen" unique_id=1194303242]

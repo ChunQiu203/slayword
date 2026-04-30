@@ -3,7 +3,7 @@ class_name EnemyData
 
 @export var enemy_object_id: String = ""	# prototype id for this enemy type
 @export var enemy_name: String = ""
-@export var enemy_texture_path: String = "external/sprites/enemies/enemy_blue_small.png"
+@export var enemy_texture_path: String = "external/sprites/enemies/enemy_blue_small.svg"
 
 @export var enemy_health: int = 20
 @export var enemy_health_max: int = 20
