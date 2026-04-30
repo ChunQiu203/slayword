@@ -1,0 +1,8 @@
+{
+	"patch_data": {},
+	"properties": {
+		"object_id": "rest_action_example_id",
+		"rest_action_name": "Example Rest Action",
+		"rest_action_texture_path": "res://icon.svg"
+	}
+}
