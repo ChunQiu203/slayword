@@ -1,8 +1,0 @@
-{
-	"patch_data": {},
-	"properties": {
-		"object_id": "run_modifier_example_id",
-		"run_modifier_name": "Example Modifier",
-		"run_modifier_description": "Enemies have +10% max HP."
-	}
-}

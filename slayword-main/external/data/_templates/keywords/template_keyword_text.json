@@ -1,8 +1,0 @@
-{
-	"patch_data": {},
-	"properties": {
-		"object_id": "keyword_example_id",
-		"keyword_text_bb_code": "[color=orange]Example[/color]\nExplain what this keyword does.",
-		"keyword_child_keyword_object_ids": []
-	}
-}

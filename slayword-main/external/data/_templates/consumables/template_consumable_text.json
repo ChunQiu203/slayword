@@ -1,9 +1,0 @@
-{
-	"patch_data": {},
-	"properties": {
-		"object_id": "consumable_example_id",
-		"consumable_name": "Example Consumable",
-		"consumable_description": "Heal 10 HP.",
-		"consumable_texture_path": "res://icon.svg"
-	}
-}
