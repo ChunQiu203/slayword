@@ -88,6 +88,12 @@ func perform_action() -> void:
 		for k in floors_per_act:
 			var current_floor: Array[LocationData] = []
 			floor_counter += 1
+			## Per column boundary i (between prev lane i and i+1): only one of the two crossing
+			## diagonals (prev[i]->curr[i+1] vs prev[i+1]->curr[i]) is allowed so lines never form an X.
+			var diagonal_bridge_left: Array[bool] = []
+			if k > 0:
+				for _bridge_i in range(locations_per_floor - 1):
+					diagonal_bridge_left.append(rng_world_generation.randf() < 0.5)
 			### generate each node in a floor
 			for i in locations_per_floor:
 				# make a node
@@ -143,18 +149,25 @@ func perform_action() -> void:
 				## connect the previous floor's nodes up to this one using adjacency rules
 				if k > 0:
 					var previous_floor: Array[LocationData] = floors[-1]
-					# use adjacency rules for normal floors
-					# connect node below this
-					var previous_location: LocationData = previous_floor[i]
-					previous_location.location_next_location_ids.append(location_id)
-					# connect lower left node to this one
+					# Vertical: same lane always links up one layer.
+					previous_floor[i].location_next_location_ids.append(location_id)
+					# Diagonals: cap outgoing per node, and use diagonal_bridge_left so only one diagonal
+					# crosses each diamond (prev[i],prev[i+1]) -> (curr[i],curr[i+1]); avoids X crossings.
+					const MAX_OUTGOING_PER_LOCATION: int = 2
 					if (i - 1) >= 0:
-						previous_location = previous_floor[i - 1]
-						previous_location.location_next_location_ids.append(location_id)
-					# connect lower right node to this one
+						var lower_left: LocationData = previous_floor[i - 1]
+						if (
+							lower_left.location_next_location_ids.size() < MAX_OUTGOING_PER_LOCATION
+							and diagonal_bridge_left[i - 1]
+						):
+							lower_left.location_next_location_ids.append(location_id)
 					if (i + 1) < locations_per_floor:
-						previous_location = previous_floor[i + 1]
-						previous_location.location_next_location_ids.append(location_id)
+						var lower_right: LocationData = previous_floor[i + 1]
+						if (
+							lower_right.location_next_location_ids.size() < MAX_OUTGOING_PER_LOCATION
+							and not diagonal_bridge_left[i]
+						):
+							lower_right.location_next_location_ids.append(location_id)
 				else:
 					# first normal layer of each act connects to previous layer (previous boss and act 1 starting area) regardless of adjacency
 					var previous_floor: Array[LocationData] = floors[-1]

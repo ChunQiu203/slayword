@@ -1,19 +1,20 @@
 extends Control
 
 @onready var scroll_container = $ScrollContainer
-@onready var location_container: MapLocationContainer = $ScrollContainer/LocationContainer
-@onready var back_button: Button = $BackButton
+@onready var location_container = $ScrollContainer/LocationContainer
+@onready var back_button: TextureButton = $BackButton
 
 @onready var map_button = %MapButton
 
 var can_travel: bool = false	# if clicking on a location brings you to the next location
 
+## Minimum map strip width; layout uses at least ScrollContainer width so nodes span the viewport.
 const MAP_CONTENT_WIDTH: float = 508
 const MAP_TOP_PADDING: float = 92
 const MAP_BOTTOM_PADDING: float = 116
 const MAP_SIDE_PADDING: float = 72
 const MAP_FLOOR_SPACING: float = 94
-const MAP_NODE_SIZE: Vector2 = Vector2(40, 40)
+const MAP_NODE_SIZE: Vector2 = MapLocation.MAP_NODE_DISPLAY_SIZE
 
 func _ready():
 	map_button.button_up.connect(_on_map_button_up)
@@ -44,6 +45,10 @@ func populate_locations(locations: Array[LocationData] = Global.get_all_act_loca
 	
 	var visible_locations: Array[LocationData] = _get_visible_locations(locations)
 	var map_bounds: Dictionary[String, float] = _get_map_bounds(visible_locations)
+	var scroll_viewport_w: float = scroll_container.size.x
+	if scroll_viewport_w < 1.0:
+		scroll_viewport_w = absf(scroll_container.offset_right - scroll_container.offset_left)
+	var map_draw_width: float = maxf(MAP_CONTENT_WIDTH, scroll_viewport_w)
 	var location_center_by_id: Dictionary[String, Vector2] = {}
 	var location_by_id: Dictionary[String, LocationData] = {}
 	var max_y: float = 0.0
@@ -51,7 +56,7 @@ func populate_locations(locations: Array[LocationData] = Global.get_all_act_loca
 	var current_map_location: MapLocation = null
 	
 	for location_data in visible_locations:
-		var location_center: Vector2 = _get_location_center(location_data, map_bounds)
+		var location_center: Vector2 = _get_location_center(location_data, map_bounds, map_draw_width)
 		location_center_by_id[location_data.location_id] = location_center
 		location_by_id[location_data.location_id] = location_data
 		var location_bottom: float = location_center.y + (MAP_NODE_SIZE.y * 0.5)
@@ -80,8 +85,8 @@ func populate_locations(locations: Array[LocationData] = Global.get_all_act_loca
 	
 	# set the size of the container to make scrolling posible
 	var content_height: float = max_y + MAP_BOTTOM_PADDING
-	location_container.custom_minimum_size = Vector2(MAP_CONTENT_WIDTH, content_height)
-	location_container.size = Vector2(MAP_CONTENT_WIDTH, content_height)
+	location_container.custom_minimum_size = Vector2(map_draw_width, content_height)
+	location_container.size = Vector2(map_draw_width, content_height)
 	
 	# wait a frame to ensure container is properly resized
 	await Global.get_tree().process_frame
@@ -97,7 +102,7 @@ func clear_locations() -> void:
 	for child in location_container.get_children():
 		child.queue_free()
 	var route_connections: Array[MapRouteConnection] = []
-	location_container.set_route_data(route_connections, "", [], [])
+	location_container.set_route_data(route_connections, "", [] as Array[String], [] as Array[String])
 
 func _get_visible_locations(locations: Array[LocationData]) -> Array[LocationData]:
 	var visible_locations: Array[LocationData] = []
@@ -133,19 +138,19 @@ func _get_map_bounds(locations: Array[LocationData]) -> Dictionary[String, float
 		"max_floor_index": max_floor_index,
 	}
 
-func _get_location_center(location_data: LocationData, map_bounds: Dictionary[String, float]) -> Vector2:
+func _get_location_center(location_data: LocationData, map_bounds: Dictionary[String, float], map_width: float) -> Vector2:
 	var min_lane_index: float = map_bounds.get("min_lane_index", 0.0)
 	var max_lane_index: float = map_bounds.get("max_lane_index", 0.0)
 	var max_floor_index: float = map_bounds.get("max_floor_index", 0.0)
 	var lane_count: float = max_lane_index - min_lane_index
 	if lane_count < 1.0:
 		lane_count = 1.0
-	var lane_width: float = (MAP_CONTENT_WIDTH - (MAP_SIDE_PADDING * 2.0)) / lane_count
+	var lane_width: float = (map_width - (MAP_SIDE_PADDING * 2.0)) / lane_count
 	var x: float = MAP_SIDE_PADDING + ((location_data.location_index.x - min_lane_index) * lane_width)
 	var y: float = MAP_TOP_PADDING + ((max_floor_index - location_data.location_index.y) * MAP_FLOOR_SPACING)
 	
 	if location_data.location_type == LocationData.LOCATION_TYPES.BOSS:
-		x = MAP_CONTENT_WIDTH * 0.5
+		x = map_width * 0.5
 	
 	return Vector2(x, y)
 
@@ -180,8 +185,8 @@ func _get_visited_location_ids(locations: Array[LocationData]) -> Array[String]:
 	return visited_location_ids
 
 func show_map():
-	populate_locations()
 	visible = true
+	populate_locations()
 
 func hide_map():
 	visible = false

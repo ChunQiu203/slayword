@@ -6,6 +6,25 @@
 extends BaseAsyncAction
 class_name ActionBasePickCards
 
+const ZH_CARD_PICK_TEXT := {
+	"Choose {0} card(s). {1} cards selected": "选择 {0} 张牌。已选择 {1} 张",
+	"Choose a card to make top deck": "选择一张牌置于抽牌堆顶",
+	"Choose up to {0} card(s) to banish. {1} cards selected": "选择至多 {0} 张牌消耗。已选择 {1} 张",
+	"Choose {0} card(s) to add to draw. {1} cards selected": "选择 {0} 张牌加入抽牌堆。已选择 {1} 张",
+	"Choose {0} card(s) to play. {1} cards selected": "选择 {0} 张牌打出。已选择 {1} 张",
+	"Choose {0} card(s) to add to hand. {1} cards selected": "选择 {0} 张牌加入手牌。已选择 {1} 张",
+	"Choose up to {0} card(s) to discard. {1} cards selected": "选择至多 {0} 张牌丢弃。已选择 {1} 张",
+	"Choose {3} attacks to discard. {1} cards selected": "选择 {3} 张攻击牌丢弃。已选择 {1} 张",
+	"Select A Red Card": "选择一张红色牌",
+	"Select An Attack Card": "选择一张攻击牌",
+	"Select A Card": "选择一张牌",
+	"Choose a card to upgrade.": "选择一张牌升级。",
+	"Choose {0} card(s) to upgrade. {1} cards selected": "选择 {0} 张牌升级。已选择 {1} 张",
+	"Choose up to {0} card(s) to upgrade. {1} cards selected": "选择至多 {0} 张牌升级。已选择 {1} 张",
+	"Choose {0} card(s) to retain. {1} cards selected": "选择 {0} 张牌保留。已选择 {1} 张",
+	"Choose {0} card(s) to remove. {1} cards selected": "选择 {0} 张牌移除。已选择 {1} 张",
+}
+
 ## The final cards picked automatically or by the player. Child actions of this will typically use
 ## this value.
 var picked_cards: Array[CardData] = []
@@ -54,6 +73,8 @@ func get_card_pick_text() -> String:
 	var pickable_cards_max_amount: int = get_pickable_cards_max_amount()
 	
 	var card_pick_text: String = get_action_value("card_pick_text", "Choose {0} card(s). {1} cards selected")
+	if I18N.current_locale == "zh_CN":
+		card_pick_text = ZH_CARD_PICK_TEXT.get(card_pick_text, card_pick_text)
 	var returned_text: String = card_pick_text.format([max_card_amount, picked_card_amount, remaining_card_amount, pickable_cards_max_amount])
 	return returned_text
 

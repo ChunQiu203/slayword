@@ -2,15 +2,20 @@
 extends Control
 
 @onready var rest_action_container: GridContainer = $ScrollContainer/MarginContainer/RestActionContainer
-@onready var continue_button: Button = $ContinueButton
+@onready var continue_button: TextureButton = $ContinueButton
 
 @onready var map = $%Map
 
 func _ready():
+	I18N.locale_changed.connect(_on_locale_changed)
 	Signals.combat_started.connect(_on_combat_started)
 
 	Signals.map_location_selected.connect(_on_map_location_selected)
 	continue_button.button_up.connect(_on_continue_button_up)
+
+func _on_locale_changed(_locale: String) -> void:
+	for rest_action_button: RestActionButton in rest_action_container.get_children():
+		rest_action_button.refresh_localized_text()
 
 func _on_map_location_selected(_location_data: LocationData):
 	if _location_data.location_type == LocationData.LOCATION_TYPES.REST_SITE:

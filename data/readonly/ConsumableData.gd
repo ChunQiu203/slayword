@@ -4,6 +4,7 @@ class_name ConsumableData
 
 @export var consumable_name: String = ""	# how this appears in tooltips
 @export var consumable_description: String = ""	# how this appears in tooltips
+
 @export var consumable_texture_path: String = "external/sprites/consumables/consumable_heal.svg"	# display texture path for the consumable
 
 @export var consumable_requires_target: bool = false	# if the consumable requires clicking on an enemy

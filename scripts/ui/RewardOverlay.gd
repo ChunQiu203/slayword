@@ -4,7 +4,6 @@ extends Control
 @onready var reward_container: VBoxContainer = $RewardContainer
 @onready var continue_button: Button = $ContinueButton
 @onready var reward_title_label: Label = $RewardTitleLabel
-
 @onready var map = $%Map
 
 # reward values; These are sorted into mutually exclusive groups
@@ -37,6 +36,8 @@ func _ready():
 
 func _on_locale_changed(_locale: String) -> void:
 	_apply_localized_text()
+	for reward_button: BaseRewardButton in reward_container.get_children():
+		reward_button.refresh_localized_text()
 
 func _apply_localized_text() -> void:
 	reward_title_label.text = I18N.tr_key("overlay.rewards")
@@ -219,6 +220,7 @@ func _on_continue_button_up():
 			ActionGenerator.generate_next_act()
 	
 	if not Global.is_end_of_run():
+		visible = false
 		map.show_map()
 	else:
 		visible = false

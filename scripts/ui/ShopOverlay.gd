@@ -5,11 +5,13 @@ extends Control
 @onready var artifact_container: VBoxContainer = $ArtifactContainer
 @onready var consumable_container: VBoxContainer = $ConsumableContainer
 
-@onready var continue_button: Button = $ContinueButton
+@onready var continue_button: TextureButton = $ContinueButton
 
 @onready var map = $%Map
 
 func _ready():
+	I18N.locale_changed.connect(_on_locale_changed)
+
 	Signals.combat_started.connect(_on_combat_started)
 	
 	Signals.map_location_selected.connect(_on_map_location_selected)
@@ -20,6 +22,10 @@ func _ready():
 	Signals.consumable_purchased.connect(_on_consumable_purchased)
 	
 	continue_button.button_up.connect(_on_continue_button_up)
+
+func _on_locale_changed(_locale: String) -> void:
+	if visible:
+		populate_shop()
 
 func populate_shop() -> void:
 	clear_shop()

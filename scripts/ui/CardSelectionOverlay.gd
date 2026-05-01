@@ -13,6 +13,9 @@ var card_mode: int = CARD_MODES.VIEW	# determines to view or select the card whe
 
 
 func _ready():
+	_apply_localized_text()
+	I18N.locale_changed.connect(_on_locale_changed)
+
 	Signals.card_pick_requested.connect(_on_card_pick_requested)
 	Signals.card_pick_confirmed.connect(_on_card_pick_confirmed)
 	
@@ -21,6 +24,17 @@ func _ready():
 	
 	Signals.run_started.connect(_on_run_started)
 	Signals.run_ended.connect(_on_run_ended)
+
+func _on_locale_changed(_locale: String) -> void:
+	_apply_localized_text()
+
+func _apply_localized_text() -> void:
+	back_button.text = I18N.tr_key("menu.back")
+	confirm_button.text = I18N.tr_key("combat.confirm")
+	if current_card_pick_action != null:
+		card_picking_label.text = current_card_pick_action.get_card_pick_text()
+	else:
+		card_picking_label.text = I18N.tr_key("combat.pick_cards")
 
 func _on_card_pick_requested(card_pick_action: ActionBasePickCards):
 	if card_pick_action != null:

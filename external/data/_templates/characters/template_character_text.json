@@ -4,8 +4,10 @@
 		"object_id": "character_example_id",
 		"character_name": "Example Character",
 		"character_description": "A short description shown on the character select screen.",
+
 		"character_texture_path": "external/sprites/characters/character_green/character_green.svg",
 		"character_icon_texture_path": "external/sprites/characters/character_green/character_green_icon.svg",
+
 		"character_background_texture_path": "",
 		"character_text_energy_texture_path": "external/sprites/characters/character_green/character_green_text_energy.png"
 	}

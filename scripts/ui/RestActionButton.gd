@@ -11,8 +11,12 @@ func _ready():
 
 func init(_rest_action_object_id: String) -> void:
 	rest_action_object_id = _rest_action_object_id
+	refresh_localized_text()
+
+func refresh_localized_text() -> void:
 	var rest_action_data: RestActionData = Global.get_rest_action_data(rest_action_object_id)
-	text = I18N.tr_data(rest_action_data.object_id, "rest_action_name", rest_action_data.rest_action_name)
+	if rest_action_data != null:
+		text = I18N.tr_data(rest_action_data.object_id, "rest_action_name", rest_action_data.rest_action_name)
 
 func _on_button_up():
 	rest_action_button_up.emit(self)

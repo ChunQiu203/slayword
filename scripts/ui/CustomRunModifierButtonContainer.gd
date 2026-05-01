@@ -19,6 +19,11 @@ func populate_custom_run_modifiers() -> void:
 			custom_run_modifier_checkbox.toggled.connect(_on_custom_run_modifier_toggled.bind(run_modifier_data))
 			_run_modifier_object_id_to_checkbox[run_modifier_object_id] = custom_run_modifier_checkbox
 
+func refresh_custom_run_modifier_labels() -> void:
+	for checkbox in _run_modifier_object_id_to_checkbox.values():
+		if checkbox.has_method("refresh_localized_text"):
+			checkbox.refresh_localized_text()
+
 func clear_custom_run_modifiers() -> void:
 	_run_modifier_object_id_to_checkbox.clear()
 	selected_custom_run_modififers.clear()

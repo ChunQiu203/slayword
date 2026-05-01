@@ -1,7 +1,10 @@
 extends Control
 
+const TEXTURE_BUTTON_LABEL_NAME := "LocalizedTextLabel"
+
 @onready var title_screen: Control = $%TitleScreen
 
+@onready var title_label: Label = $Label
 @onready var character_name_label = $CharacterNameLabel
 @onready var character_health_label = $CharacterHealthLabel
 @onready var character_money_label = $CharacterMoneyLabel
@@ -16,12 +19,14 @@ extends Control
 @onready var increase_difficulty_button = $DifficultySelect/IncreaseDifficultyButton
 
 @onready var custom_run_modifier_button_container = $CustomRunModifierButtonContainer
+@onready var custom_modifiers_label: Label = $Label4
 
 @onready var character_button_container = $CharacterButtonContainer
 
-@onready var start_run_button: Button = $StartRunButton
+@onready var start_run_button: TextureButton = $StartRunButton
+@onready var seed_label: Label = $Label3
 @onready var seed_input: LineEdit = $SeedInput
-@onready var back_button: Button = $BackButton
+@onready var back_button: TextureButton = $BackButton
 
 var selected_character_object_id: String = ""
 var selected_difficulty_level: int = 0
@@ -29,15 +34,17 @@ var selected_difficulty_level: int = 0
 func _ready():
 	start_run_button.button_up.connect(_on_start_run_button_up)
 	back_button.button_up.connect(_on_back_button_up)
-	
+
 	decrease_difficulty_button.button_up.connect(_on_decrease_difficulty_button)
 	increase_difficulty_button.button_up.connect(_on_increase_difficulty_button)
-	
+
 	seed_input.text_changed.connect(_on_seed_input_text_changed)
-	
+
 	Signals.character_selected.connect(_on_character_selected)
 	Signals.run_ended.connect(_on_run_ended)
 	I18N.locale_changed.connect(_on_locale_changed)
+
+	_apply_localized_text()
 
 func _on_seed_input_text_changed(new_text: String):
 	# validate the input of the line edit
@@ -59,7 +66,7 @@ func _on_increase_difficulty_button():
 func populate_new_run_menu() -> void:
 	character_button_container.populate_character_buttons()
 	custom_run_modifier_button_container.populate_custom_run_modifiers()
-	difficulty_label.text = I18N.tr_key("menu.difficulty", [selected_difficulty_level])
+	_apply_localized_text()
 
 func populate_character_info(character_object_id: String) -> void:
 	var character_data: CharacterData = Global.get_character_data(character_object_id)
@@ -92,6 +99,49 @@ func _on_run_ended():
 	populate_new_run_menu()
 
 func _on_locale_changed(_locale: String) -> void:
-	difficulty_label.text = I18N.tr_key("menu.difficulty", [selected_difficulty_level])
+	_apply_localized_text()
+	custom_run_modifier_button_container.refresh_custom_run_modifier_labels()
 	if selected_character_object_id != "":
 		populate_character_info(selected_character_object_id)
+
+func _apply_localized_text() -> void:
+	title_label.text = I18N.tr_key("menu.new_run")
+	seed_label.text = I18N.tr_key("menu.seed")
+	custom_modifiers_label.text = I18N.tr_key("menu.custom_modifiers")
+	difficulty_label.text = I18N.tr_key("menu.difficulty", [selected_difficulty_level])
+	_set_texture_button_label(start_run_button, I18N.tr_key("menu.start_run"))
+	_set_texture_button_label(back_button, I18N.tr_key("menu.back"))
+
+func _set_texture_button_label(button: TextureButton, localized_text: String) -> void:
+	var label := button.get_node_or_null(TEXTURE_BUTTON_LABEL_NAME) as Label
+	if label == null:
+		label = Label.new()
+		label.name = TEXTURE_BUTTON_LABEL_NAME
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.clip_text = true
+		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_WORD_ELLIPSIS
+		button.add_child(label)
+		label.set_anchors_preset(Control.PRESET_FULL_RECT)
+		label.offset_left = 0.0
+		label.offset_top = 0.0
+		label.offset_right = 0.0
+		label.offset_bottom = 0.0
+
+	label.text = localized_text
+	_resize_texture_button_label(button, label)
+	call_deferred("_resize_texture_button_label", button, label)
+	label.add_theme_font_size_override("font_size", 21)
+	label.add_theme_color_override("font_color", Color(0.96, 0.93, 0.82, 1.0))
+	label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.0))
+	label.add_theme_constant_override("shadow_offset_x", 0)
+	label.add_theme_constant_override("shadow_offset_y", 0)
+	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.65))
+	label.add_theme_constant_override("outline_size", 1)
+
+func _resize_texture_button_label(button: TextureButton, label: Label) -> void:
+	if not is_instance_valid(button) or not is_instance_valid(label):
+		return
+	label.position = Vector2.ZERO
+	label.size = button.size

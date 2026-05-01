@@ -25,16 +25,15 @@ extends Control
 @onready var player: Player = %Player
 @onready var hand = %Hand
 @onready var chest: TextureButton = $Chest
+@onready var chest_label: Label = $Chest/Label
 @onready var shop: TextureButton = $Shop
+@onready var shop_label: Label = $Shop/Label
 
 @onready var background_button: TextureButton = %BackgroundButton
 
 @onready var end_turn_button: Button = %EndTurnButton
 var end_turn_object: CombatEndTurn = null
 
-const PAUSE_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_pause_icon.svg"
-const MAP_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_map_icon.svg"
-const DECK_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_deck_icon.svg"
 const CHEST_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_chest_icon.svg"
 const SHOP_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_shop_icon.svg"
 const ENERGY_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_energy_orb.svg"
@@ -44,6 +43,8 @@ const EXHAUST_PILE_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_exhaust_p
 
 func _ready():
 	_setup_external_ui_textures()
+	_apply_localized_text()
+	I18N.locale_changed.connect(_on_locale_changed)
 
 	Signals.player_money_changed.connect(_on_player_money_changed)
 	Signals.player_health_changed.connect(_on_player_health_changed)
@@ -88,15 +89,25 @@ func _ready():
 	Signals.map_location_selected.connect(_on_map_location_selected)
 
 func _setup_external_ui_textures() -> void:
-	pause_button.texture_normal = FileLoader.load_texture(PAUSE_ICON_TEXTURE_PATH)
-	map_button.texture_normal = FileLoader.load_texture(MAP_ICON_TEXTURE_PATH)
-	deck_button.texture_normal = FileLoader.load_texture(DECK_ICON_TEXTURE_PATH)
+	# TopBar (PauseButton, MapButton, DeckButton): keep textures from the scene; do not override here.
 	chest.texture_normal = FileLoader.load_texture(CHEST_ICON_TEXTURE_PATH)
 	shop.texture_normal = FileLoader.load_texture(SHOP_ICON_TEXTURE_PATH)
 	energy.texture_normal = FileLoader.load_texture(ENERGY_ICON_TEXTURE_PATH)
 	draw_pile_button.texture_normal = FileLoader.load_texture(DRAW_PILE_ICON_TEXTURE_PATH)
 	discard_pile_button.texture_normal = FileLoader.load_texture(DISCARD_PILE_ICON_TEXTURE_PATH)
 	exhaust_pile_button.texture_normal = FileLoader.load_texture(EXHAUST_PILE_ICON_TEXTURE_PATH)
+
+func _on_locale_changed(_locale: String) -> void:
+	_apply_localized_text()
+
+func _apply_localized_text() -> void:
+	energy.tooltip_text = I18N.tr_key("combat.energy")
+	draw_pile_button.tooltip_text = I18N.tr_key("combat.draw_pile")
+	discard_pile_button.tooltip_text = I18N.tr_key("combat.discard_pile")
+	exhaust_pile_button.tooltip_text = I18N.tr_key("combat.exhaust_pile")
+	chest_label.text = I18N.tr_key("combat.chest")
+	shop_label.text = I18N.tr_key("combat.shop")
+	end_turn_button.text = I18N.tr_key("combat.end_turn")
 
 func _on_map_location_selected(location_data: LocationData):
 	# determine what to do when the player visits a new location

@@ -7,7 +7,9 @@
 			"dialogue_state_example_initial": {
 				"object_id": "dialogue_state_example_initial",
 				"dialogue_state_prompt_bbcode": "You find a strange altar.",
+
 				"dialogue_state_dialogue_texture_path": "external/sprites/events/event_pick_something.svg",
+
 				"dialogue_state_dialogue_option_object_ids": [
 					"dialogue_option_example_1",
 					"dialogue_option_example_2"

@@ -7,6 +7,9 @@ extends Control
 var current_card_pick_action: ActionBasePickCards = null	# an action currently requesting cards from the player to select. If null clicking cards plays them
 
 func _ready():
+	_apply_localized_text()
+	I18N.locale_changed.connect(_on_locale_changed)
+
 	Signals.card_pick_requested.connect(_on_card_pick_requested)
 	Signals.card_pick_confirmed.connect(_on_card_pick_confirmed)
 	
@@ -14,6 +17,12 @@ func _ready():
 	Signals.run_ended.connect(_on_run_ended)
 	
 	skip_button.button_up.connect(_on_skip_button_up)
+
+func _on_locale_changed(_locale: String) -> void:
+	_apply_localized_text()
+
+func _apply_localized_text() -> void:
+	skip_button.text = I18N.tr_key("overlay.skip")
 
 func _on_card_pick_requested(card_pick_action: ActionBasePickCards):
 	if card_pick_action != null:

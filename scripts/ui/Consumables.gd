@@ -14,6 +14,9 @@ var selected_consumable_slot_index: int = NO_CONSUMABLE	# the currently selected
 var consumable_target_requested: bool = false
 
 func _ready():
+	_apply_localized_text()
+	I18N.locale_changed.connect(_on_locale_changed)
+
 	background_button.button_up.connect(_on_background_button_up)
 	use_consumable_button.button_up.connect(_on_use_consumable_button_up)
 	discard_consumable_button.button_up.connect(_on_discard_consumable_button_up)
@@ -30,6 +33,14 @@ func _ready():
 	Signals.combat_ended.connect(_on_combat_ended)
 	Signals.run_started.connect(_on_run_started)
 	Signals.run_ended.connect(_on_run_ended)
+
+func _on_locale_changed(_locale: String) -> void:
+	_apply_localized_text()
+
+func _apply_localized_text() -> void:
+	use_consumable_button.text = I18N.tr_key("combat.use")
+	discard_consumable_button.text = I18N.tr_key("combat.discard")
+	select_target_label.text = I18N.tr_key("combat.select_target")
 
 func populate_consumable_buttons():
 	clear_consumable_buttons()
