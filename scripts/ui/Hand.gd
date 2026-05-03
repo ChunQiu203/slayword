@@ -218,6 +218,8 @@ func _on_card_selected(card: Card):
 			current_selected_card = card
 			_prompt_target(card)
 		else:
+			if await VocabStudy.gate_before_play():
+				return
 			# generate the card play request and enqueue it
 			var card_play_request: CardPlayRequest = CardPlayRequest.new()
 			card_play_request.card_data = card.card_data
@@ -251,6 +253,9 @@ func _on_background_button_up():
 func _on_enemy_clicked(enemy: Enemy):
 	if current_selected_card != null:
 		_unprompt_target()
+		if await VocabStudy.gate_before_play():
+			_prompt_target(current_selected_card)
+			return
 		
 		# generate the card play request and enqueue it
 		var card_play_request: CardPlayRequest = CardPlayRequest.new()

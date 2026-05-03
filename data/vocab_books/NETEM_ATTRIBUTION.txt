@@ -1,0 +1,15 @@
+book_netem_full.json 数据来源
+============================
+
+- 项目：exam-data / NETEMVocabulary  
+  https://github.com/exam-data/NETEMVocabulary  
+
+- 许可证（数据）：Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International  
+  https://creativecommons.org/licenses/by-nc-sa/4.0/  
+
+- 使用要求（摘要，以许可证全文为准）：  
+  - 署名（BY）  
+  - 非商业（NC）——若作品或比赛后续涉及商业用途，请自行评估是否仍适用本数据  
+  - 相同方式共享（SA）——衍生数据的分发方式需符合 SA 条款  
+
+- 本地生成：`tools/convert_netem_to_book.py` 由 `netem_full_list.json` 转换为本游戏词书 JSON（题干为释义、答案为英文词形及「其他拼写」列）。

@@ -1,0 +1,55 @@
+{
+	"patch_data": {},
+	"properties": {
+		"enemy_actions_on_death": [],
+		"enemy_attack_states": {
+			"1": {
+				"attack_damage": 6,
+				"block": 6,
+				"custom_actions": [],
+				"next_attack_weights": {
+					"1": 1,
+					"2": 1
+				},
+				"number_of_attacks": 1
+			},
+			"2": {
+				"attack_damage": 4,
+				"block": 8,
+				"custom_actions": [],
+				"next_attack_weights": {
+					"1": 1,
+					"2": 1
+				},
+				"number_of_attacks": 2
+			},
+			"initial": {
+				"attack_damage": 0,
+				"block": 0,
+				"custom_actions": [],
+				"next_attack_weights": {
+					"1": 1,
+					"2": 1
+				},
+				"number_of_attacks": 0
+			}
+		},
+		"enemy_block": 0,
+		"enemy_difficulty_to_enemy_modfiers": {
+			"2": {
+				"enemy_health": 58,
+				"enemy_health_max": 58
+			}
+		},
+		"enemy_health": 50,
+		"enemy_health_max": 50,
+		"enemy_initial_status_effects": {},
+		"enemy_is_minion": false,
+		"enemy_name": "装订灵",
+		"enemy_object_id": "",
+		"enemy_texture_path": "external/sprites/enemies/enemy_red_medium.svg",
+		"enemy_type": 1,
+		"object_id": "enemy_archivist_binder",
+		"object_uid": ""
+	}
+}

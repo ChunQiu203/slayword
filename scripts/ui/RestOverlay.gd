@@ -2,7 +2,7 @@
 extends Control
 
 @onready var rest_action_container: GridContainer = $ScrollContainer/MarginContainer/RestActionContainer
-@onready var continue_button: TextureButton = $ContinueButton
+@onready var continue_button: Button = $ContinueButton
 
 @onready var map = $%Map
 
@@ -11,7 +11,15 @@ func _ready():
 	Signals.combat_started.connect(_on_combat_started)
 
 	Signals.map_location_selected.connect(_on_map_location_selected)
-	continue_button.button_up.connect(_on_continue_button_up)
+	for legacy in continue_button.get_children():
+		if legacy.name == "LocalizedTextLabel":
+			legacy.queue_free()
+	continue_button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	continue_button.add_theme_font_size_override("font_size", 20)
+	continue_button.add_theme_color_override("font_color", Color(0.96, 0.93, 0.82, 1.0))
+	continue_button.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.65))
+	continue_button.add_theme_constant_override("outline_size", 1)
+	continue_button.pressed.connect(_on_continue_button_up)
 
 func _on_locale_changed(_locale: String) -> void:
 	for rest_action_button: RestActionButton in rest_action_container.get_children():

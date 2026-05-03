@@ -2,11 +2,19 @@
 extends Control
 
 @onready var title_screen: Control = $%TitleScreen
-@onready var back_button: TextureButton = $BackButton
+@onready var back_button: Button = $BackButton
 @onready var codex_card_container: GridContainer = $ScrollContainer/MarginContainer/CodexCardContainer
 
 func _ready():
-	back_button.button_up.connect(_on_back_button_up)
+	for legacy in back_button.get_children():
+		if legacy.name == "LocalizedTextLabel":
+			legacy.queue_free()
+	back_button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	back_button.add_theme_font_size_override("font_size", 20)
+	back_button.add_theme_color_override("font_color", Color(0.96, 0.93, 0.82, 1.0))
+	back_button.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.65))
+	back_button.add_theme_constant_override("outline_size", 1)
+	back_button.pressed.connect(_on_back_button_up)
 
 func populate_codex_menu() -> void:
 	populate_codex_card_container()

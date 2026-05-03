@@ -1,0 +1,18 @@
+{
+	"patch_data": {},
+	"properties": {
+		"consumable_actions": [
+			{
+				"res://scripts/actions/ActionHealPercent.gd": {
+					"percentage_heal_amount": 0.12
+				}
+			}
+		],
+		"consumable_description": "回复最大生命值的 12%。",
+		"consumable_name": "镇静剂",
+		"consumable_rarity": 0,
+		"consumable_requires_target": false,
+		"consumable_texture_path": "external/sprites/consumables/consumable_heal.svg",
+		"object_id": "consumable_archivist_calm"
+	}
+}

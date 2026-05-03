@@ -1,0 +1,36 @@
+{
+	"words": [
+		{
+			"id": "w_apple",
+			"study_headword": "apple",
+			"study_meaning": "苹果",
+			"study_examples": [
+				{ "sentence": "She ate an apple for lunch.", "gloss": "水果" },
+				"The Big Apple is a nickname for New York City."
+			],
+			"prompt": "中文：苹果\n请输入英文：",
+			"answers": ["apple"]
+		},
+		{
+			"id": "w_book",
+			"study_headword": "book",
+			"study_meaning": "书",
+			"prompt": "中文：书\n请输入英文：",
+			"answers": ["book"]
+		},
+		{
+			"id": "w_memory",
+			"study_headword": "memory",
+			"study_meaning": "记忆",
+			"prompt": "中文：记忆\n请输入英文：",
+			"answers": ["memory"]
+		},
+		{
+			"id": "w_review",
+			"study_headword": "review",
+			"study_meaning": "复习",
+			"prompt": "中文：复习\n请输入英文：",
+			"answers": ["review"]
+		}
+	]
+}

@@ -2126,6 +2126,10 @@ func add_test_player_data() -> void:
 	
 	register_rod(player_orange)
 
+	var player_archivist: PlayerData = PlayerData.new("player_archivist")
+	player_archivist.player_character_object_id = "character_archivist"
+	register_rod(player_archivist)
+
 func get_player_data_from_prototype(player_id: String) -> PlayerData:
 	var _player_data: PlayerData = _id_to_player_data[player_id]
 	return _player_data.get_prototype(true)

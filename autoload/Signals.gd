@@ -76,6 +76,9 @@ signal card_purchased(card_data: CardData)
 signal game_paused
 signal game_unpaused
 
+## 词书例句 API 批量生成进度（done/total 为已处理词条上限计数，detail 为当前词条 id 或说明）
+signal vocab_example_api_progress(done: int, total: int, detail: String)
+
 #region Run
 signal character_selected(character_object_id: String)
 signal run_started # player has started or continued a run

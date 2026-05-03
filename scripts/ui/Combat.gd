@@ -24,6 +24,8 @@ extends Control
 
 @onready var player: Player = %Player
 @onready var hand = %Hand
+var _word_review_overlay: WordReviewOverlay
+
 @onready var chest: TextureButton = $Chest
 @onready var chest_label: Label = $Chest/Label
 @onready var shop: TextureButton = $Shop
@@ -42,6 +44,11 @@ const DISCARD_PILE_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_discard_p
 const EXHAUST_PILE_ICON_TEXTURE_PATH: String = "external/sprites/ui/ui_exhaust_pile.svg"
 
 func _ready():
+	_word_review_overlay = WordReviewOverlay.new()
+	_word_review_overlay.name = "WordReviewOverlay"
+	add_child(_word_review_overlay)
+	VocabStudy.register_word_overlay(_word_review_overlay)
+
 	_setup_external_ui_textures()
 	_apply_localized_text()
 	I18N.locale_changed.connect(_on_locale_changed)

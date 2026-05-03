@@ -1,0 +1,20 @@
+{
+	"patch_data": {},
+	"properties": {
+		"consumable_actions": [
+			{
+				"res://scripts/actions/ActionDirectDamage.gd": {
+					"bypass_block": false,
+					"damage": 8,
+					"target_override": 0
+				}
+			}
+		],
+		"consumable_description": "对一名敌人造成 8 点伤害。",
+		"consumable_name": "墨水瓶",
+		"consumable_rarity": 0,
+		"consumable_requires_target": true,
+		"consumable_texture_path": "external/sprites/consumables/consumable_damaging.svg",
+		"object_id": "consumable_archivist_ink"
+	}
+}

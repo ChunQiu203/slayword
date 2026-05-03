@@ -1,0 +1,38 @@
+{
+	"book_id": "demo_postgraduate",
+	"book_name": "考研英语示例（小样本）",
+	"words": [
+		{
+			"id": "abandon",
+			"study_headword": "abandon",
+			"study_meaning": "放弃；抛弃；遗弃",
+			"study_examples": [
+				{
+					"sentence": "They had to abandon the car and walk the rest of the way.",
+					"gloss": "放弃（计划/物品）"
+				},
+				{
+					"sentence": "The baby was abandoned on the hospital steps.",
+					"gloss": "遗弃"
+				},
+				"He felt abandoned by his friends when nobody showed up."
+			],
+			"prompt": "[center]英文：abandon\n请写出常见中文释义（填一词即可）[/center]",
+			"answers": ["放弃", "抛弃", "遗弃"]
+		},
+		{
+			"id": "hypothesis",
+			"study_headword": "hypothesis",
+			"study_meaning": "假设；假说",
+			"prompt": "[center]英文：hypothesis\n请写出常见中文释义：[/center]",
+			"answers": ["假设", "假说"]
+		},
+		{
+			"id": "paradigm",
+			"study_headword": "paradigm",
+			"study_meaning": "范式；典范；模型",
+			"prompt": "[center]英文：paradigm\n请写出常见中文释义：[/center]",
+			"answers": ["范式", "典范", "模型"]
+		}
+	]
+}

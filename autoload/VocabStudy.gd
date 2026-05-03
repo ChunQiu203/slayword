@@ -1,0 +1,1289 @@
+extends Node
+## 全局背单词：多词书合并 + 简易间隔复习 + 出牌前拼写门控。
+## 词书来源：builtin_default（res://data/vocab_words.json）、res://data/vocab_books/*.json、user://vocab_books/*.json
+## 启用列表：UserSettingsData.settings_vocab_enabled_book_ids
+## 导入：import_book_from_json_text / import_book_from_user_absolute_path
+## API 例句缓存：user://vocab_example_cache.json（每日按顺序预生成 + 出牌按需写入）；profile 仍可有 profile_vocab_example_overrides 覆盖。
+
+const LEGACY_VOCAB_PATH := "res://data/vocab_words.json"
+const PACKAGED_BOOKS_DIR := "res://data/vocab_books/"
+const USER_BOOKS_DIR := "user://vocab_books/"
+const VOCAB_EXAMPLE_CACHE_PATH := "user://vocab_example_cache.json"
+const BUILTIN_DEFAULT_ID := "builtin_default"
+## 遗物「初稿免责」：每场战斗第一次 **答错 / 点「看答案」**（非跳过）时，不记 SRS 失败且仍允许本张牌打出。
+const ARTIFACT_ARCHIVIST_FIRST_DRAFT_ID := "artifact_archivist_first_draft"
+## 出牌前复习题型（与 UserSettingsData.settings_vocab_combat_review_mode 一致）
+const VOCAB_REVIEW_MODE_SPELL := "spell"
+const VOCAB_REVIEW_MODE_MEANING := "meaning"
+const VOCAB_REVIEW_MODE_MC4 := "mc4"
+
+const OPENAI_EXAMPLE_SYSTEM_BASE := """你是英语学习词书编辑。用户会给出词条的英文 headword、中文释义、以及游戏里的默写题干说明。
+请生成 2～4 条英文例句，尽量覆盖不同义项或用法；每条配一行简短中文 gloss 标明该句侧重的义（可与释义栏对应）。
+每条必须另附 sentence_zh：对该英文例句的完整、自然的中文翻译（整句译意，不要只重复 gloss；不要留空字符串）。
+例句里必须自然包含该英文单词（可用适当词形变化）。不要编造不存在的专有名词剧情。
+禁止在 sentence、gloss、sentence_zh 的文本里写入任何 BBCode（如 [center]、[/color]）或 HTML 标签。
+只输出 JSON 对象，格式严格如下（不要 markdown 代码围栏）：
+{"examples":[{"sentence":"英文例句","gloss":"中文义项提示","sentence_zh":"该句完整中文翻译"},...]}
+"""
+
+const PRESET_DOMAIN_ZH: Dictionary = {
+	"film_tv": "影视",
+	"anime": "动漫 / 二次元",
+	"exam_style": "考研 / 真题风",
+	"daily": "日常口语",
+	"news": "新闻 / 评论",
+	"game_scifi": "游戏 / 科幻",
+}
+
+@export var cold_review_chance: float = 0.35
+
+var _words: Array[Dictionary] = []
+var _overlay: WordReviewOverlay = null
+var _combat_first_draft_forgiveness_used: bool = false
+## book_id -> 绝对路径（res:// 或 user://）
+var _book_id_to_path: Dictionary[String, String] = {}
+## 开局「每日顺序预生成」与出牌「按需例句」可能同时进行；共用一个 HTTPRequest 时第二发会 ERR_BUSY，例句静默失败。
+var _example_http_batch: HTTPRequest
+var _example_http_ondemand: HTTPRequest
+var _example_fetch_in_progress: Dictionary[String, bool] = {}
+## 模型仍不给 sentence_zh 时本局标记放弃，避免每张牌都重复打 API
+var _vocab_example_zh_gave_up_ids: Dictionary = {}
+var _example_cache_loaded: bool = false
+var _example_cache_entries: Dictionary = {}
+var _sequential_batch_busy: bool = false
+## 项目根 res://.env 或 DOTENV_PATH（与 tools/generate_vocab_examples.py 一致）；Godot 不会自动把 .env 注入 OS 环境变量。
+var _dotenv_parsed: bool = false
+var _dotenv_values: Dictionary = {}
+
+
+func _ensure_project_dotenv_loaded() -> void:
+	if _dotenv_parsed:
+		return
+	_dotenv_parsed = true
+	# 先读项目根 .env，再读 DOTENV_PATH（后者可覆盖同名键）。不要「读完第一个就 break」，否则系统里误设的 DOTENV_PATH 会挡住仓库里的 .env。
+	var paths: Array[String] = []
+	var res_env := "res://.env"
+	paths.append(res_env)
+	var abs_env := ProjectSettings.globalize_path(res_env).strip_edges()
+	if not abs_env.is_empty() and abs_env != res_env:
+		paths.append(abs_env)
+	var from_os := OS.get_environment("DOTENV_PATH").strip_edges()
+	if not from_os.is_empty():
+		paths.append(from_os)
+	var seen: Dictionary = {}
+	var loaded_any: bool = false
+	for p: String in paths:
+		if p.is_empty() or seen.get(p, false):
+			continue
+		seen[p] = true
+		if not FileAccess.file_exists(p):
+			continue
+		var f := FileAccess.open(p, FileAccess.READ)
+		if f == null:
+			continue
+		loaded_any = true
+		while not f.eof_reached():
+			_apply_dotenv_line(str(f.get_line()))
+		f.close()
+	if loaded_any and str(_dotenv_values.get("OPENAI_API_KEY", "")).strip_edges().is_empty():
+		push_warning(
+			"VocabStudy: 已读取 .env 文件但未得到 OPENAI_API_KEY；请检查是否为 KEY=value 单行、无多余引号未闭合，或 Key 写在其它 env 文件而未被上述路径覆盖。"
+		)
+
+
+func _apply_dotenv_line(line_raw: String) -> void:
+	var line := line_raw.strip_edges()
+	if line.is_empty() or line.begins_with("#"):
+		return
+	var eq := line.find("=")
+	if eq <= 0:
+		return
+	var key := line.substr(0, eq).strip_edges()
+	while key.begins_with("\ufeff"):
+		key = key.substr(1)
+	if key.is_empty():
+		return
+	var val := line.substr(eq + 1).strip_edges()
+	while val.begins_with("\ufeff"):
+		val = val.substr(1)
+	if val.length() >= 2:
+		var q0 := val[0]
+		var q1 := val[val.length() - 1]
+		if (q0 == "\"" and q1 == "\"") or (q0 == "'" and q1 == "'"):
+			val = val.substr(1, val.length() - 2).strip_edges()
+	# 多文件合并时：后读文件里「空值」不覆盖先读到的非空值（避免 DOTENV_PATH 里 OPENAI_API_KEY= 抹掉项目 .env 里的 Key）
+	if val.strip_edges().is_empty():
+		var prev: String = str(_dotenv_values.get(key, "")).strip_edges()
+		if not prev.is_empty():
+			return
+	_dotenv_values[key] = val
+
+
+func _ready() -> void:
+	_example_http_batch = HTTPRequest.new()
+	_example_http_batch.timeout = 120
+	add_child(_example_http_batch)
+	_example_http_ondemand = HTTPRequest.new()
+	_example_http_ondemand.timeout = 120
+	add_child(_example_http_ondemand)
+	reload_from_settings()
+	if not Signals.combat_started.is_connected(_on_combat_started_reset_first_draft):
+		Signals.combat_started.connect(_on_combat_started_reset_first_draft)
+	if not Signals.run_started.is_connected(_on_run_started_vocab_example_batch):
+		Signals.run_started.connect(_on_run_started_vocab_example_batch)
+
+func _on_combat_started_reset_first_draft(_event_id: String) -> void:
+	_combat_first_draft_forgiveness_used = false
+
+func _player_has_first_draft_artifact() -> bool:
+	if not Global.is_run:
+		return false
+	return not Global.player_data.get_player_artifacts_with_artifact_id(ARTIFACT_ARCHIVIST_FIRST_DRAFT_ID).is_empty()
+
+func _try_first_draft_forgive_wrong_answer() -> bool:
+	if _combat_first_draft_forgiveness_used:
+		return false
+	if not _player_has_first_draft_artifact():
+		return false
+	_combat_first_draft_forgiveness_used = true
+	return true
+
+func register_word_overlay(overlay: WordReviewOverlay) -> void:
+	_overlay = overlay
+
+func reload_from_settings() -> void:
+	_invalidate_example_cache()
+	_rebuild_book_index()
+	_load_word_list()
+
+
+func _invalidate_example_cache() -> void:
+	_example_cache_loaded = false
+	_example_cache_entries.clear()
+
+
+func _ensure_example_cache_loaded() -> void:
+	if _example_cache_loaded:
+		return
+	_example_cache_loaded = true
+	_example_cache_entries.clear()
+	if not FileAccess.file_exists(VOCAB_EXAMPLE_CACHE_PATH):
+		return
+	var text := FileAccess.get_file_as_string(VOCAB_EXAMPLE_CACHE_PATH)
+	var v: Variant = JSON.parse_string(text)
+	if typeof(v) != TYPE_DICTIONARY:
+		return
+	var root: Dictionary = v as Dictionary
+	var ent: Variant = root.get("entries", null)
+	if typeof(ent) == TYPE_DICTIONARY:
+		_example_cache_entries = (ent as Dictionary).duplicate(true)
+
+
+func _vocab_domain_prefs_signature() -> String:
+	var tags: Array[String] = Global.user_settings_data.settings_vocab_example_domain_tags.duplicate()
+	tags.sort()
+	var custom := Global.user_settings_data.settings_vocab_example_domain_custom.strip_edges()
+	return "|".join(tags) + "||" + custom
+
+
+func _apply_vocab_example_file_cache(w: Dictionary) -> void:
+	_ensure_example_cache_loaded()
+	var wid := str(w.get("id", ""))
+	if wid.is_empty() or not _example_cache_entries.has(wid):
+		return
+	var coerced: Array = _coerce_api_examples(_example_cache_entries[wid])
+	if coerced.is_empty():
+		return
+	w["study_examples"] = coerced
+
+
+func _persist_examples_to_example_cache_file(wid: String, examples: Array) -> void:
+	if wid.is_empty():
+		return
+	_ensure_example_cache_loaded()
+	_example_cache_entries[wid] = examples.duplicate(true)
+	var root := {
+		"version": 1,
+		"entries": _example_cache_entries.duplicate(true),
+		"domain_prefs": _vocab_domain_prefs_signature(),
+	}
+	var f := FileAccess.open(VOCAB_EXAMPLE_CACHE_PATH, FileAccess.WRITE)
+	if f == null:
+		push_warning("VocabStudy: could not write example cache: ", FileAccess.get_open_error())
+		return
+	f.store_string(JSON.stringify(root, "\t"))
+	f.close()
+
+
+func _try_merge_examples_from_file_cache_into_word(word: Dictionary, wid: String) -> bool:
+	_ensure_example_cache_loaded()
+	if wid.is_empty() or not _example_cache_entries.has(wid):
+		return false
+	var coerced: Array = _coerce_api_examples(_example_cache_entries[wid])
+	if coerced.is_empty():
+		return false
+	word["study_examples"] = coerced.duplicate(true)
+	_patch_word_examples_in_pool(wid, coerced)
+	return true
+
+
+func _on_run_started_vocab_example_batch() -> void:
+	_vocab_example_zh_gave_up_ids.clear()
+	if _sequential_batch_busy:
+		return
+	get_tree().create_timer(0.25).timeout.connect(_on_sequential_example_batch_timer, CONNECT_ONE_SHOT)
+
+
+func _on_sequential_example_batch_timer() -> void:
+	await _run_daily_sequential_example_batch_async()
+
+
+func _run_daily_sequential_example_batch_async() -> void:
+	var n: int = Global.user_settings_data.settings_vocab_daily_ordered_example_words
+	if n <= 0 or _words.is_empty():
+		return
+	if not has_openai_configured():
+		return
+	var day: int = _vocab_calendar_day_id()
+	if int(Global.profile_data.profile_vocab_seq_example_last_day) == day:
+		return
+	_sequential_batch_busy = true
+	_ensure_example_cache_loaded()
+	var start: int = int(Global.profile_data.profile_vocab_seq_example_cursor)
+	if _words.size() > 0:
+		start = posmod(start, _words.size())
+	var total: int = mini(n, _words.size())
+	var api_done: int = 0
+	for k in range(total):
+		var idx: int = posmod(start + k, _words.size())
+		var w: Dictionary = _words[idx]
+		if _word_dict_has_nonempty_examples(w) and not _word_study_examples_need_zh_refresh(w):
+			continue
+		var wid: String = str(w.get("id", ""))
+		if wid.is_empty():
+			continue
+		if _example_fetch_in_progress.get(wid, false):
+			continue
+		_example_fetch_in_progress[wid] = true
+		var system := _build_openai_system_prompt()
+		var user_pl := _build_openai_user_payload_from_word_entry(w)
+		var resp := await _http_openai_chat_completion(_example_http_batch, system, user_pl)
+		if not bool(resp.get("ok", false)):
+			push_warning("VocabStudy daily batch examples: ", wid, " ", resp.get("err", "?"))
+			_example_fetch_in_progress.erase(wid)
+			continue
+		var batch_raw := str(resp.get("content", ""))
+		var examples: Array = _parse_examples_content(batch_raw)
+		if examples.is_empty():
+			var clip_batch := batch_raw.strip_edges()
+			clip_batch = clip_batch.substr(0, mini(200, clip_batch.length()))
+			push_warning("VocabStudy daily batch: 200 但解析不到例句（id=%s）。片段：%s" % [wid, clip_batch])
+			_example_fetch_in_progress.erase(wid)
+			continue
+		w["study_examples"] = examples.duplicate(true)
+		if not _word_study_examples_need_zh_refresh(w):
+			_vocab_example_zh_gave_up_ids.erase(wid)
+		else:
+			push_warning(
+				"VocabStudy daily batch: 例句仍缺 sentence_zh（本条本局不再自动重拉），id=%s" % wid
+			)
+			_vocab_example_zh_gave_up_ids[wid] = true
+		_persist_examples_to_example_cache_file(wid, examples)
+		_patch_word_examples_in_pool(wid, examples)
+		_example_fetch_in_progress.erase(wid)
+		api_done += 1
+		Signals.vocab_example_api_progress.emit(api_done, total, wid)
+		await get_tree().create_timer(0.35).timeout
+	Global.profile_data.profile_vocab_seq_example_cursor = posmod(start + n, _words.size())
+	Global.profile_data.profile_vocab_seq_example_last_day = day
+	FileLoader.save_profile()
+	_sequential_batch_busy = false
+	Signals.vocab_example_api_progress.emit(total, total, "done")
+
+## 供设置界面或调试：替换启用词书列表并持久化、重建词池。
+func set_enabled_vocab_books(book_ids: Array[String]) -> void:
+	Global.user_settings_data.settings_vocab_enabled_book_ids = book_ids.duplicate()
+	FileLoader.save_user_settings()
+	reload_from_settings()
+
+func _ensure_user_vocab_dir() -> void:
+	var abs_dir: String = ProjectSettings.globalize_path(USER_BOOKS_DIR)
+	if DirAccess.dir_exists_absolute(abs_dir):
+		return
+	var err: Error = DirAccess.make_dir_recursive_absolute(abs_dir)
+	if err != OK:
+		push_warning("VocabStudy: could not mkdir user vocab dir: ", abs_dir, " err=", err)
+
+func _rebuild_book_index() -> void:
+	_book_id_to_path.clear()
+	_book_id_to_path[BUILTIN_DEFAULT_ID] = LEGACY_VOCAB_PATH
+	_scan_book_dir(PACKAGED_BOOKS_DIR)
+	_ensure_user_vocab_dir()
+	_scan_book_dir(USER_BOOKS_DIR)
+
+func _scan_book_dir(dir_path: String) -> void:
+	var dir := DirAccess.open(dir_path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var fname: String = dir.get_next()
+	while fname != "":
+		if not dir.current_is_dir() and fname.ends_with(".json") and not fname.begins_with("_"):
+			var full: String = dir_path.path_join(fname)
+			var bid: String = _read_book_id_from_file(full)
+			if bid != "" and bid != BUILTIN_DEFAULT_ID:
+				if _book_id_to_path.has(bid):
+					push_warning("VocabStudy: duplicate book_id ", bid, " — using ", full)
+				_book_id_to_path[bid] = full
+		fname = dir.get_next()
+	dir.list_dir_end()
+
+func _read_book_id_from_file(path: String) -> String:
+	if not FileAccess.file_exists(path):
+		return ""
+	var text := FileAccess.get_file_as_string(path)
+	var data: Variant = JSON.parse_string(text)
+	if typeof(data) != TYPE_DICTIONARY:
+		return ""
+	return str((data as Dictionary).get("book_id", "")).strip_edges()
+
+## 将整份 JSON 文本写入 user:// 并登记词书；成功返回 book_id，失败返回空字符串。
+func import_book_from_json_text(json_text: String, overwrite: bool = true) -> String:
+	_ensure_user_vocab_dir()
+	var data: Variant = JSON.parse_string(json_text)
+	if typeof(data) != TYPE_DICTIONARY:
+		push_error("VocabStudy import: JSON 根不是对象")
+		return ""
+	var parsed: Dictionary = _parse_book_entries(data as Dictionary)
+	var book_id: String = str(parsed.get("book_id", "")).strip_edges()
+	if book_id == "" or book_id == BUILTIN_DEFAULT_ID:
+		push_error("VocabStudy import: 缺少合法 book_id")
+		return ""
+	var entries: Array = parsed.get("entries", []) as Array
+	if entries.is_empty():
+		push_error("VocabStudy import: words 为空或无效")
+		return ""
+	var out_path: String = USER_BOOKS_DIR.path_join("book_%s.json" % book_id)
+	if FileAccess.file_exists(out_path) and not overwrite:
+		push_error("VocabStudy import: 文件已存在 ", out_path)
+		return ""
+	var save_err: Error = _write_user_book_file(out_path, data as Dictionary)
+	if save_err != OK:
+		push_error("VocabStudy import: 写入失败 ", save_err)
+		return ""
+	reload_from_settings()
+	_append_enabled_book_if_missing(book_id)
+	FileLoader.save_user_settings()
+	return book_id
+
+func _write_user_book_file(path: String, root: Dictionary) -> Error:
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	if f == null:
+		return FileAccess.get_open_error()
+	f.store_string(JSON.stringify(root, "\t"))
+	f.close()
+	return OK
+
+func _append_enabled_book_if_missing(book_id: String) -> void:
+	var arr: Array[String] = Global.user_settings_data.settings_vocab_enabled_book_ids
+	if not arr.has(book_id):
+		arr.append(book_id)
+		Global.user_settings_data.settings_vocab_enabled_book_ids = arr
+
+## 桌面等环境：从本机绝对路径读取 UTF-8 JSON 并导入到 user://（与 import_book_from_json_text 相同校验）。
+func import_book_from_user_absolute_path(abs_path: String, overwrite: bool = true) -> String:
+	var f := FileAccess.open(abs_path, FileAccess.READ)
+	if f == null:
+		push_error("VocabStudy import: 无法打开 ", abs_path)
+		return ""
+	var text := f.get_as_text()
+	f.close()
+	return import_book_from_json_text(text, overwrite)
+
+func list_known_books() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	out.append({
+		"book_id": BUILTIN_DEFAULT_ID,
+		"path": LEGACY_VOCAB_PATH,
+		"source": "builtin",
+	})
+	for bid: String in _book_id_to_path.keys():
+		if bid == BUILTIN_DEFAULT_ID:
+			continue
+		var p: String = _book_id_to_path[bid]
+		var meta: Dictionary = {"book_id": bid, "path": p, "source": "user" if p.begins_with("user://") else "packaged"}
+		var title: String = _read_book_name(_book_id_to_path[bid])
+		if title != "":
+			meta["book_name"] = title
+		out.append(meta)
+	return out
+
+func _read_book_name(path: String) -> String:
+	if not FileAccess.file_exists(path):
+		return ""
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if typeof(data) != TYPE_DICTIONARY:
+		return ""
+	return str((data as Dictionary).get("book_name", ""))
+
+func _enabled_book_ids() -> Array[String]:
+	var arr: Array[String] = Global.user_settings_data.settings_vocab_enabled_book_ids.duplicate()
+	if arr.is_empty():
+		arr.append(BUILTIN_DEFAULT_ID)
+	return arr
+
+func _load_word_list() -> void:
+	_words.clear()
+	var seen_ids: Dictionary[String, bool] = {}
+	var enabled: Array[String] = _enabled_book_ids()
+	for book_id: String in enabled:
+		var entries: Array[Dictionary] = _load_words_for_book(book_id)
+		for w: Dictionary in entries:
+			var wid: String = str(w.get("id", ""))
+			if wid == "":
+				continue
+			if seen_ids.has(wid):
+				push_warning("VocabStudy: duplicate word id skipped: ", wid)
+				continue
+			seen_ids[wid] = true
+			_enrich_study_fields(w)
+			_apply_vocab_example_file_cache(w)
+			_apply_vocab_example_override(w)
+			_words.append(w)
+	if not _words.is_empty():
+		var cc: int = int(Global.profile_data.profile_vocab_seq_example_cursor)
+		Global.profile_data.profile_vocab_seq_example_cursor = posmod(cc, _words.size())
+
+func _load_words_for_book(book_id: String) -> Array[Dictionary]:
+	if book_id == BUILTIN_DEFAULT_ID:
+		return _load_legacy_vocab_file(LEGACY_VOCAB_PATH, BUILTIN_DEFAULT_ID)
+	var path: String = str(_book_id_to_path.get(book_id, ""))
+	if path == "" or not FileAccess.file_exists(path):
+		push_warning("VocabStudy: unknown or missing book: ", book_id)
+		return []
+	var text := FileAccess.get_file_as_string(path)
+	var data: Variant = JSON.parse_string(text)
+	if typeof(data) != TYPE_DICTIONARY:
+		return []
+	var root: Dictionary = data as Dictionary
+	var file_book_id: String = str(root.get("book_id", "")).strip_edges()
+	if file_book_id != book_id:
+		push_warning("VocabStudy: 文件内 book_id 与启用 id 不一致: ", file_book_id, " != ", book_id)
+		return []
+	return _entries_array_from_parse(_parse_book_entries(root))
+
+func _load_legacy_vocab_file(path: String, book_id: String) -> Array[Dictionary]:
+	if not FileAccess.file_exists(path):
+		return []
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if typeof(data) != TYPE_DICTIONARY:
+		return []
+	var root: Dictionary = data as Dictionary
+	if str(root.get("book_id", "")).strip_edges() != "":
+		return _entries_array_from_parse(_parse_book_entries(root))
+	return _parse_legacy_words_array(root.get("words", []), book_id)
+
+func _parse_legacy_words_array(arr: Variant, book_id: String) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if typeof(arr) != TYPE_ARRAY:
+		return out
+	for item: Variant in arr:
+		if typeof(item) != TYPE_DICTIONARY:
+			continue
+		var d: Dictionary = item
+		var wid: String = str(d.get("id", ""))
+		if wid == "":
+			continue
+		var full_id: String = wid if book_id == BUILTIN_DEFAULT_ID else "%s:%s" % [book_id, wid]
+		var answers: Array[String] = _parse_answers(d)
+		if answers.is_empty():
+			continue
+		var entry: Dictionary = {
+			"id": full_id,
+			"prompt": str(d.get("prompt", full_id)),
+			"answers": answers,
+		}
+		if d.has("study_headword"):
+			entry["study_headword"] = str(d["study_headword"])
+		if d.has("study_meaning"):
+			entry["study_meaning"] = str(d["study_meaning"])
+		_attach_study_examples(entry, d)
+		out.append(entry)
+	return out
+
+## 词书可选字段 study_examples：多条例句，学习页展示不同用法。
+## 支持 ["句子1", "句子2"] 或 [{"sentence":"…","gloss":"义：…"}, …]；单条也可用 study_example 字符串。
+func _attach_study_examples(entry: Dictionary, d: Dictionary) -> void:
+	var raw: Variant = d.get("study_examples", null)
+	if raw == null and d.has("study_example"):
+		raw = [d["study_example"]]
+	if raw == null:
+		return
+	var norm: Array = _normalize_study_examples(raw)
+	if not norm.is_empty():
+		entry["study_examples"] = norm
+
+func _normalize_study_examples(raw: Variant) -> Array:
+	var out: Array = []
+	if typeof(raw) != TYPE_ARRAY:
+		return out
+	for item: Variant in raw:
+		if typeof(item) == TYPE_STRING:
+			var s: String = str(item).strip_edges()
+			if s != "":
+				out.append({"sentence": s, "gloss": ""})
+		elif typeof(item) == TYPE_DICTIONARY:
+			var d2: Dictionary = item as Dictionary
+			var sent: String = str(d2.get("sentence", d2.get("en", d2.get("text", "")))).strip_edges()
+			if sent == "":
+				continue
+			var gloss: String = str(d2.get("gloss", d2.get("meaning", d2.get("sense", "")))).strip_edges()
+			out.append({"sentence": sent, "gloss": gloss})
+	return out
+
+func _enrich_study_fields(w: Dictionary) -> void:
+	var hw: String = str(w.get("study_headword", "")).strip_edges()
+	var mn: String = str(w.get("study_meaning", "")).strip_edges()
+	if hw != "" and mn != "":
+		return
+	var answers: Array = w.get("answers", [])
+	if hw == "" and answers.size() > 0:
+		hw = str(answers[0])
+	if mn == "":
+		mn = _extract_meaning_from_prompt(str(w.get("prompt", "")))
+	if hw == "":
+		hw = "?"
+	if mn == "":
+		mn = "（请看题干）"
+	w["study_headword"] = hw
+	w["study_meaning"] = mn
+
+func _extract_meaning_from_prompt(prompt: String) -> String:
+	var t: String = prompt.replace("[center]", "").replace("[/center]", "")
+	var key: String = "释义："
+	var idx: int = t.find(key)
+	if idx == -1:
+		var lines: PackedStringArray = t.strip_edges().split("\n")
+		if lines.size() > 0:
+			return str(lines[0]).strip_edges()
+		return ""
+	idx += key.length()
+	var end: int = t.find("\n", idx)
+	if end == -1:
+		return t.substr(idx).strip_edges()
+	return t.substr(idx, end - idx).strip_edges()
+
+## 是否还需要「先学」一步（从未点过「记住了」的词条）。
+func word_needs_learn_phase(word_id: String) -> bool:
+	var st: Dictionary = _get_state(word_id)
+	return not bool(st.get("learned", false))
+
+## 学完一面后调用，写入 profile（与间隔复习状态同表合并）。
+func mark_word_learned(word_id: String) -> void:
+	var st: Dictionary = _get_state(word_id)
+	st["learned"] = true
+	Global.profile_data.profile_vocab_word_states[word_id] = st
+	FileLoader.save_profile()
+
+func _parse_book_entries(root: Dictionary) -> Dictionary:
+	var book_id: String = str(root.get("book_id", "")).strip_edges()
+	var words_raw: Variant = root.get("words", [])
+	var entries: Array[Dictionary] = []
+	if typeof(words_raw) != TYPE_ARRAY:
+		return {"book_id": book_id, "entries": entries}
+	if book_id == "":
+		return {"book_id": "", "entries": entries}
+	for item: Variant in words_raw:
+		if typeof(item) != TYPE_DICTIONARY:
+			continue
+		var d: Dictionary = item
+		var local_id: String = str(d.get("id", "")).strip_edges()
+		if local_id == "":
+			continue
+		var full_id: String = "%s:%s" % [book_id, local_id]
+		var answers: Array[String] = _parse_answers(d)
+		if answers.is_empty():
+			continue
+		var entry: Dictionary = {
+			"id": full_id,
+			"prompt": str(d.get("prompt", local_id)),
+			"answers": answers,
+		}
+		if d.has("study_headword"):
+			entry["study_headword"] = str(d["study_headword"])
+		if d.has("study_meaning"):
+			entry["study_meaning"] = str(d["study_meaning"])
+		_attach_study_examples(entry, d)
+		entries.append(entry)
+	return {"book_id": book_id, "entries": entries}
+
+func _entries_array_from_parse(parsed: Dictionary) -> Array[Dictionary]:
+	var raw: Variant = parsed.get("entries", [])
+	var out: Array[Dictionary] = []
+	if typeof(raw) != TYPE_ARRAY:
+		return out
+	for e: Variant in raw:
+		if typeof(e) == TYPE_DICTIONARY:
+			out.append(e as Dictionary)
+	return out
+
+func _parse_answers(d: Dictionary) -> Array[String]:
+	var answers: Array[String] = []
+	var ans_raw: Variant = d.get("answers", [])
+	if typeof(ans_raw) == TYPE_ARRAY:
+		for a: Variant in ans_raw:
+			answers.append(str(a).strip_edges().to_lower())
+	elif d.has("answer"):
+		answers.append(str(d["answer"]).strip_edges().to_lower())
+	return answers
+
+
+func _resolve_openai_api_key() -> String:
+	_ensure_project_dotenv_loaded()
+	var k := OS.get_environment("OPENAI_API_KEY").strip_edges()
+	if not k.is_empty():
+		return k
+	k = str(_dotenv_values.get("OPENAI_API_KEY", "")).strip_edges()
+	if not k.is_empty():
+		return k
+	return Global.user_settings_data.settings_openai_api_key.strip_edges()
+
+
+func _resolve_openai_base_url() -> String:
+	_ensure_project_dotenv_loaded()
+	var b := OS.get_environment("OPENAI_BASE_URL").strip_edges()
+	if b.is_empty():
+		b = OS.get_environment("OPENAI_API_BASE").strip_edges()
+	if b.is_empty():
+		b = str(_dotenv_values.get("OPENAI_BASE_URL", "")).strip_edges()
+	if b.is_empty():
+		b = str(_dotenv_values.get("OPENAI_API_BASE", "")).strip_edges()
+	if b.is_empty():
+		b = Global.user_settings_data.settings_openai_base_url.strip_edges()
+	if b.is_empty():
+		b = "https://api.openai.com/v1"
+	return b.rstrip("/")
+
+
+func _resolve_openai_model() -> String:
+	_ensure_project_dotenv_loaded()
+	var m := OS.get_environment("OPENAI_MODEL").strip_edges()
+	if m.is_empty():
+		m = str(_dotenv_values.get("OPENAI_MODEL", "")).strip_edges()
+	if m.is_empty():
+		m = Global.user_settings_data.settings_openai_model.strip_edges()
+	if m.is_empty():
+		m = "gpt-4o-mini"
+	return m
+
+
+func _openai_chat_completions_url() -> String:
+	_ensure_project_dotenv_loaded()
+	var full := OS.get_environment("OPENAI_CHAT_COMPLETIONS_URL").strip_edges()
+	if full.is_empty():
+		full = str(_dotenv_values.get("OPENAI_CHAT_COMPLETIONS_URL", "")).strip_edges()
+	if not full.is_empty():
+		return full.rstrip("/")
+	var base := _resolve_openai_base_url()
+	if base.ends_with("/chat/completions"):
+		return base
+	return base + "/chat/completions"
+
+
+func _split_domain_csv_gd(s: String) -> Array[String]:
+	var out: Array[String] = []
+	for chunk in s.split(",", false):
+		for chunk2 in chunk.split("，", false):
+			var x := chunk2.strip_edges()
+			if not x.is_empty() and not out.has(x):
+				out.append(x)
+	return out
+
+
+func _build_openai_domain_line() -> String:
+	var pieces: Array[String] = []
+	for tid: String in Global.user_settings_data.settings_vocab_example_domain_tags:
+		var zh: String = str(PRESET_DOMAIN_ZH.get(tid, tid))
+		if not zh.is_empty() and not pieces.has(zh):
+			pieces.append(zh)
+	var custom := Global.user_settings_data.settings_vocab_example_domain_custom.strip_edges()
+	for p in _split_domain_csv_gd(custom):
+		if not pieces.has(p):
+			pieces.append(p)
+	_ensure_project_dotenv_loaded()
+	var env_dom := OS.get_environment("VOCAB_EXAMPLE_DOMAINS").strip_edges()
+	if env_dom.is_empty():
+		env_dom = str(_dotenv_values.get("VOCAB_EXAMPLE_DOMAINS", "")).strip_edges()
+	for p in _split_domain_csv_gd(env_dom):
+		var z := str(PRESET_DOMAIN_ZH.get(p, p))
+		if not z.is_empty() and not pieces.has(z):
+			pieces.append(z)
+	if pieces.is_empty():
+		return ""
+	var joined := ""
+	for i in range(pieces.size()):
+		if i > 0:
+			joined += "、"
+		joined += pieces[i]
+	return (
+		"用户希望例句语境优先贴近："
+		+ joined
+		+ "。（在自然地道前提下尽量体现；无法兼顾时以词语准确用法为准）"
+	)
+
+
+func _build_openai_system_prompt() -> String:
+	var dom := _build_openai_domain_line()
+	if dom.is_empty():
+		return OPENAI_EXAMPLE_SYSTEM_BASE
+	return OPENAI_EXAMPLE_SYSTEM_BASE + "\n\n【例句语境偏好】" + dom
+
+
+func _strip_json_fence_gd(s: String) -> String:
+	var t := s.strip_edges()
+	if not t.begins_with("```"):
+		return t
+	var lines: Array = Array(t.split("\n"))
+	if lines.size() > 0 and str(lines[0]).begins_with("```"):
+		lines.remove_at(0)
+	if lines.size() > 0 and str(lines[lines.size() - 1]).strip_edges() == "```":
+		lines.remove_at(lines.size() - 1)
+	var acc := ""
+	for i in range(lines.size()):
+		if i > 0:
+			acc += "\n"
+		acc += str(lines[i])
+	return acc.strip_edges()
+
+
+## 模型偶发把 BBCode 写进例句 JSON，会破坏 RichTextLabel；只做保守剥离。
+func _sanitize_vocab_example_model_text(s: String) -> String:
+	var t: String = s.strip_edges()
+	var leaks: PackedStringArray = [
+		"[/center]", "[center]", "[/left]", "[left]", "[/right]", "[right]",
+		"[/color]", "[/url]", "[/b]", "[/i]", "[/u]", "[/s]",
+		"[/font_size]", "[/font]",
+	]
+	for lk: String in leaks:
+		t = t.replace(lk, "")
+	while t.find("  ") != -1:
+		t = t.replace("  ", " ")
+	return t.strip_edges()
+
+
+func _coerce_api_examples(raw: Variant) -> Array:
+	var out: Array = []
+	if typeof(raw) != TYPE_ARRAY:
+		return out
+	for item: Variant in raw:
+		if typeof(item) == TYPE_STRING:
+			var st := _sanitize_vocab_example_model_text(str(item))
+			if not st.is_empty():
+				out.append({"sentence": st, "gloss": "", "sentence_zh": ""})
+		elif typeof(item) == TYPE_DICTIONARY:
+			var d: Dictionary = item as Dictionary
+			var sent := _sanitize_vocab_example_model_text(
+				str(d.get("sentence", d.get("en", d.get("text", ""))))
+			)
+			if sent.is_empty():
+				continue
+			var gloss := _sanitize_vocab_example_model_text(
+				str(d.get("gloss", d.get("meaning", d.get("sense", ""))))
+			)
+			var zh := _sanitize_vocab_example_model_text(
+				str(
+					d.get(
+						"sentence_zh",
+						d.get("zh", d.get("translation", d.get("cn", d.get("chinese", ""))))
+					)
+				)
+			)
+			out.append({"sentence": sent, "gloss": gloss, "sentence_zh": zh})
+	return out
+
+
+func _parse_examples_content(content: String) -> Array:
+	var stripped := _strip_json_fence_gd(content)
+	var parsed: Variant = JSON.parse_string(stripped)
+	if typeof(parsed) == TYPE_ARRAY:
+		return _coerce_api_examples(parsed)
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return []
+	var d: Dictionary = parsed as Dictionary
+	for alt_key: String in ["examples", "data", "items", "sentences", "study_examples"]:
+		var ex: Variant = d.get(alt_key)
+		if typeof(ex) == TYPE_ARRAY:
+			var coerced: Array = _coerce_api_examples(ex)
+			if not coerced.is_empty():
+				return coerced
+	return []
+
+
+func _word_dict_has_nonempty_examples(wd: Dictionary) -> bool:
+	if not wd.has("study_examples"):
+		return false
+	var ex: Variant = wd["study_examples"]
+	if typeof(ex) != TYPE_ARRAY:
+		return false
+	var arr: Array = ex as Array
+	for item: Variant in arr:
+		if typeof(item) == TYPE_STRING:
+			if str(item).strip_edges() != "":
+				return true
+		elif typeof(item) == TYPE_DICTIONARY:
+			var d: Dictionary = item as Dictionary
+			var sent := str(d.get("sentence", d.get("en", d.get("text", "")))).strip_edges()
+			if sent != "":
+				return true
+	return false
+
+
+func word_has_nonempty_examples(word: Dictionary) -> bool:
+	return _word_dict_has_nonempty_examples(word)
+
+
+## 有条目但缺整句中文译文（旧缓存 / 模型漏字段）：需要重新拉 API 写回缓存。
+func _word_study_examples_need_zh_refresh(wd: Dictionary) -> bool:
+	if not wd.has("study_examples"):
+		return false
+	var ex: Variant = wd["study_examples"]
+	if typeof(ex) != TYPE_ARRAY:
+		return false
+	var arr: Array = ex as Array
+	if arr.is_empty():
+		return false
+	for item: Variant in arr:
+		if typeof(item) == TYPE_STRING:
+			return true
+		elif typeof(item) == TYPE_DICTIONARY:
+			if str((item as Dictionary).get("sentence_zh", "")).strip_edges().is_empty():
+				return true
+	return false
+
+
+func word_study_examples_need_zh_refresh(word: Dictionary) -> bool:
+	var wid := str(word.get("id", ""))
+	if not wid.is_empty() and bool(_vocab_example_zh_gave_up_ids.get(wid, false)):
+		return false
+	return _word_study_examples_need_zh_refresh(word)
+
+
+func has_openai_configured() -> bool:
+	return not _resolve_openai_api_key().is_empty()
+
+
+func _apply_vocab_example_override(w: Dictionary) -> void:
+	var wid := str(w.get("id", ""))
+	if wid.is_empty():
+		return
+	_ensure_example_cache_loaded()
+	if _example_cache_entries.has(wid):
+		return
+	if not Global.profile_data.profile_vocab_example_overrides.has(wid):
+		return
+	var ov: Variant = Global.profile_data.profile_vocab_example_overrides[wid]
+	var coerced: Array = _coerce_api_examples(ov)
+	if coerced.is_empty():
+		return
+	w["study_examples"] = coerced
+
+
+func _patch_word_examples_in_pool(wid: String, examples: Array) -> void:
+	for w in _words:
+		if str(w.get("id", "")) == wid:
+			w["study_examples"] = examples.duplicate(true)
+			break
+
+
+func _merge_examples_from_pool_into(word: Dictionary, wid: String) -> void:
+	for w in _words:
+		if str(w.get("id", "")) == wid:
+			if _word_dict_has_nonempty_examples(w):
+				word["study_examples"] = (w["study_examples"] as Array).duplicate(true)
+			break
+
+
+## 出牌复习前调用：从 user:// 例句缓存与当前词池合并进本 dict（_pick_word 返回的是副本，否则学习面板读不到已生成例句）。不访问网络。
+func merge_disk_and_pool_examples_into_word(word: Dictionary) -> void:
+	var wid := str(word.get("id", ""))
+	if wid.is_empty():
+		return
+	# 先尝试文件（可覆盖词条里无效的 study_examples 占位）
+	_try_merge_examples_from_file_cache_into_word(word, wid)
+	if _word_dict_has_nonempty_examples(word):
+		return
+	_merge_examples_from_pool_into(word, wid)
+
+
+## 当场为缺例句的词条：先读 user://vocab_example_cache.json，没有再调 API 写入缓存并同步词池；同一 word_id 并发只跑一条请求。（有 Key 即会请求，不再依赖旧版「出牌时自动请求」开关。）
+func ensure_examples_for_word_on_demand_async(word: Dictionary) -> void:
+	var wid := str(word.get("id", ""))
+	if wid.is_empty():
+		return
+	merge_disk_and_pool_examples_into_word(word)
+	if _word_dict_has_nonempty_examples(word) and not _word_study_examples_need_zh_refresh(word):
+		return
+	if _resolve_openai_api_key().is_empty():
+		return
+	if _example_fetch_in_progress.get(wid, false):
+		while _example_fetch_in_progress.get(wid, false):
+			await get_tree().process_frame
+		merge_disk_and_pool_examples_into_word(word)
+		if _word_dict_has_nonempty_examples(word) and not _word_study_examples_need_zh_refresh(word):
+			return
+	_example_fetch_in_progress[wid] = true
+	var system := _build_openai_system_prompt()
+	var user_pl := _build_openai_user_payload_from_word_entry(word)
+	var resp := await _http_openai_chat_completion(_example_http_ondemand, system, user_pl)
+	if not bool(resp.get("ok", false)):
+		push_warning("VocabStudy on-demand examples: %s" % str(resp.get("err", "?")))
+		_example_fetch_in_progress.erase(wid)
+		return
+	var raw_content := str(resp.get("content", ""))
+	var examples: Array = _parse_examples_content(raw_content)
+	if examples.is_empty():
+		var clip := raw_content.strip_edges()
+		clip = clip.substr(0, mini(320, clip.length()))
+		push_warning(
+			"VocabStudy on-demand examples: 已收到 200 但解析不到例句数组（id=%s）。请核对模型是否按 JSON 返回 examples[]，或兼容端是否改字段名。正文片段：%s"
+			% [wid, clip]
+		)
+		_example_fetch_in_progress.erase(wid)
+		return
+	word["study_examples"] = examples.duplicate(true)
+	if not _word_study_examples_need_zh_refresh(word):
+		_vocab_example_zh_gave_up_ids.erase(wid)
+	else:
+		push_warning(
+			"VocabStudy on-demand: 例句仍缺 sentence_zh（本条本局不再自动重拉），id=%s" % wid
+		)
+		_vocab_example_zh_gave_up_ids[wid] = true
+	_persist_examples_to_example_cache_file(wid, examples)
+	_patch_word_examples_in_pool(wid, examples)
+	_example_fetch_in_progress.erase(wid)
+
+
+func _load_vocab_book_root_dict(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var text := FileAccess.get_file_as_string(path)
+	var v: Variant = JSON.parse_string(text)
+	if typeof(v) != TYPE_DICTIONARY:
+		return {}
+	return v as Dictionary
+
+
+func _save_vocab_book_root_to_user_dir(book_id: String, root: Dictionary) -> Error:
+	_ensure_user_vocab_dir()
+	var path: String = USER_BOOKS_DIR.path_join("book_%s.json" % book_id)
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	if f == null:
+		return FileAccess.get_open_error()
+	f.store_string(JSON.stringify(root, "\t"))
+	f.close()
+	return OK
+
+
+func _build_openai_user_payload_from_word_entry(wd: Dictionary) -> String:
+	var prompt_plain := str(wd.get("prompt", ""))
+	prompt_plain = prompt_plain.replace("[center]", "").replace("[/center]", "").strip_edges()
+	var payload := {
+		"id": wd.get("id"),
+		"study_headword": wd.get("study_headword", ""),
+		"study_meaning": wd.get("study_meaning", ""),
+		"answers": wd.get("answers", []),
+		"prompt_plain": prompt_plain,
+	}
+	return JSON.stringify(payload)
+
+
+func _extract_chat_completion_content_from_response_body(txt: String) -> Dictionary:
+	var outer: Variant = JSON.parse_string(txt)
+	if typeof(outer) != TYPE_DICTIONARY:
+		return {"ok": false, "err": "bad_response_json"}
+	var root: Dictionary = outer as Dictionary
+	var choices: Variant = root.get("choices")
+	if typeof(choices) != TYPE_ARRAY or (choices as Array).is_empty():
+		var out_wrap: Variant = root.get("output")
+		if typeof(out_wrap) == TYPE_DICTIONARY:
+			choices = (out_wrap as Dictionary).get("choices")
+	if typeof(choices) != TYPE_ARRAY or (choices as Array).is_empty():
+		return {"ok": false, "err": "no_choices"}
+	var msg0: Variant = (choices as Array)[0]
+	if typeof(msg0) != TYPE_DICTIONARY:
+		return {"ok": false, "err": "bad_choice"}
+	var msg_d: Dictionary = msg0 as Dictionary
+	var inner: Variant = msg_d.get("message")
+	if typeof(inner) != TYPE_DICTIONARY:
+		return {"ok": false, "err": "bad_message"}
+	var content := str((inner as Dictionary).get("content", ""))
+	return {"ok": true, "content": content}
+
+
+func _http_openai_chat_completion(client: HTTPRequest, system: String, user_json: String) -> Dictionary:
+	var key := _resolve_openai_api_key()
+	if key.is_empty():
+		return {"ok": false, "err": "no_key"}
+	var url := _openai_chat_completions_url()
+	var headers := PackedStringArray([
+		"Content-Type: application/json",
+		"Authorization: Bearer %s" % key,
+	])
+	for use_json_object_mode: int in range(2):
+		var payload := {
+			"model": _resolve_openai_model(),
+			"messages": [
+				{"role": "system", "content": system},
+				{"role": "user", "content": user_json},
+			],
+			"temperature": 0.65,
+		}
+		if use_json_object_mode == 0:
+			payload["response_format"] = {"type": "json_object"}
+		var err: Error = client.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(payload))
+		if err != OK:
+			if err == ERR_BUSY:
+				push_warning(
+					"VocabStudy: HTTPRequest 正忙（ERR_BUSY），例句请求被跳过。若已拆 batch/ondemand 仍出现，说明同一 client 上并发调用了 API。"
+				)
+			return {"ok": false, "err": "request_%d" % err}
+		var http_ret = await client.request_completed
+		if typeof(http_ret) != TYPE_ARRAY:
+			return {"ok": false, "err": "http_signal"}
+		var http_arr: Array = http_ret as Array
+		var response_code: int = int(http_arr[1])
+		var body: PackedByteArray = http_arr[3]
+		var txt := body.get_string_from_utf8()
+		if response_code == 200:
+			var parsed: Dictionary = _extract_chat_completion_content_from_response_body(txt)
+			if bool(parsed.get("ok", false)):
+				return parsed
+			return {"ok": false, "err": str(parsed.get("err", "parse_err"))}
+		if use_json_object_mode == 0 and (response_code == 400 or response_code == 422):
+			var clip0 := txt.substr(0, mini(220, txt.length()))
+			push_warning(
+				"VocabStudy: Chat Completions 返回 HTTP %d（可能不支持 response_format），将去掉 json_object 模式重试。片段：%s"
+				% [response_code, clip0]
+			)
+			continue
+		var clip := txt.substr(0, mini(280, txt.length()))
+		return {"ok": false, "err": "HTTP %d %s" % [response_code, clip]}
+	return {"ok": false, "err": "json_mode_retry_exhausted"}
+
+
+## 调用 OpenAI 兼容 Chat Completions，为启用词书中「尚无 study_examples」的词条批量生成例句，写入 user://vocab_books/book_<id>.json 并 reload。
+func fill_missing_examples_via_api(max_words: int = 35) -> Dictionary:
+	if _resolve_openai_api_key().is_empty():
+		return {"ok": false, "message": I18N.tr_key("vocab.api.need_key")}
+	var system := _build_openai_system_prompt()
+	var budget: int = maxi(1, max_words)
+	var generated := 0
+	for book_id: String in Global.user_settings_data.settings_vocab_enabled_book_ids:
+		if generated >= budget:
+			break
+		if book_id == BUILTIN_DEFAULT_ID:
+			push_warning("VocabStudy: " + I18N.tr_key("vocab.api.builtin_skip"))
+			continue
+		var src_path: String = str(_book_id_to_path.get(book_id, ""))
+		if src_path.is_empty() or not FileAccess.file_exists(src_path):
+			continue
+		var root := _load_vocab_book_root_dict(src_path)
+		if root.is_empty():
+			continue
+		var words_raw: Variant = root.get("words", [])
+		if typeof(words_raw) != TYPE_ARRAY:
+			continue
+		var arr: Array = words_raw as Array
+		var modified := false
+		# 大词书缺例句的词条若按数组顺序处理，永远只会填前几千条；打乱后每轮随机覆盖全书。
+		var missing_indices: Array = []
+		for wi in range(arr.size()):
+			var item: Variant = arr[wi]
+			if typeof(item) != TYPE_DICTIONARY:
+				continue
+			var wd_check: Dictionary = item as Dictionary
+			if _word_dict_has_nonempty_examples(wd_check):
+				continue
+			missing_indices.append(wi)
+		missing_indices.shuffle()
+		for wi_variant in missing_indices:
+			if generated >= budget:
+				break
+			var wi: int = wi_variant as int
+			var item2: Variant = arr[wi]
+			if typeof(item2) != TYPE_DICTIONARY:
+				continue
+			var wd: Dictionary = item2 as Dictionary
+			var wid := str(wd.get("id", "?"))
+			Signals.vocab_example_api_progress.emit(generated, budget, wid)
+			var user_pl := _build_openai_user_payload_from_word_entry(wd)
+			var resp := await _http_openai_chat_completion(_example_http_ondemand, system, user_pl)
+			if not bool(resp.get("ok", false)):
+				return {"ok": false, "message": I18N.tr_key("vocab.api.http_err") % str(resp.get("err", "?"))}
+			var examples: Array = _parse_examples_content(str(resp.get("content", "")))
+			if examples.is_empty():
+				continue
+			wd["study_examples"] = examples
+			modified = true
+			generated += 1
+			await get_tree().create_timer(0.35).timeout
+		if modified:
+			var err_save: Error = _save_vocab_book_root_to_user_dir(book_id, root)
+			if err_save != OK:
+				return {"ok": false, "message": "save err %s" % str(err_save)}
+	reload_from_settings()
+	Signals.vocab_example_api_progress.emit(generated, budget, "done")
+	if generated == 0:
+		return {"ok": true, "message": I18N.tr_key("vocab.api.none_needed")}
+	return {"ok": true, "message": I18N.tr_key("vocab.api.saved") % generated}
+
+
+func combat_vocab_review_mode() -> String:
+	var m := str(Global.user_settings_data.settings_vocab_combat_review_mode).strip_edges()
+	if m == VOCAB_REVIEW_MODE_MEANING or m == VOCAB_REVIEW_MODE_MC4:
+		return m
+	return VOCAB_REVIEW_MODE_SPELL
+
+
+## 四选一复习：从词池取若干「其他词」的 headword 作干扰项（不含本题任一可接受拼写）。
+func sample_distractor_headwords_for_mc(
+	exclude_word_id: String, accepted_answers: Array, desired: int, rng: RandomNumberGenerator
+) -> Array[String]:
+	var blocked: Dictionary = {}
+	for a: Variant in accepted_answers:
+		var low := str(a).strip_edges().to_lower()
+		if not low.is_empty():
+			blocked[low] = true
+	var candidates: Array[String] = []
+	for w: Dictionary in _words:
+		if str(w.get("id", "")) == exclude_word_id:
+			continue
+		var hw := str(w.get("study_headword", "")).strip_edges()
+		if hw.is_empty():
+			continue
+		if hw.length() > 40 or hw.find("\n") != -1:
+			continue
+		var low2 := hw.to_lower()
+		if blocked.has(low2):
+			continue
+		candidates.append(hw)
+	if candidates.is_empty():
+		return []
+	for i in range(candidates.size() - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var tmp: String = candidates[i]
+		candidates[i] = candidates[j]
+		candidates[j] = tmp
+	var out: Array[String] = []
+	for hw3: String in candidates:
+		if out.size() >= desired:
+			break
+		var l3 := hw3.to_lower()
+		if blocked.has(l3):
+			continue
+		blocked[l3] = true
+		out.append(hw3)
+	return out
+
+
+func gate_before_play() -> bool:
+	if _overlay == null or _words.is_empty():
+		return false
+	if not Global.is_player_in_combat():
+		return false
+	var word: Dictionary = _pick_word_for_prompt()
+	if word.is_empty():
+		return false
+	var outcome: int = await _overlay.run_review(word)
+	var wid: String = str(word["id"])
+	match outcome:
+		WordReviewOverlay.REVIEW_OUTCOME_OK:
+			_record_result(wid, true)
+			return false
+		WordReviewOverlay.REVIEW_OUTCOME_SKIPPED:
+			_record_result(wid, false)
+			return true
+		WordReviewOverlay.REVIEW_OUTCOME_WRONG:
+			if _try_first_draft_forgive_wrong_answer():
+				return false
+			_record_result(wid, false)
+			return true
+		_:
+			_record_result(wid, false)
+			return true
+
+func _vocab_calendar_day_id() -> int:
+	var d: Dictionary = Time.get_datetime_dict_from_system(false)
+	return int(d.year) * 10000 + int(d.month) * 100 + int(d.day)
+
+
+func _slice_due_ids_for_daily_budget(ids: Array[String]) -> Array[String]:
+	var cap: int = Global.user_settings_data.settings_vocab_daily_due_cap
+	if cap <= 0 or ids.size() <= cap:
+		return ids
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(_vocab_calendar_day_id()) * 1000003 + int(ids.size()) * 17 + 982451653
+	var pool: Array[String] = ids.duplicate()
+	var out: Array[String] = []
+	while out.size() < cap and not pool.is_empty():
+		var j: int = rng.randi_range(0, pool.size() - 1)
+		out.append(pool[j])
+		pool.remove_at(j)
+	return out
+
+
+func _pick_word_for_prompt() -> Dictionary:
+	var now: int = int(Time.get_unix_time_from_system())
+	var due_ids: Array[String] = []
+	for w: Dictionary in _words:
+		var id: String = str(w["id"])
+		var st: Dictionary = _get_state(id)
+		var due: int = int(st.get("d", 0))
+		if st.is_empty() or due <= now:
+			due_ids.append(id)
+	if not due_ids.is_empty():
+		var pool: Array[String] = _slice_due_ids_for_daily_budget(due_ids)
+		if pool.is_empty():
+			pool = due_ids
+		var rng: RandomNumberGenerator = Global.player_data.get_player_rng("rng_vocab_pick")
+		return _word_by_id(pool[rng.randi_range(0, len(pool) - 1)])
+	var rng_cold: RandomNumberGenerator = Global.player_data.get_player_rng("rng_vocab_cold")
+	if rng_cold.randf() > cold_review_chance:
+		return {}
+	return _words[rng_cold.randi_range(0, len(_words) - 1)].duplicate(true)
+
+func _word_by_id(id: String) -> Dictionary:
+	for w: Dictionary in _words:
+		if str(w.get("id", "")) == id:
+			return w.duplicate(true)
+	return {}
+
+func _get_state(id: String) -> Dictionary:
+	var raw: Variant = Global.profile_data.profile_vocab_word_states.get(id, null)
+	if typeof(raw) == TYPE_DICTIONARY:
+		return raw as Dictionary
+	return {}
+
+func _record_result(id: String, correct: bool) -> void:
+	var st: Dictionary = _get_state(id)
+	var r: int = int(st.get("r", 0))
+	var i: float = float(st.get("i", 0.0))
+	var e: float = float(st.get("e", 2.5))
+	var now: int = int(Time.get_unix_time_from_system())
+	if correct:
+		r += 1
+		if r <= 1:
+			i = 1.0
+		elif r == 2:
+			i = 6.0
+		else:
+			i = max(1.0, i * e)
+		e = min(2.5, e + 0.1)
+	else:
+		r = 0
+		i = 1.0
+		e = max(1.3, e - 0.2)
+	var next_due: int = now + int(i * 3600.0)
+	var learned: bool = bool(st.get("learned", false))
+	Global.profile_data.profile_vocab_word_states[id] = {"r": r, "i": i, "e": e, "d": next_due, "learned": learned}
+	FileLoader.save_profile()
