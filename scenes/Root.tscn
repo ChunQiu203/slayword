@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://dao05mln2rw4g" path="res://scripts/ui/Combat.gd" id="3_h4evn"]
 [ext_resource type="Script" uid="uid://cg1kj2nrg24jw" path="res://scripts/ui/menus/MainMenu.gd" id="3_jd5n0"]
 [ext_resource type="Texture2D" uid="uid://dedxgnlnakxfl" path="res://scenes/background.png" id="3_xur7f"]
+[ext_resource type="Texture2D" path="res://ui-free/sel_bg.png" id="48_selbg"]
 [ext_resource type="Script" uid="uid://dlwowe1wugkh4" path="res://scripts/ui/Hand.gd" id="4_i2yfj"]
 [ext_resource type="Script" uid="uid://p4ouiuival0e" path="res://scripts/ui/EnemyContainer.gd" id="4_kvn7e"]
 [ext_resource type="PackedScene" uid="uid://c0sxkaemtqb5x" path="res://scenes/combatants/Player.tscn" id="5_7crh0"]
@@ -14,45 +15,29 @@
 [ext_resource type="Script" uid="uid://cedacrx3ip1sl" path="res://scripts/ui/ArtifactContainer.gd" id="5_a7j3r"]
 [ext_resource type="Script" uid="uid://chcjmcum7dbn7" path="res://scripts/ui/CharacterButtonContainer.gd" id="6_2ahpg"]
 [ext_resource type="Texture2D" uid="uid://k8bw51w22nft" path="res://scenes/label.png" id="6_kw7ld"]
-[ext_resource type="Texture2D" uid="uid://bw1x13mppx8ju" path="res://ui-free/ui/continuebutton.png" id="7_ug4o1"]
-[ext_resource type="Texture2D" uid="uid://doww0qhs3mtc6" path="res://ui-free/ui/continue_press.png" id="8_8b2qk"]
 [ext_resource type="Script" uid="uid://djp4k7pq27a7e" path="res://scripts/ui/CustomRunModifierButtonContainer.gd" id="8_nlp47"]
-[ext_resource type="Texture2D" uid="uid://d37t4ofh0envi" path="res://ui-free/ui/forfeitrunbutton.png" id="9_gdi3b"]
 [ext_resource type="Script" uid="uid://cu62o32eaklx7" path="res://scripts/ui/TurnOverlay.gd" id="9_u2w0b"]
 [ext_resource type="Script" uid="uid://dgls5w4w7ym84" path="res://scripts/ui/menus/CodexMenu.gd" id="9_uxrgu"]
 [ext_resource type="Script" uid="uid://brwptyvf1yacl" path="res://scripts/ui/CardSelectionOverlay.gd" id="10_bwtvr"]
-[ext_resource type="Texture2D" uid="uid://dx64igmvv2tci" path="res://ui-free/ui/forfeitrun_press.png" id="10_tpu2r"]
 [ext_resource type="Script" uid="uid://ejl2op54o7aw" path="res://scripts/ui/RewardOverlay.gd" id="10_u2l48"]
 [ext_resource type="Script" uid="uid://b8gg8exxeg26k" path="res://scripts/ui/Chest.gd" id="11_1uvyw"]
-[ext_resource type="Texture2D" uid="uid://csxgsmnwbu6rk" path="res://ui-free/ui/newgamebutton.png" id="11_4m3bv"]
 [ext_resource type="Script" uid="uid://b5htysy0x53ab" path="res://scripts/ui/Consumables.gd" id="11_c46y0"]
 [ext_resource type="Script" uid="uid://bepy2gle06uwf" path="res://scripts/ui/CardDraftSelectionOverlay.gd" id="11_yys3c"]
 [ext_resource type="Script" uid="uid://dm6o2678kafwr" path="res://scripts/ui/menus/RunScreen.gd" id="12_elxq6"]
-[ext_resource type="Texture2D" uid="uid://lorc2l4aascl" path="res://ui-free/ui/button.jpg" id="12_gndye"]
 [ext_resource type="Script" uid="uid://c2i6b2ert5jls" path="res://scripts/ui/PauseButton.gd" id="13_i7igs"]
-[ext_resource type="Texture2D" uid="uid://dng28kdvai3su" path="res://ui-free/ui/codexbutton.png" id="13_ov503"]
 [ext_resource type="Script" uid="uid://cdp0fx5l64nnt" path="res://scripts/ui/Shop.gd" id="13_w8i8k"]
 [ext_resource type="Script" uid="uid://dnvcyccyhfcmu" path="res://scripts/ui/Map.gd" id="14_fc5ht"]
-[ext_resource type="Texture2D" uid="uid://dbxhk63o2ee2l" path="res://ui-free/ui/codex_press.png" id="14_h1b6t"]
 [ext_resource type="Script" uid="uid://b2hl2ln4jm0mj" path="res://scripts/ui/RestOverlay.gd" id="14_k6wys"]
-[ext_resource type="Texture2D" uid="uid://dmdh8ick3aryc" path="res://ui-free/ui/settingbutton.png" id="15_jre55"]
 [ext_resource type="Texture2D" uid="uid://kyjp34iu0f81" path="res://scenes/run_game_background.png" id="16_kw7ld"]
-[ext_resource type="Texture2D" uid="uid://dcuxukgmv4ld6" path="res://ui-free/ui/setting_press.png" id="16_oihp2"]
-[ext_resource type="Texture2D" uid="uid://dm102wc7i2yrx" path="res://ui-free/ui/exitbutton.png" id="17_ehv8g"]
 [ext_resource type="Script" uid="uid://cw6tfwitjoo0i" path="res://scripts/ui/ShopOverlay.gd" id="17_stqr4"]
-[ext_resource type="Texture2D" uid="uid://biymvs5lnjpye" path="res://ui-free/ui/exit_press.png" id="18_r4fno"]
 [ext_resource type="Texture2D" uid="uid://bkvfxomsheixf" path="res://ui-free/ui/Larrow.png" id="21_1odo1"]
 [ext_resource type="Script" uid="uid://pk2e8kasw6rr" path="res://scripts/ui/RunSummaryOverlay.gd" id="21_fj66g"]
 [ext_resource type="Texture2D" uid="uid://nsbvnst240jy" path="res://ui-free/ui/Rarrow.png" id="22_0bxc5"]
-[ext_resource type="Texture2D" uid="uid://clrsvlhniwmgc" path="res://ui-free/ui/startrunbutton.png" id="25_01w3b"]
 [ext_resource type="Script" uid="uid://s7lqf6p66yti" path="res://scripts/ui/RunStartOptions.gd" id="25_ll3o0"]
 [ext_resource type="Texture2D" uid="uid://ja8iuhrd1nwq" path="res://ui-free/button/background.png" id="25_nownq"]
 [ext_resource type="Script" uid="uid://b2t515tpjrija" path="res://addons/smooth_scroll_container/SmoothScrollContainer.gd" id="25_t3i5t"]
 [ext_resource type="Script" uid="uid://ci6oby4hmnfg6" path="res://scripts/ui/DialogueOverlay.gd" id="25_tn5yy"]
 [ext_resource type="Script" uid="uid://b3nvcsku8u75w" path="res://addons/smooth_scroll_container/scroll_damper/expo_scroll_damper.gd" id="26_08sam"]
-[ext_resource type="Texture2D" uid="uid://buy16qlq66aik" path="res://ui-free/ui/startrun_press.png" id="26_51xl4"]
-[ext_resource type="Texture2D" uid="uid://bx2npjo63lus2" path="res://ui-free/ui/backbutton.png" id="27_vaix5"]
-[ext_resource type="Texture2D" uid="uid://cet1p0mvfok4n" path="res://ui-free/ui/back_press.png" id="28_1luj2"]
 [ext_resource type="Texture2D" uid="uid://c8n22yriym6e8" path="res://ui-free/rest/rest_bg.png" id="28_u5j4q"]
 [ext_resource type="Script" uid="uid://6xsavir53fvp" path="res://scripts/ui/PauseOverlay.gd" id="29_p8axl"]
 [ext_resource type="Texture2D" uid="uid://rrkyf3rr7hky" path="res://ui-free/shop/shop_bg.png" id="30_51fbl"]
@@ -62,10 +47,6 @@
 [ext_resource type="Script" uid="uid://cnst44ojx6hhi" path="res://scripts/ui/MapLocationContainer.gd" id="37_mapcn"]
 [ext_resource type="Texture2D" uid="uid://e3xlwnxw8klx" path="res://ui-free/ui/deck.png" id="38_h2aan"]
 [ext_resource type="Texture2D" uid="uid://c1oyyrmehkbnb" path="res://ui-free/button/press_bg.png" id="57_8b2qk"]
-[ext_resource type="Texture2D" uid="uid://b8re6c5wblanu" path="res://ui-free/ui/resumebutton.png" id="61_6kckn"]
-[ext_resource type="Texture2D" uid="uid://cewwu6x0c3voc" path="res://ui-free/ui/resume_press.png" id="62_eyftf"]
-[ext_resource type="Texture2D" uid="uid://cbhbmjrk0ese1" path="res://ui-free/ui/returntotbutton.png" id="63_54xf4"]
-[ext_resource type="Texture2D" uid="uid://dqluwgj2qxdir" path="res://ui-free/ui/returntot_press.png" id="64_grnft"]
 
 [sub_resource type="Resource" id="Resource_i7igs"]
 script = ExtResource("26_08sam")
@@ -217,54 +198,6 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reward_continue"]
-bg_color = Color(0.361, 0.502, 0.486, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.722, 0.773, 0.647, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-content_margin_left = 24.0
-content_margin_top = 8.0
-content_margin_right = 24.0
-content_margin_bottom = 8.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reward_continue_hover"]
-bg_color = Color(0.437, 0.592, 0.565, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.88, 0.827, 0.569, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-content_margin_left = 24.0
-content_margin_top = 8.0
-content_margin_right = 24.0
-content_margin_bottom = 8.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reward_continue_pressed"]
-bg_color = Color(0.263, 0.384, 0.369, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.502, 0.678, 0.627, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-content_margin_left = 24.0
-content_margin_top = 8.0
-content_margin_right = 24.0
-content_margin_bottom = 8.0
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reward_panel"]
 bg_color = Color(0.0588235, 0.0647059, 0.0784314, 0.968627)
 border_width_left = 2
@@ -291,6 +224,54 @@ corner_radius_top_left = 7
 corner_radius_top_right = 7
 corner_radius_bottom_right = 7
 corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reward_continue"]
+content_margin_left = 24.0
+content_margin_top = 8.0
+content_margin_right = 24.0
+content_margin_bottom = 8.0
+bg_color = Color(0.361, 0.502, 0.486, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.722, 0.773, 0.647, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reward_continue_pressed"]
+content_margin_left = 24.0
+content_margin_top = 8.0
+content_margin_right = 24.0
+content_margin_bottom = 8.0
+bg_color = Color(0.263, 0.384, 0.369, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.502, 0.678, 0.627, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reward_continue_hover"]
+content_margin_left = 24.0
+content_margin_top = 8.0
+content_margin_right = 24.0
+content_margin_bottom = 8.0
+bg_color = Color(0.437, 0.592, 0.565, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.88, 0.827, 0.569, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gdi3b"]
 texture = ExtResource("25_nownq")
@@ -380,48 +361,50 @@ offset_top = 383.0
 offset_right = 655.0
 offset_bottom = 726.0
 
-[node name="ContinueButton" type="TextureButton" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=916626650]
+[node name="ContinueButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=916626650]
 visible = false
-layout_mode = 2
-theme = ExtResource("2_bi5lp")
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
-
-[node name="ForfeitRunButton" type="TextureButton" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=667628068]
-visible = false
-layout_mode = 2
-theme = ExtResource("2_bi5lp")
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
-
-[node name="NewRunButton" type="TextureButton" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=1448564449]
-custom_minimum_size = Vector2(100, 50)
-layout_mode = 2
-theme = ExtResource("2_bi5lp")
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
-
-[node name="CodexButton" type="TextureButton" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=663223302]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-theme = ExtResource("2_bi5lp")
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
-[node name="SettingsButton" type="TextureButton" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=38449675]
+[node name="ForfeitRunButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=667628068]
+visible = false
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-theme = ExtResource("2_bi5lp")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
+
+[node name="NewRunButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=1448564449]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
+
+[node name="CodexButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=663223302]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
+
+[node name="SettingsButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=38449675]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
 disabled = true
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
-[node name="ExitButton" type="TextureButton" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=98597850]
+[node name="ExitButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=98597850]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-theme = ExtResource("2_bi5lp")
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
 [node name="NewRunMenu" type="Control" parent="TitleScreen" unique_id=1860934140]
 visible = false
@@ -430,14 +413,24 @@ offset_right = 1280.0
 offset_bottom = 720.0
 script = ExtResource("5_878fa")
 
+[node name="Background" type="TextureRect" parent="TitleScreen/NewRunMenu" unique_id=1860934139]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("48_selbg")
+expand_mode = 1
+stretch_mode = 6
+
 [node name="Label" type="Label" parent="TitleScreen/NewRunMenu" unique_id=1860800077]
 layout_direction = 2
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 0.0
 offset_top = 48.0
-offset_right = 0.0
 offset_bottom = 120.0
 grow_horizontal = 2
 theme = ExtResource("2_bi5lp")
@@ -657,25 +650,25 @@ text = "1234567890123456"
 alignment = 1
 max_length = 16
 
-[node name="StartRunButton" type="TextureButton" parent="TitleScreen/NewRunMenu" unique_id=1517436942]
+[node name="StartRunButton" type="Button" parent="TitleScreen/NewRunMenu" unique_id=1517436942]
 layout_mode = 0
 offset_left = 1067.0
 offset_top = 585.0
 offset_right = 1238.0
 offset_bottom = 633.0
-theme = ExtResource("2_bi5lp")
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
-[node name="BackButton" type="TextureButton" parent="TitleScreen/NewRunMenu" unique_id=2049432411]
+[node name="BackButton" type="Button" parent="TitleScreen/NewRunMenu" unique_id=2049432411]
 layout_mode = 0
 offset_left = 1068.0
 offset_top = 643.0
 offset_right = 1256.0
 offset_bottom = 691.0
-theme = ExtResource("2_bi5lp")
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
 [node name="CodexMenu" type="Control" parent="TitleScreen" unique_id=2006524794]
 visible = false
@@ -712,15 +705,15 @@ theme_override_constants/h_separation = 16
 theme_override_constants/v_separation = 16
 columns = 6
 
-[node name="BackButton" type="TextureButton" parent="TitleScreen/CodexMenu" unique_id=1517144831]
+[node name="BackButton" type="Button" parent="TitleScreen/CodexMenu" unique_id=1517144831]
 layout_mode = 0
 offset_left = 1087.0
 offset_top = 628.0
 offset_right = 1273.0
 offset_bottom = 676.0
-theme = ExtResource("2_bi5lp")
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="TitleScreen/CodexMenu" unique_id=1566636491]
 layout_mode = 0
@@ -1248,14 +1241,15 @@ theme_override_constants/h_separation = 16
 theme_override_constants/v_separation = 16
 columns = 3
 
-[node name="ContinueButton" type="TextureButton" parent="RunScreen/RestOverlay" unique_id=1369057313]
+[node name="ContinueButton" type="Button" parent="RunScreen/RestOverlay" unique_id=1369057313]
 layout_mode = 0
 offset_left = 543.0
 offset_top = 616.0
 offset_right = 687.0
 offset_bottom = 647.0
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
 [node name="ShopOverlay" type="Control" parent="RunScreen" unique_id=1165602506]
 unique_name_in_owner = true
@@ -1333,14 +1327,15 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
 
-[node name="ContinueButton" type="TextureButton" parent="RunScreen/ShopOverlay" unique_id=1661625168]
+[node name="ContinueButton" type="Button" parent="RunScreen/ShopOverlay" unique_id=1661625168]
 layout_mode = 0
 offset_left = 1030.0
 offset_top = 623.0
 offset_right = 1198.0
 offset_bottom = 671.0
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
 [node name="DialogueOverlay" type="Control" parent="RunScreen" unique_id=984469220]
 unique_name_in_owner = true
@@ -1602,11 +1597,9 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.65)
-theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_reward_continue")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_reward_continue_pressed")
@@ -1826,31 +1819,34 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 28.0
 offset_top = 90.0
-offset_right = -111.0
+offset_right = -28.0
 offset_bottom = -78.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ResumeButton" type="TextureButton" parent="RunScreen/PauseOverlay/Background2/VBoxContainer" unique_id=763625502]
+[node name="ResumeButton" type="Button" parent="RunScreen/PauseOverlay/Background2/VBoxContainer" unique_id=763625502]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 shortcut = SubResource("Shortcut_elxq6")
 shortcut_feedback = false
 shortcut_in_tooltip = false
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
-[node name="ReturnToTitleButton" type="TextureButton" parent="RunScreen/PauseOverlay/Background2/VBoxContainer" unique_id=1651271492]
+[node name="ReturnToTitleButton" type="Button" parent="RunScreen/PauseOverlay/Background2/VBoxContainer" unique_id=1651271492]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
-[node name="ForfeitRunButton" type="TextureButton" parent="RunScreen/PauseOverlay/Background2/VBoxContainer" unique_id=1976252994]
+[node name="ForfeitRunButton" type="Button" parent="RunScreen/PauseOverlay/Background2/VBoxContainer" unique_id=1976252994]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false

@@ -1,0 +1,42 @@
+{
+	"patch_data": {},
+	"properties": {
+		"character_background_texture_path": "",
+		"character_color_id": "color_white",
+		"character_description": "稳重、低挫折。起手遗物「初稿免责」：每场战斗首次默写答错不记入间隔复习惩罚，且本张牌仍可打出。",
+		"character_icon_texture_path": "external/sprites/characters/character_green/character_green_icon.svg",
+		"character_name": "守卷人",
+		"character_player_id": "player_archivist",
+		"character_starting_artifact_ids": [
+			"artifact_archivist_first_draft"
+		],
+		"character_starting_artifact_pack_ids": [
+			"artifact_pack_white",
+			"artifact_pack_green"
+		],
+		"character_starting_card_draft_card_pack_ids": [
+			"card_pack_white",
+			"card_pack_green"
+		],
+		"character_starting_card_object_ids": [
+			"card_attack_basic",
+			"card_attack_basic",
+			"card_archivist_index",
+			"card_archivist_annotate",
+			"card_archivist_annotate",
+			"card_block_basic",
+			"card_block_basic",
+			"card_block_basic",
+			"card_archivist_catalog",
+			"card_archivist_shelter",
+			"card_draw",
+			"card_grant_energy",
+			"card_weaken_enemies"
+		],
+		"character_starting_health": 85,
+		"character_starting_money": 99,
+		"character_text_energy_texture_path": "external/sprites/characters/character_green/character_green_text_energy.png",
+		"character_texture_path": "external/sprites/characters/character_green/character_green.svg",
+		"object_id": "character_archivist"
+	}
+}

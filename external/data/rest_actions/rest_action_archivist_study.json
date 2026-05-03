@@ -1,0 +1,22 @@
+{
+	"patch_data": {},
+	"properties": {
+		"object_id": "rest_action_archivist_study",
+		"rest_action_cost_type": 1,
+		"rest_action_name": "整理书架",
+		"rest_action_texture_path": "",
+		"rest_action_validators": [],
+		"rest_actions": [
+			{
+				"res://scripts/actions/ActionHealPercent.gd": {
+					"percentage_heal_amount": 0.12
+				}
+			},
+			{
+				"res://scripts/actions/player_actions/ActionAddMoney.gd": {
+					"money_amount": 12
+				}
+			}
+		]
+	}
+}

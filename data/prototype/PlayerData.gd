@@ -93,7 +93,7 @@ const DIFFICULTY_RUN_MODIFIER_OBJECT_IDS: Array[String] = [ # maps each difficul
 
 @export var player_run_difficulty_level: int = 0	# current run's difficulty. Starts at 0
 @export var player_run_modifier_object_ids: Array[String] = []	# all modifiers, both standard and custom, applied to this run
-@export var player_available_rest_action_object_ids: Array[String] = ["rest_action_rest", "rest_action_upgrade_card", "rest_action_remove_cards", "rest_action_add_random_consumable"]	# the types of rest actions populated at rest sites
+@export var player_available_rest_action_object_ids: Array[String] = ["rest_action_rest", "rest_action_upgrade_card", "rest_action_remove_cards", "rest_action_add_random_consumable", "rest_action_archivist_study"]	# the types of rest actions populated at rest sites
 
 ### Card Rewards
 

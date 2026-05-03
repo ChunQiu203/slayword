@@ -1,5 +1,6 @@
 ## read only data for a playable character.
 ## see PlayerData for mutabale parts.
+## Vocabulary / 复习节奏由全局 VocabStudy 统一管理，不在此按角色分叉。
 ## NOTE: If you wish to add a new character, you must provide both a CharacterData AND a PlayerData prototype
 ## and hook them up via CharacterData.character_player_id and PlayerData.player_character_object_id
 extends SerializableData

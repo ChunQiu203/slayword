@@ -16,6 +16,27 @@ class_name UserSettingsData
 @export var settings_audio_music_volume: int = 10
 @export var settings_audio_effects_volume: int = 10
 
+## 启用的词书 id（合并出题池）。默认：内置小词表 + NETEM 考研5530（见 data/vocab_books/book_netem_full.json）。
+@export var settings_vocab_enabled_book_ids: Array[String] = ["builtin_default", "netem_full"]
+## 战斗中出牌前的复习题型：spell=看题干默写英文；meaning=只看中文释义+例句后输入英文；mc4=四选一英文。
+@export var settings_vocab_combat_review_mode: String = "spell"
+## 自然日内从「到期复习」池中最多参与出牌复习的词数（0=不限制）。按日期固定随机子集，第二天会换一批。
+@export var settings_vocab_daily_due_cap: int = 30
+## 每个自然日从合并词池中按固定顺序取多少词，用 API 预生成例句并写入 user://vocab_example_cache.json（0=不跑每日批次）。
+@export var settings_vocab_daily_ordered_example_words: int = 20
+
+## 离线生成例句（tools/generate_vocab_examples.py）时的领域偏好：预设 id，见新开局界面勾选。
+@export var settings_vocab_example_domain_tags: Array[String] = []
+## 补充说明（自由文本，可与勾选叠加写入 user_settings.json 供脚本读取）。
+@export var settings_vocab_example_domain_custom: String = ""
+
+## 游戏内调用 OpenAI 兼容 API 生成例句（留空则依次用系统环境变量、项目根 res://.env、DOTENV_PATH 指向的文件中的 OPENAI_API_KEY）。
+@export var settings_openai_api_key: String = ""
+@export var settings_openai_base_url: String = "https://api.openai.com/v1"
+@export var settings_openai_model: String = "gpt-4o-mini"
+## 已废弃：出牌缺例句时是否联网补全（现改为「只要解析到 API Key 即自动补全」，保留字段以兼容旧存档）。
+@export var settings_vocab_fetch_examples_on_review: bool = true
+
 func _get_native_properties() -> Dictionary:
 	return {
 		"settings_window_size": Vector2()
