@@ -11,6 +11,8 @@ class_name ProfileData
 @export var profile_character_object_id_to_losses: Dictionary[String, int] = {}
 
 @export var profile_character_object_id_to_highest_difficulty: Dictionary[String, int] = {}
+## 本地战绩册：最近若干局的路线、牌组、遗物与背单词概况。
+@export var profile_run_history: Array = []
 
 ## 背单词间隔复习状态：word_id -> { "r": int, "i": float, "e": float, "d": int }（次数、间隔小时、因子、下次到期 unix）
 @export var profile_vocab_word_states: Dictionary = {}

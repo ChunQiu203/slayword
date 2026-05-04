@@ -26,7 +26,7 @@ class_name UserSettingsData
 @export var settings_vocab_daily_ordered_example_words: int = 20
 
 ## 离线生成例句（tools/generate_vocab_examples.py）时的领域偏好：预设 id，见新开局界面勾选。
-@export var settings_vocab_example_domain_tags: Array[String] = []
+@export var settings_vocab_example_domain_tags: Array[String] = ["game_scifi", "daily"]
 ## 补充说明（自由文本，可与勾选叠加写入 user_settings.json 供脚本读取）。
 @export var settings_vocab_example_domain_custom: String = ""
 

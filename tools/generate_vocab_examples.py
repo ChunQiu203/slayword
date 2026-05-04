@@ -53,6 +53,7 @@ PRESET_ID_TO_ZH: Dict[str, str] = {
     "news": "新闻 / 评论",
     "game_scifi": "游戏 / 科幻",
 }
+DEFAULT_DOMAIN_PREFS: List[str] = ["游戏 / 科幻", "日常口语"]
 
 
 def _split_domain_csv(s: str) -> List[str]:
@@ -123,9 +124,9 @@ def _merge_domain_hints(
             if p and p not in pieces:
                 pieces.append(p)
     if not pieces:
-        return ""
+        pieces = DEFAULT_DOMAIN_PREFS[:]
     return (
-        "用户希望例句语境优先贴近："
+        "用户个人兴趣/例句语境偏好优先贴近："
         + "、".join(pieces)
         + "。（在自然地道前提下尽量体现；无法兼顾时以词语准确用法为准）"
     )

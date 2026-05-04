@@ -7,6 +7,7 @@ extends Control
 @onready var forfeit_run_button: Button = $VBoxContainer/ForfeitRunButton
 @onready var new_run_button: Button = $VBoxContainer/NewRunButton
 @onready var codex_button: Button = $VBoxContainer/CodexButton
+@onready var vocab_prefs_button: Button = $VBoxContainer/VocabPrefsButton
 @onready var language_button: Button = $VBoxContainer/SettingsButton
 @onready var exit_button: Button = $VBoxContainer/ExitButton
 
@@ -16,6 +17,7 @@ func _ready():
 		forfeit_run_button,
 		new_run_button,
 		codex_button,
+		vocab_prefs_button,
 		language_button,
 		exit_button,
 	]:
@@ -32,6 +34,7 @@ func _ready():
 	forfeit_run_button.pressed.connect(_on_forfeit_run_button_up)
 	new_run_button.pressed.connect(_on_new_run_button_up)
 	codex_button.pressed.connect(_on_codex_button_up)
+	vocab_prefs_button.pressed.connect(_on_vocab_prefs_button_up)
 	language_button.pressed.connect(_on_language_button_up)
 	exit_button.pressed.connect(_on_exit_button_up)
 
@@ -54,6 +57,9 @@ func _on_new_run_button_up():
 
 func _on_codex_button_up():
 	title_screen.show_codex_menu()
+
+func _on_vocab_prefs_button_up():
+	title_screen.show_vocab_prefs_menu()
 
 func _on_language_button_up():
 	I18N.toggle_locale()

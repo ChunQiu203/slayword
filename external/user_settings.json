@@ -15,7 +15,10 @@
 		"netem_full"
 	],
 	"settings_vocab_example_domain_custom": "",
-	"settings_vocab_example_domain_tags": [],
+	"settings_vocab_example_domain_tags": [
+		"game_scifi",
+		"daily"
+	],
 	"settings_vocab_fetch_examples_on_review": true,
 	"settings_window_size": [
 		1200.0,

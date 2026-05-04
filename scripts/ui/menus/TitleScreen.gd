@@ -6,6 +6,7 @@ extends Control
 @onready var main_menu = $MainMenu
 @onready var new_run_menu = $NewRunMenu
 @onready var codex_menu = $CodexMenu
+@onready var vocab_prefs_menu = $VocabPrefsMenu
 
 func _ready():
 	Signals.run_started.connect(_on_run_started)
@@ -15,6 +16,7 @@ func hide_menus():
 	main_menu.visible = false
 	new_run_menu.visible = false
 	codex_menu.visible = false
+	vocab_prefs_menu.visible = false
 
 func show_main_menu():
 	hide_menus()
@@ -29,6 +31,11 @@ func show_codex_menu():
 	hide_menus()
 	codex_menu.visible = true
 	codex_menu.populate_codex_menu()
+
+func show_vocab_prefs_menu():
+	hide_menus()
+	vocab_prefs_menu.visible = true
+	vocab_prefs_menu.populate_vocab_prefs_menu()
 
 func _on_run_started():
 	visible = false

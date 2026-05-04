@@ -147,6 +147,21 @@ var player_artifact_available_artifact_id_cache: Dictionary[String, Variant] = {
 	#"<artifact_object_id>": null
 }
 
+### Run Statistics
+
+## Statistics for AI summary display
+@export var run_statistics: Dictionary = {
+	"cards_obtained": 0,
+	"enemies_defeated": 0,
+	"damage_taken": 0,
+	"damage_dealt": 0,
+	"death_reason": "",
+	"words_reviewed": 0,
+	"words_correct": 0,
+	"floors_completed": 0,
+	"combat_count": 0
+}
+
 ### Cards
 
 ## The player's permanent deck, persisting between combat. Changes to cards here will be
@@ -196,6 +211,12 @@ func _on_combat_started(event_id: String) -> void:
 
 func _on_combat_ended() -> void:
 	if player_current_combat_stats != null:
+		# Update run statistics with combat results
+		run_statistics["enemies_defeated"] += player_current_combat_stats.total_stats.get(CombatStatsData.STATS.ENEMIES_KILLED, 0)
+		run_statistics["damage_taken"] += player_current_combat_stats.total_stats.get(CombatStatsData.STATS.PLAYER_DAMAGED_AMOUNT, 0)
+		run_statistics["damage_dealt"] += player_current_combat_stats.total_stats.get(CombatStatsData.STATS.ENEMY_DAMAGED_AMOUNT, 0)
+		run_statistics["combat_count"] += 1
+
 		player_previous_combat_stats.append(player_current_combat_stats)
 	player_current_combat_stats = null
 
@@ -367,14 +388,15 @@ func get_pile(card_pick_type: int) -> Array[CardData]:
 
 func add_card_to_deck(card_data: CardData) -> void:
 	player_deck.append(card_data)
-	
+	run_statistics["cards_obtained"] += 1
+
 	var card_play_request: CardPlayRequest = CardPlayRequest.new()
 	card_play_request.card_data = card_data
 	card_play_request.selected_target = null
 	var player: Player = Global.get_player()
 	var card_add_to_deck_actions: Array[BaseAction] = ActionGenerator.create_actions(player, card_play_request, [], card_data.card_add_to_deck_actions, null)
 	ActionHandler.add_actions(card_add_to_deck_actions)
-	
+
 	Signals.card_added_to_deck.emit(card_data)
 
 func remove_card_from_deck(card_data: CardData) -> void:
@@ -607,6 +629,121 @@ func regenerate_artifact_available_id_cache() -> void:
 	
 	# cache results
 	player_artifact_available_artifact_id_cache = artifact_unique_object_ids
+
+### Statistics Methods
+
+func add_word_review(is_correct: bool) -> void:
+	"""Record a word review session"""
+	run_statistics["words_reviewed"] += 1
+	if is_correct:
+		run_statistics["words_correct"] += 1
+
+func update_floor_progress() -> void:
+	"""Update the current floor progress"""
+	run_statistics["floors_completed"] = player_act - 1 + (get_location_progress() / 100.0)
+
+func get_location_progress() -> float:
+	"""Get progress within current act as percentage"""
+	var total_locations = len(location_id_to_location_data)
+	if total_locations == 0:
+		return 0.0
+
+	var current_location_index = 0
+	var location_ids = location_id_to_location_data.keys()
+	for i in range(len(location_ids)):
+		if location_ids[i] == player_location_id:
+			current_location_index = i
+			break
+
+	return (current_location_index / total_locations) * 100.0
+
+func set_death_reason(reason: String) -> void:
+	"""Set the reason for player death"""
+	run_statistics["death_reason"] = reason
+
+func get_statistics_for_summary() -> Dictionary:
+	"""Get all statistics for the AI summary display"""
+	var floor_reached := _highest_visited_floor()
+	return {
+		"cards_obtained": run_statistics["cards_obtained"],
+		"enemies_defeated": run_statistics["enemies_defeated"],
+		"damage_taken": run_statistics["damage_taken"],
+		"damage_dealt": run_statistics["damage_dealt"],
+		"words_reviewed": run_statistics["words_reviewed"],
+		"words_correct": run_statistics["words_correct"],
+		"floor_reached": floor_reached,
+		"death_reason": run_statistics["death_reason"]
+	}
+
+func get_run_route_summary() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for loc_v: Variant in location_id_to_location_data.values():
+		var loc: LocationData = loc_v as LocationData
+		if loc == null or not loc.location_visited:
+			continue
+		var type_name: String = str(LocationData.LOCATION_TYPES.keys()[loc.location_type])
+		out.append({
+			"act": loc.location_act,
+			"floor": loc.location_floor,
+			"type": type_name,
+			"event_id": loc.location_event_object_id,
+		})
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if int(a.get("act", 0)) == int(b.get("act", 0)):
+			return int(a.get("floor", 0)) < int(b.get("floor", 0))
+		return int(a.get("act", 0)) < int(b.get("act", 0))
+	)
+	return out
+
+func get_deck_summary_for_history() -> Array[Dictionary]:
+	var counts: Dictionary[String, Dictionary] = {}
+	for card_data: CardData in player_deck:
+		var cid := card_data.object_id
+		var item: Dictionary = counts.get(cid, {
+			"id": cid,
+			"name": card_data.card_name,
+			"count": 0,
+			"rarity": card_data.card_rarity,
+		})
+		item["name"] = I18N.tr_data(card_data.object_id, "card_name", card_data.card_name)
+		item["count"] = int(item.get("count", 0)) + 1
+		counts[cid] = item
+	var out: Array[Dictionary] = []
+	for v: Variant in counts.values():
+		out.append(v as Dictionary)
+	return out
+
+func get_artifact_summary_for_history() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for artifact_data: ArtifactData in get_player_artifacts():
+		out.append({
+			"id": artifact_data.object_id,
+			"name": I18N.tr_data(artifact_data.object_id, "artifact_name", artifact_data.artifact_name),
+			"rarity": artifact_data.artifact_rarity,
+		})
+	return out
+
+func _highest_visited_floor() -> int:
+	var highest := 1
+	for loc_v: Variant in location_id_to_location_data.values():
+		var loc: LocationData = loc_v as LocationData
+		if loc != null and loc.location_visited:
+			highest = maxi(highest, int(loc.location_floor))
+	return highest
+
+func reset_run_statistics() -> void:
+	"""Reset all run statistics - call at start of new run"""
+	run_statistics = {
+		"cards_obtained": 0,
+		"enemies_defeated": 0,
+		"damage_taken": 0,
+		"damage_dealt": 0,
+		"death_reason": "",
+		"words_reviewed": 0,
+		"words_correct": 0,
+		"floors_completed": 0,
+		"combat_count": 0
+	}
 
 func _get_native_properties() -> Dictionary:
 	return {

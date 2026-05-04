@@ -10,6 +10,8 @@ func perform_action() -> void:
 		
 		# set player location to new location
 		Global.player_data.player_location_id = location_id
+		# Update floor progress statistics
+		Global.player_data.update_floor_progress()
 		# null out shop data
 		Global.player_data.player_shop_data = null
 		

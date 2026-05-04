@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://p4ouiuival0e" path="res://scripts/ui/EnemyContainer.gd" id="4_kvn7e"]
 [ext_resource type="PackedScene" uid="uid://c0sxkaemtqb5x" path="res://scenes/combatants/Player.tscn" id="5_7crh0"]
 [ext_resource type="Script" uid="uid://c4twsg7v4ky8u" path="res://scripts/ui/menus/NewRunMenu.gd" id="5_878fa"]
+[ext_resource type="Script" path="res://scripts/ui/menus/VocabPrefsMenu.gd" id="5_vpref"]
 [ext_resource type="Script" uid="uid://cedacrx3ip1sl" path="res://scripts/ui/ArtifactContainer.gd" id="5_a7j3r"]
 [ext_resource type="Script" uid="uid://chcjmcum7dbn7" path="res://scripts/ui/CharacterButtonContainer.gd" id="6_2ahpg"]
 [ext_resource type="Texture2D" uid="uid://k8bw51w22nft" path="res://scenes/label.png" id="6_kw7ld"]
@@ -47,6 +48,7 @@
 [ext_resource type="Script" uid="uid://cnst44ojx6hhi" path="res://scripts/ui/MapLocationContainer.gd" id="37_mapcn"]
 [ext_resource type="Texture2D" uid="uid://e3xlwnxw8klx" path="res://ui-free/ui/deck.png" id="38_h2aan"]
 [ext_resource type="Texture2D" uid="uid://c1oyyrmehkbnb" path="res://ui-free/button/press_bg.png" id="57_8b2qk"]
+[ext_resource type="Script" uid="uid://d4l6k3f5m9n2a" path="res://scripts/ui/RunStatisticsOverlay.gd" id="39_stats"]
 
 [sub_resource type="Resource" id="Resource_i7igs"]
 script = ExtResource("26_08sam")
@@ -385,6 +387,13 @@ theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
 flat = false
 
 [node name="CodexButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=663223302]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
+
+[node name="VocabPrefsButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=1990000005]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
@@ -740,6 +749,48 @@ text = "Artifacts"
 layout_mode = 2
 disabled = true
 text = "Consumables"
+
+[node name="VocabPrefsMenu" type="Control" parent="TitleScreen" unique_id=1990000001]
+visible = false
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+script = ExtResource("5_vpref")
+
+[node name="Background" type="TextureRect" parent="TitleScreen/VocabPrefsMenu" unique_id=1990000002]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("48_selbg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Label" type="Label" parent="TitleScreen/VocabPrefsMenu" unique_id=1990000003]
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 48.0
+offset_bottom = 120.0
+grow_horizontal = 2
+theme = ExtResource("2_bi5lp")
+text = "Study & word lists"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BackButton" type="Button" parent="TitleScreen/VocabPrefsMenu" unique_id=1990000004]
+layout_mode = 0
+offset_left = 1068.0
+offset_top = 643.0
+offset_right = 1256.0
+offset_bottom = 691.0
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+flat = false
 
 [node name="RunScreen" type="Control" parent="." unique_id=1760638622]
 visible = false
@@ -1430,57 +1481,129 @@ offset_right = 1280.0
 offset_bottom = 720.0
 script = ExtResource("21_fj66g")
 
+[node name="RunStatisticsOverlay" type="Control" parent="RunScreen" unique_id=1059986271]
+unique_name_in_owner = true
+process_mode = 1
+visible = false
+z_index = 11
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+script = ExtResource("39_stats")
+
 [node name="Background" type="ColorRect" parent="RunScreen/RunSummaryOverlay" unique_id=73478863]
 layout_mode = 0
 offset_right = 1280.0
 offset_bottom = 720.0
-color = Color(0.203922, 0.188235, 0.215686, 0.635294)
+color = Color(0.05, 0.05, 0.08, 0.85)
 
-[node name="Background2" type="ColorRect" parent="RunScreen/RunSummaryOverlay" unique_id=425897448]
+[node name="Background2" type="PanelContainer" parent="RunScreen/RunSummaryOverlay" unique_id=425897448]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -568.0
-offset_top = -286.0
-offset_right = 642.0
-offset_bottom = 290.0
+offset_left = -450.0
+offset_top = -180.0
+offset_right = 450.0
+offset_bottom = 180.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.0941176, 0.0862745, 0.101961, 0.67451)
 
 [node name="VictoryLabel" type="Label" parent="RunScreen/RunSummaryOverlay" unique_id=1294242227]
-layout_mode = 0
-offset_left = 32.0
-offset_top = 64.0
-offset_right = 1242.0
-offset_bottom = 224.0
-theme_override_font_sizes/font_size = 50
-text = "Victory"
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 50.0
+offset_bottom = 130.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 0.45, 1.0)
+theme_override_font_sizes/font_size = 52
+text = "🎉 Victory!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="DefeatLabel" type="Label" parent="RunScreen/RunSummaryOverlay" unique_id=136534559]
-layout_mode = 0
-offset_left = 32.0
-offset_top = 64.0
-offset_right = 1242.0
-offset_bottom = 224.0
-theme_override_font_sizes/font_size = 50
-text = "Defeat"
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 50.0
+offset_bottom = 130.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.9, 0.35, 0.35, 1.0)
+theme_override_font_sizes/font_size = 52
+text = "💀 Defeat"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EndRunButton" type="TextureButton" parent="RunScreen/RunSummaryOverlay" unique_id=1305451617]
-layout_mode = 0
-offset_left = 568.0
-offset_top = 543.0
-offset_right = 748.0
-offset_bottom = 624.0
-texture_normal = ExtResource("25_nownq")
-texture_pressed = ExtResource("57_8b2qk")
+[node name="QuitLabel" type="Label" parent="RunScreen/RunSummaryOverlay" unique_id=136534560]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 50.0
+offset_bottom = 130.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1.0)
+theme_override_font_sizes/font_size = 52
+text = "🚪 提前退出"
+horizontal_alignment = 1
+vertical_alignment = 1
+visible = false
+
+[node name="PromptLabel" type="Label" parent="RunScreen/RunSummaryOverlay" unique_id=136534561]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 150.0
+offset_bottom = 200.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.9, 0.87, 0.8, 1.0)
+theme_override_font_sizes/font_size = 22
+text = "点击下方按钮查看详细统计或返回主菜单"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ViewStatisticsButton" type="Button" parent="RunScreen/RunSummaryOverlay" unique_id=1305451618]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -310.0
+offset_top = 100.0
+offset_right = -80.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+custom_minimum_size = Vector2(230, 70)
+theme_override_colors/font_color = Color(0.95, 0.92, 0.85, 1.0)
+theme_override_colors/font_hover_color = Color(1.0, 0.95, 0.9, 1.0)
+theme_override_font_sizes/font_size = 24
+text = "📊 查看详细统计"
+
+[node name="EndRunButton" type="Button" parent="RunScreen/RunSummaryOverlay" unique_id=1305451617]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 80.0
+offset_top = 100.0
+offset_right = 310.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+custom_minimum_size = Vector2(230, 70)
+theme_override_colors/font_color = Color(0.95, 0.92, 0.85, 1.0)
+theme_override_colors/font_hover_color = Color(1.0, 0.95, 0.9, 1.0)
+theme_override_font_sizes/font_size = 24
+text = "🏠 返回主菜单"
+offset_bottom = 520.0
+theme_override_font_sizes/font_size = 24
+text = "返回主菜单"
 
 [node name="RunStartOptions" type="Control" parent="RunScreen" unique_id=988387380]
 unique_name_in_owner = true
