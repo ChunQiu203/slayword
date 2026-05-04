@@ -8,6 +8,7 @@ class_name Player
 
 const INTENT_UPDATES_LAZILY: bool = true	# batches intent updates
 var _intent_is_updating: bool = false
+var incoming_damage_amount: int = 0	# current incoming damage preview
 
 func _ready():
 	super()
@@ -86,7 +87,7 @@ func update_player_display(_player_data: PlayerData):
 func update_incoming_damage_amount(recalculate_enemy_intent: bool = true) -> void:
 	# updates the damage preview above the player's head
 	# flag to force recalculation of all enemy intents as well
-	
+
 	# optional lazy updating
 	if _intent_is_updating:
 		return
@@ -94,14 +95,14 @@ func update_incoming_damage_amount(recalculate_enemy_intent: bool = true) -> voi
 		_intent_is_updating = true
 		await get_tree().process_frame
 		_intent_is_updating = false
-	
-	var incoming_damage_amount = 0 # totaled value
+
+	incoming_damage_amount = 0 # totaled value
 	for en in get_tree().get_nodes_in_group("enemies"):
 		var enemy: Enemy = en # typecast
-		
+
 		if recalculate_enemy_intent:
 			enemy.update_enemy_intent()
-		
+
 		incoming_damage_amount += enemy.enemy_intent_attack_damage * enemy.enemy_intent_number_of_attacks
 
 	incoming_damage_amount_text.text = str(incoming_damage_amount)
@@ -178,6 +179,14 @@ func _on_player_health_changed():
 	update_health_bar(true)
 	if Global.player_data.player_health <= 0:
 		if not animation_player.is_playing():
+			# Set death reason based on current combat state
+			var death_reason = "未知原因"
+			if incoming_damage_amount > 0:
+				death_reason = "被敌人攻击击败"
+			else:
+				death_reason = "生命值耗尽"
+
+			Global.player_data.set_death_reason(death_reason)
 			animation_player.play("death")
 			Signals.player_killed.emit(self)
 

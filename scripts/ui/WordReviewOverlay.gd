@@ -30,6 +30,7 @@ const FONT_EX_ZH := 13
 const FONT_INPUT := 20
 const FONT_BUTTON := 20
 const FONT_FEEDBACK := 17
+const MC_TWO_COLUMN_MIN_W := 560.0
 ## 默写阶段允许连续提交错误答案的次数（不含「跳过」）；避免无限试错直到蒙对。
 const MAX_WRONG_ATTEMPTS_IN_QUIZ := 5
 
@@ -54,11 +55,12 @@ var _review_outcome: int = REVIEW_OUTCOME_OK
 var _quiz_wrong_submits: int = 0
 var _answers: Array[String] = []
 var _word_id: String = ""
+var _last_answer_text: String = ""
 var _in_learn_wait: bool = false
 var _learn_show_answer_busy: bool = false
 ## 默写阶段题型（与 VocabStudy.combat_vocab_review_mode 一致）
 var _quiz_review_mode: String = VocabStudy.VOCAB_REVIEW_MODE_SPELL
-var _mc_container: VBoxContainer
+var _mc_container: GridContainer
 var _mc_option_buttons: Array[Button] = []
 
 func _ready() -> void:
@@ -82,7 +84,7 @@ func _ready() -> void:
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	var panel_sb := StyleBoxFlat.new()
 	panel_sb.bg_color = Color(0.07, 0.09, 0.12, 0.96)
-	panel_sb.border_color = Color(0.38, 0.48, 0.58, 0.85)
+	panel_sb.border_color = Color(0.58, 0.49, 0.28, 0.95)
 	panel_sb.set_border_width_all(1)
 	panel_sb.set_corner_radius_all(12)
 	panel_sb.content_margin_left = 20
@@ -117,7 +119,7 @@ func _ready() -> void:
 	_learn_panel.add_child(learn_row)
 
 	_learn_button = Button.new()
-	_learn_button.text = "记住了，开始默写"
+	_learn_button.text = I18N.tr_key("vocab.review.learn_next_spell")
 	_learn_button.custom_minimum_size = Vector2(200, TOUCH_MIN_BUTTON_H)
 	_learn_button.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_learn_button.pressed.connect(_on_learn_ack_pressed)
@@ -126,6 +128,7 @@ func _ready() -> void:
 	_learn_show_answer_button = Button.new()
 	_learn_show_answer_button.text = "看答案"
 	_learn_show_answer_button.tooltip_text = "显示正确拼写；本次按默写未通过处理，不标记「已学」，并影响复习间隔。"
+	_learn_show_answer_button.visible = false
 	_learn_show_answer_button.custom_minimum_size = Vector2(140, TOUCH_MIN_BUTTON_H)
 	_learn_show_answer_button.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_learn_show_answer_button.pressed.connect(_on_learn_show_answer_pressed)
@@ -138,9 +141,11 @@ func _ready() -> void:
 	_prompt.add_theme_font_size_override("normal_font_size", FONT_PROMPT)
 	_outer.add_child(_prompt)
 
-	_mc_container = VBoxContainer.new()
+	_mc_container = GridContainer.new()
 	_mc_container.visible = false
-	_mc_container.add_theme_constant_override("separation", 10)
+	_mc_container.columns = 2
+	_mc_container.add_theme_constant_override("h_separation", 10)
+	_mc_container.add_theme_constant_override("v_separation", 10)
 	_mc_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_outer.add_child(_mc_container)
 	for _i in range(4):
@@ -169,7 +174,7 @@ func _ready() -> void:
 	_outer.add_child(hb)
 
 	_submit = Button.new()
-	_submit.text = "提交"
+	_submit.text = I18N.tr_key("vocab.review.submit")
 	_submit.custom_minimum_size = Vector2(140, TOUCH_MIN_BUTTON_H)
 	_submit.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_submit.pressed.connect(_on_submit)
@@ -177,7 +182,7 @@ func _ready() -> void:
 
 	_peek_answer_quiz_button = Button.new()
 	_peek_answer_quiz_button.name = "PeekAnswerQuizButton"
-	_peek_answer_quiz_button.text = "看答案"
+	_peek_answer_quiz_button.text = I18N.tr_key("vocab.review.peek_answer")
 	_peek_answer_quiz_button.tooltip_text = "显示正确拼写；本次按默写未通过处理，并影响复习间隔。"
 	_peek_answer_quiz_button.custom_minimum_size = Vector2(120, TOUCH_MIN_BUTTON_H)
 	_peek_answer_quiz_button.add_theme_font_size_override("font_size", FONT_BUTTON)
@@ -185,7 +190,7 @@ func _ready() -> void:
 	hb.add_child(_peek_answer_quiz_button)
 
 	_skip = Button.new()
-	_skip.text = "跳过"
+	_skip.text = I18N.tr_key("vocab.review.skip")
 	_skip.tooltip_text = "跳过学习或默写，本次不出牌"
 	_skip.custom_minimum_size = Vector2(140, TOUCH_MIN_BUTTON_H)
 	_skip.add_theme_font_size_override("font_size", FONT_BUTTON)
@@ -199,15 +204,39 @@ func _ready() -> void:
 	_outer.add_child(_feedback)
 
 	_return_after_peek_button = Button.new()
-	_return_after_peek_button.text = "返回"
-	_return_after_peek_button.tooltip_text = "确认后结束默写；本次按未通过处理。"
+	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
+	_return_after_peek_button.tooltip_text = "确认结果后继续。"
 	_return_after_peek_button.visible = false
 	_return_after_peek_button.custom_minimum_size = Vector2(200, TOUCH_MIN_BUTTON_H)
 	_return_after_peek_button.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_return_after_peek_button.pressed.connect(_on_return_after_peek_pressed)
 	_outer.add_child(_return_after_peek_button)
 
+	if not I18N.locale_changed.is_connected(_on_locale_changed):
+		I18N.locale_changed.connect(_on_locale_changed)
+	_refresh_i18n()
 	_apply_panel_layout()
+
+func _on_locale_changed(_locale: String) -> void:
+	_refresh_i18n()
+
+func _refresh_i18n() -> void:
+	var rm0: String = VocabStudy.combat_vocab_review_mode()
+	_learn_button.text = (
+		I18N.tr_key("vocab.review.learn_next_spell")
+		if rm0 == VocabStudy.VOCAB_REVIEW_MODE_SPELL
+		else I18N.tr_key("vocab.review.learn_next_quiz")
+	)
+	_learn_show_answer_button.text = I18N.tr_key("vocab.review.peek_answer")
+	_submit.text = I18N.tr_key("vocab.review.submit")
+	_peek_answer_quiz_button.text = I18N.tr_key("vocab.review.peek_answer")
+	_skip.text = I18N.tr_key("vocab.review.learn_skip") if _in_learn_wait else I18N.tr_key("vocab.review.skip")
+	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
+	if _input.visible:
+		if _quiz_review_mode == VocabStudy.VOCAB_REVIEW_MODE_MEANING:
+			_input.placeholder_text = I18N.tr_key("vocab.review.placeholder_meaning")
+		else:
+			_input.placeholder_text = I18N.tr_key("vocab.review.placeholder_spell")
 
 func _on_viewport_size_changed() -> void:
 	if visible:
@@ -216,25 +245,32 @@ func _on_viewport_size_changed() -> void:
 func _apply_panel_layout() -> void:
 	var vs: Vector2 = get_viewport().get_visible_rect().size
 	var side: float = maxf(20.0, vs.x * 0.06)
-	var top: float = maxf(36.0, vs.y * 0.06)
-	var reserve_bottom: float = clampf(vs.y * 0.38, 200.0, 420.0)
+	var top: float = maxf(24.0, vs.y * 0.04)
+	var bottom: float = maxf(24.0, vs.y * 0.04)
 
 	_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_panel.offset_left = side
 	_panel.offset_top = top
 	_panel.offset_right = -side
-	_panel.offset_bottom = -reserve_bottom
+	_panel.offset_bottom = -bottom
 
 	var inner_w: float = maxf(280.0, vs.x - side * 2.0 - 32.0)
 	_prompt.custom_minimum_size = Vector2(inner_w, 0.0)
 	_learn_text.custom_minimum_size = Vector2(inner_w, 0.0)
 	_feedback.custom_minimum_size = Vector2(inner_w, 0.0)
 	_return_after_peek_button.custom_minimum_size = Vector2(maxf(200.0, inner_w * 0.5), TOUCH_MIN_BUTTON_H)
+	var mc_columns := 2 if inner_w >= MC_TWO_COLUMN_MIN_W else 1
+	_mc_container.columns = mc_columns
+	var mc_w: float = inner_w
+	if mc_columns == 2:
+		mc_w = (inner_w - 10.0) * 0.5
 	for mb: Button in _mc_option_buttons:
-		mb.custom_minimum_size = Vector2(maxf(200.0, inner_w - 8.0), TOUCH_MIN_BUTTON_H - 2)
+		mb.custom_minimum_size = Vector2(maxf(160.0, mc_w), TOUCH_MIN_BUTTON_H - 2)
 
 func _reset_quiz_peek_state() -> void:
 	_quiz_peek_answer_shown = false
+	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
+	_return_after_peek_button.disabled = false
 	_return_after_peek_button.visible = false
 	_submit.disabled = false
 	_peek_answer_quiz_button.disabled = false
@@ -252,14 +288,25 @@ func _on_input_focus() -> void:
 func _escape_bbcode_user_text(s: String) -> String:
 	return s.replace("[", "〔").replace("]", "〕")
 
+func _status_tag_bbcode(label_key: String, color: String = "#d8c27a") -> String:
+	return "[color=%s][font_size=%d]%s[/font_size][/color]" % [
+		color,
+		FONT_EX_SECTION,
+		_escape_bbcode_user_text(I18N.tr_key(label_key)),
+	]
+
 func _build_learn_panel_bbcode(word: Dictionary) -> String:
 	var hw: String = str(word.get("study_headword", ""))
 	var mn: String = str(word.get("study_meaning", ""))
 	var body: String = (
-		"[center][color=#f2ebe0][font_size=%d]%s[/font_size][/color]\n\n"
+		"[center]%s\n\n"
+		% _status_tag_bbcode("vocab.review.tag_new", "#d8c27a")
+		+ "[color=#f2ebe0][font_size=%d]%s[/font_size][/color]\n\n"
 		% [FONT_LEARN_HEAD, _escape_bbcode_user_text(hw)]
-		+ "[color=#b8c8b8][font_size=%d]中文释义：[/font_size][color=#d4ecd4][font_size=%d]%s[/font_size]"
-		% [FONT_LEARN_MEANING, FONT_LEARN_MEANING, _escape_bbcode_user_text(mn)]
+		+ "[color=#91c59d][font_size=%d]%s[/font_size][/color]\n"
+		% [FONT_EX_GLOSS, _escape_bbcode_user_text(I18N.tr_key("vocab.review.learn_meaning_label"))]
+		+ "[color=#d4ecd4][font_size=%d]%s[/font_size][/color]"
+		% [FONT_LEARN_MEANING, _escape_bbcode_user_text(mn)]
 	)
 	var ex: String = _format_study_examples_bbcode(word.get("study_examples", null))
 	if ex != "":
@@ -289,24 +336,24 @@ func _format_study_examples_bbcode(raw: Variant) -> String:
 			var gloss: String = str(d.get("gloss", "")).strip_edges()
 			var zh: String = str(d.get("sentence_zh", "")).strip_edges()
 			var head: String = (
-				"[color=#8fa6bc][font_size=%d]%d.[/font_size][/color] "
-				% [FONT_EX_NUM, idx]
+				"[color=#8fa6bc][font_size=%d]%s %d[/font_size][/color] "
+				% [FONT_EX_NUM, _escape_bbcode_user_text(I18N.tr_key("vocab.review.example_usage")), idx]
 			)
 			if gloss != "":
 				head += (
-					"[color=#8fbc8f][font_size=%d]%s[/font_size]\n"
+					"[color=#8fbc8f][font_size=%d]%s[/font_size][/color]\n"
 					% [FONT_EX_GLOSS, _escape_bbcode_user_text(gloss)]
 				)
 			else:
 				head += "\n"
 			var blk: String = (
 				head
-				+ "[color=#d0dce8][font_size=%d]%s[/font_size]"
+				+ "[color=#d0dce8][font_size=%d]%s[/font_size][/color]"
 				% [FONT_EX_SENT, _escape_bbcode_user_text(sent)]
 			)
 			if zh != "":
 				blk += (
-					"\n[color=#8a9e92][font_size=%d]译文：%s[/font_size]"
+					"\n[color=#8a9e92][font_size=%d]译文：%s[/font_size][/color]"
 					% [FONT_EX_ZH, _escape_bbcode_user_text(zh)]
 				)
 			blocks.append(blk)
@@ -317,18 +364,96 @@ func _format_study_examples_bbcode(raw: Variant) -> String:
 				continue
 			blocks.append(
 				(
-					"[color=#8fa6bc][font_size=%d]%d.[/font_size][/color] "
-					+ "[color=#d0dce8][font_size=%d]%s[/font_size]"
+					"[color=#8fa6bc][font_size=%d]%s %d[/font_size][/color] "
+					+ "[color=#d0dce8][font_size=%d]%s[/font_size][/color]"
 				)
-				% [FONT_EX_NUM, idx, FONT_EX_SENT, _escape_bbcode_user_text(s)]
+				% [FONT_EX_NUM, _escape_bbcode_user_text(I18N.tr_key("vocab.review.example_usage")), idx, FONT_EX_SENT, _escape_bbcode_user_text(s)]
 			)
 			idx += 1
 	if blocks.is_empty():
 		return ""
 	return (
-		"[color=#9aa8b6][font_size=%d]例句[/font_size][/color]\n\n%s"
-		% [FONT_EX_SECTION, "\n\n".join(blocks)]
+		"[color=#9aa8b6][font_size=%d]%s[/font_size][/color]\n\n%s"
+		% [FONT_EX_SECTION, _escape_bbcode_user_text(I18N.tr_key("vocab.review.examples_title")), "\n\n".join(blocks)]
 	)
+
+
+func _plain_prompt_without_answer_leaks(word: Dictionary) -> String:
+	var raw := str(word.get("prompt", "")).strip_edges()
+	if raw.is_empty():
+		return ""
+	raw = raw.replace("[center]", "").replace("[/center]", "")
+	var blocked: Array[String] = []
+	var hw := str(word.get("study_headword", "")).strip_edges().to_lower()
+	if hw.length() >= 2:
+		blocked.append(hw)
+	for a: String in _answers:
+		var al := a.strip_edges().to_lower()
+		if al.length() >= 2 and not blocked.has(al):
+			blocked.append(al)
+	var kept: PackedStringArray = []
+	for line_raw: String in raw.split("\n"):
+		var line := line_raw.strip_edges()
+		if line.is_empty():
+			continue
+		var low := line.to_lower()
+		var leaks := false
+		for b: String in blocked:
+			if low.contains(b):
+				leaks = true
+				break
+		if not leaks:
+			kept.append(line)
+	return "\n".join(kept)
+
+
+func _build_meaning_only_quiz_bbcode(word: Dictionary, title_key: String, instruction_key: String = "") -> String:
+	var mn: String = str(word.get("study_meaning", "")).strip_edges()
+	var bb := "[center]%s\n\n[color=#c8d8e8][font_size=%d]%s[/font_size][/color]" % [
+		_status_tag_bbcode("vocab.review.tag_review", "#c7a957"),
+		FONT_PROMPT,
+		_escape_bbcode_user_text(I18N.tr_key(title_key)),
+	]
+	if mn != "":
+		bb += (
+			"\n\n[color=#91c59d][font_size=%d]%s[/font_size][/color]\n"
+			% [FONT_EX_GLOSS, _escape_bbcode_user_text(I18N.tr_key("vocab.review.meaning_label"))]
+			+ "[color=#dde8f0][font_size=%d]%s[/font_size][/color]"
+			% [FONT_LEARN_MEANING + 1, _escape_bbcode_user_text(mn)]
+		)
+	else:
+		var safe_prompt := _plain_prompt_without_answer_leaks(word)
+		if safe_prompt != "":
+			bb += (
+				"\n\n[color=#dde8f0][font_size=%d]%s[/font_size][/color]"
+				% [FONT_LEARN_MEANING + 1, _escape_bbcode_user_text(safe_prompt)]
+			)
+		else:
+			bb += (
+				"\n\n[color=#aab6c2][font_size=%d]%s[/font_size][/color]"
+				% [FONT_EX_ZH, _escape_bbcode_user_text(I18N.tr_key("vocab.review.no_safe_prompt"))]
+			)
+	if instruction_key != "":
+		bb += "\n\n[color=#9aa8b6]%s[/color]" % _escape_bbcode_user_text(I18N.tr_key(instruction_key))
+	bb += "\n\n[color=#6f7f90][font_size=%d]%s[/font_size][/color]" % [
+		FONT_EX_ZH,
+		_escape_bbcode_user_text(I18N.tr_key("vocab.review.quiz_hidden_note")),
+	]
+	bb += "[/center]"
+	return bb
+
+
+func _format_review_delay(hours: float) -> String:
+	if hours < 1.5:
+		return I18N.tr_key("vocab.review.time_hour", [1])
+	if hours < 36.0:
+		return I18N.tr_key("vocab.review.time_hours", [int(round(hours))])
+	return I18N.tr_key("vocab.review.time_days", [maxi(1, int(round(hours / 24.0)))])
+
+
+func _next_review_line(correct: bool) -> String:
+	var h := VocabStudy.preview_next_review_hours(_word_id, correct)
+	return I18N.tr_key("vocab.review.next_review", [_format_review_delay(h)])
 
 
 func _mc_choice_matches_answer(choice_lower: String) -> bool:
@@ -342,71 +467,37 @@ func _on_mc_button_pressed(b: Button) -> void:
 	if _finished or _quiz_peek_answer_shown or not b.visible:
 		return
 	var typed: String = _normalize(b.text)
+	_last_answer_text = b.text
 	if _mc_choice_matches_answer(typed):
 		_finish(true)
 		return
 	_quiz_wrong_submits += 1
 	if _quiz_wrong_submits >= MAX_WRONG_ATTEMPTS_IN_QUIZ:
-		_feedback.text = I18N.tr_key("vocab.review.mc_wrong_cap")
 		_finish(false, REVIEW_OUTCOME_WRONG)
 		return
 	var left: int = MAX_WRONG_ATTEMPTS_IN_QUIZ - _quiz_wrong_submits
+	_feedback.add_theme_color_override("font_color", Color(1.0, 0.82, 0.55, 1.0))
 	_feedback.text = I18N.tr_key("vocab.review.mc_try_again", [left])
 
 
 func _setup_spelling_quiz_prompt(word: Dictionary) -> void:
-	var ex_quiz: String = _format_study_examples_bbcode(word.get("study_examples", null))
-	var quiz_prompt_bb: String = "[center]" + str(word.get("prompt", ""))
-	if ex_quiz != "":
-		quiz_prompt_bb += "\n\n" + ex_quiz
-	else:
-		quiz_prompt_bb += (
-			"\n\n[color=#7a8290][font_size=%d]%s[/font_size]"
-			% [maxi(11, FONT_EX_ZH), _escape_bbcode_user_text(I18N.tr_key("vocab.no_examples_hint"))]
-		)
-	quiz_prompt_bb += "[/center]"
-	_prompt.text = quiz_prompt_bb
+	_prompt.text = _build_meaning_only_quiz_bbcode(
+		word,
+		"vocab.review.spell_label",
+		"vocab.review.spell_instruction"
+	)
 
 
 func _setup_meaning_quiz_prompt(word: Dictionary) -> void:
-	var mn: String = str(word.get("study_meaning", "")).strip_edges()
-	var ex_quiz: String = _format_study_examples_bbcode(word.get("study_examples", null))
-	var hint := "[color=#8a9aaf]%s[/color]" % _escape_bbcode_user_text(I18N.tr_key("vocab.review.meaning_hide_hint"))
-	var bb := "[center]" + hint
-	if mn != "":
-		bb += (
-			"\n\n[color=#dde8f0][font_size=%d]%s[/font_size]"
-			% [FONT_LEARN_MEANING + 1, _escape_bbcode_user_text(mn)]
-		)
-	if ex_quiz != "":
-		bb += "\n\n" + ex_quiz
-	else:
-		bb += (
-			"\n\n[color=#7a8290][font_size=%d]%s[/font_size]"
-			% [maxi(11, FONT_EX_ZH), _escape_bbcode_user_text(I18N.tr_key("vocab.no_examples_hint"))]
-		)
-	bb += "\n\n[color=#9aa8b6]%s[/color][/center]" % _escape_bbcode_user_text(I18N.tr_key("vocab.review.meaning_instruction"))
-	_prompt.text = bb
+	_prompt.text = _build_meaning_only_quiz_bbcode(
+		word,
+		"vocab.review.meaning_hide_hint",
+		"vocab.review.meaning_instruction"
+	)
 
 
 func _setup_mc_quiz_prompt(word: Dictionary) -> void:
-	var mn: String = str(word.get("study_meaning", "")).strip_edges()
-	var ex_quiz: String = _format_study_examples_bbcode(word.get("study_examples", null))
-	var bb := "[center][color=#c8d8e8]%s[/color]" % _escape_bbcode_user_text(I18N.tr_key("vocab.review.mc_pick_label"))
-	if mn != "":
-		bb += (
-			"\n\n[color=#dde8f0][font_size=%d]%s[/font_size]"
-			% [FONT_LEARN_MEANING + 1, _escape_bbcode_user_text(mn)]
-		)
-	if ex_quiz != "":
-		bb += "\n\n" + ex_quiz
-	else:
-		bb += (
-			"\n\n[color=#7a8290][font_size=%d]%s[/font_size]"
-			% [maxi(11, FONT_EX_ZH), _escape_bbcode_user_text(I18N.tr_key("vocab.no_examples_hint"))]
-		)
-	bb += "[/center]"
-	_prompt.text = bb
+	_prompt.text = _build_meaning_only_quiz_bbcode(word, "vocab.review.mc_pick_label")
 
 
 func _build_mc_options(word: Dictionary) -> void:
@@ -469,10 +560,13 @@ func run_review(word: Dictionary) -> int:
 	_quiz_wrong_submits = 0
 	_word_id = str(word.get("id", ""))
 	_answers.clear()
+	_last_answer_text = ""
 	for a: Variant in word.get("answers", []):
 		_answers.append(str(a).strip_edges().to_lower())
 	_feedback.text = ""
+	_feedback.add_theme_color_override("font_color", Color(0.84, 0.88, 0.92, 1.0))
 	_input.text = ""
+	_refresh_i18n()
 
 	VocabStudy.merge_disk_and_pool_examples_into_word(word)
 
@@ -481,7 +575,8 @@ func run_review(word: Dictionary) -> int:
 	visible = true
 
 	var fetching_examples: bool = (
-		VocabStudy.has_openai_configured()
+		need_learn
+		and VocabStudy.has_openai_configured()
 		and (
 			not VocabStudy.word_has_nonempty_examples(word)
 			or VocabStudy.word_study_examples_need_zh_refresh(word)
@@ -513,12 +608,14 @@ func run_review(word: Dictionary) -> int:
 		)
 		_learn_text.text = _build_learn_panel_bbcode(word)
 		_learn_panel.visible = true
+		_learn_show_answer_button.visible = false
 		_prompt.visible = false
 		_input.visible = false
 		_submit.visible = false
 		_peek_answer_quiz_button.visible = false
 		_return_after_peek_button.visible = false
 		_feedback.visible = false
+		_skip.text = I18N.tr_key("vocab.review.learn_skip")
 		_in_learn_wait = true
 		var learn_exit: int = await _learn_resolved
 		_in_learn_wait = false
@@ -531,11 +628,12 @@ func run_review(word: Dictionary) -> int:
 		if _finished:
 			_cleanup_hide()
 			return REVIEW_OUTCOME_OK if _result_ok else REVIEW_OUTCOME_SKIPPED
-		VocabStudy.mark_word_learned(_word_id)
+		VocabStudy.mark_word_introduced(_word_id)
 		_learn_panel.visible = false
 		_quiz_wrong_submits = 0
 
 	_reset_quiz_peek_state()
+	_skip.text = I18N.tr_key("vocab.review.skip")
 	_prompt.visible = true
 	_peek_answer_quiz_button.visible = true
 	_feedback.visible = true
@@ -544,6 +642,8 @@ func run_review(word: Dictionary) -> int:
 	if _input.visible:
 		_input.grab_focus()
 	await review_completed
+	if _review_outcome == REVIEW_OUTCOME_OK:
+		VocabStudy.mark_word_learned(_word_id)
 	_cleanup_hide()
 	return _review_outcome
 
@@ -574,7 +674,8 @@ func _on_show_answer_quiz_pressed() -> void:
 	for a: String in _answers:
 		parts.append(a)
 	var joined: String = " / ".join(parts)
-	_feedback.text = I18N.tr_key("vocab.review.peek_quiz_feedback", [joined])
+	_last_answer_text = I18N.tr_key("vocab.review.answer_peek")
+	_feedback.text = I18N.tr_key("vocab.review.peek_quiz_feedback", [joined, _next_review_line(false)])
 	_submit.disabled = true
 	_peek_answer_quiz_button.disabled = true
 	_skip.disabled = true
@@ -584,15 +685,19 @@ func _on_show_answer_quiz_pressed() -> void:
 	_return_after_peek_button.visible = true
 
 func _on_return_after_peek_pressed() -> void:
-	if not _quiz_peek_answer_shown or _finished:
+	if _finished:
+		_return_after_peek_button.disabled = true
+		review_completed.emit(_result_ok)
 		return
-	_finish(false, REVIEW_OUTCOME_WRONG)
+	if _quiz_peek_answer_shown:
+		_return_after_peek_button.disabled = true
+		_finish(false, REVIEW_OUTCOME_WRONG, false)
 
 func _on_skip_pressed() -> void:
 	if _in_learn_wait:
 		_learn_resolved.emit(LEARN_EXIT_SKIP)
 		return
-	_finish(false, REVIEW_OUTCOME_SKIPPED)
+	_finish(false, REVIEW_OUTCOME_SKIPPED, false)
 
 func _cleanup_hide() -> void:
 	_input.release_focus()
@@ -616,22 +721,55 @@ func _on_submit() -> void:
 		_finish(false, REVIEW_OUTCOME_WRONG)
 		return
 	var typed: String = _normalize(_input.text)
+	_last_answer_text = typed
 	for a: String in _answers:
 		if typed == a:
 			_finish(true)
 			return
 	_quiz_wrong_submits += 1
 	if _quiz_wrong_submits >= MAX_WRONG_ATTEMPTS_IN_QUIZ:
-		_feedback.text = "已达本题错误次数上限，将按答错处理（可点跳过放弃本张牌）。"
 		_finish(false, REVIEW_OUTCOME_WRONG)
 		return
 	var left: int = MAX_WRONG_ATTEMPTS_IN_QUIZ - _quiz_wrong_submits
-	_feedback.text = "不对，再试一次或点跳过。（还可试 %d 次）" % left
+	_feedback.add_theme_color_override("font_color", Color(1.0, 0.82, 0.55, 1.0))
+	_feedback.text = I18N.tr_key("vocab.review.try_again", [left])
 
-func _finish(ok: bool, outcome_on_fail: int = REVIEW_OUTCOME_WRONG) -> void:
+func _finish(ok: bool, outcome_on_fail: int = REVIEW_OUTCOME_WRONG, wait_for_ack: bool = true) -> void:
 	if _finished:
 		return
 	_finished = true
 	_result_ok = ok
 	_review_outcome = REVIEW_OUTCOME_OK if ok else outcome_on_fail
-	review_completed.emit(ok)
+
+	# Record word review statistics
+	Global.player_data.add_word_review(ok)
+
+	if wait_for_ack:
+		_show_final_feedback()
+	else:
+		review_completed.emit(ok)
+
+
+func _show_final_feedback() -> void:
+	var parts: PackedStringArray = []
+	for a: String in _answers:
+		parts.append(a)
+	var joined: String = " / ".join(parts)
+	var user_answer := _last_answer_text.strip_edges()
+	if user_answer.is_empty():
+		user_answer = I18N.tr_key("vocab.review.no_answer")
+	var next_line := _next_review_line(_review_outcome == REVIEW_OUTCOME_OK)
+	if _review_outcome == REVIEW_OUTCOME_OK:
+		_feedback.add_theme_color_override("font_color", Color(0.77, 0.92, 0.72, 1.0))
+		_feedback.text = I18N.tr_key("vocab.review.correct_feedback", [user_answer, joined, next_line])
+	else:
+		_feedback.add_theme_color_override("font_color", Color(1.0, 0.74, 0.58, 1.0))
+		_feedback.text = I18N.tr_key("vocab.review.wrong_feedback", [user_answer, joined, next_line])
+	_submit.disabled = true
+	_peek_answer_quiz_button.disabled = true
+	_skip.disabled = true
+	_input.editable = false
+	for mb: Button in _mc_option_buttons:
+		mb.disabled = true
+	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
+	_return_after_peek_button.visible = true

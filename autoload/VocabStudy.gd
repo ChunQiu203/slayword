@@ -8,6 +8,7 @@ extends Node
 const LEGACY_VOCAB_PATH := "res://data/vocab_words.json"
 const PACKAGED_BOOKS_DIR := "res://data/vocab_books/"
 const USER_BOOKS_DIR := "user://vocab_books/"
+const JSON_BOOKS_DIR := "res://json/"
 const VOCAB_EXAMPLE_CACHE_PATH := "user://vocab_example_cache.json"
 const BUILTIN_DEFAULT_ID := "builtin_default"
 ## 遗物「初稿免责」：每场战斗第一次 **答错 / 点「看答案」**（非跳过）时，不记 SRS 失败且仍允许本张牌打出。
@@ -26,6 +27,16 @@ const OPENAI_EXAMPLE_SYSTEM_BASE := """你是英语学习词书编辑。用户�
 {"examples":[{"sentence":"英文例句","gloss":"中文义项提示","sentence_zh":"该句完整中文翻译"},...]}
 """
 
+const OPENAI_EXAMPLE_SYSTEM_BATCH := """你是英语学习词书编辑。用户会给出若干词条信息（英文 headword、中文释义、所属词书、领域偏好）。
+请为每个词条生成 2～3 条英文例句，尽量覆盖不同义项或用法；每条配一行简短中文 gloss 标明该句侧重的义（可与释义栏对应）。
+每条必须另附 sentence_zh：对该英文例句的完整、自然的中文翻译（整句译意，不要只重复 gloss；不要留空字符串）。
+例句里必须自然包含该英文单词（可用适当词形变化）。不要编造不存在的专有名词剧情。
+请根据「词书」和「领域偏好」调整例句风格：例如考研词汇用学术/真题风格，影视领域用词可融入电影场景，游戏领域用词可融入游戏剧情。
+禁止在 sentence、gloss、sentence_zh 的文本里写入任何 BBCode 或 HTML 标签。
+只输出 JSON 对象，格式严格如下（不要 markdown 代码围栏）：
+{"batch":[{"word_id":"词条ID","examples":[{"sentence":"英文例句","gloss":"中文义项提示","sentence_zh":"该句完整中文翻译"},...]},...]}
+"""
+
 const PRESET_DOMAIN_ZH: Dictionary = {
 	"film_tv": "影视",
 	"anime": "动漫 / 二次元",
@@ -34,6 +45,7 @@ const PRESET_DOMAIN_ZH: Dictionary = {
 	"news": "新闻 / 评论",
 	"game_scifi": "游戏 / 科幻",
 }
+const DEFAULT_EXAMPLE_DOMAIN_PRESETS: Array[String] = ["game_scifi", "daily"]
 
 @export var cold_review_chance: float = 0.35
 
@@ -174,16 +186,26 @@ func _ensure_example_cache_loaded() -> void:
 	if typeof(v) != TYPE_DICTIONARY:
 		return
 	var root: Dictionary = v as Dictionary
+	var cache_domain_prefs := str(root.get("domain_prefs", "")).strip_edges()
+	var current_domain_prefs := _vocab_domain_prefs_signature()
+	if cache_domain_prefs != current_domain_prefs:
+		return
 	var ent: Variant = root.get("entries", null)
 	if typeof(ent) == TYPE_DICTIONARY:
 		_example_cache_entries = (ent as Dictionary).duplicate(true)
 
 
 func _vocab_domain_prefs_signature() -> String:
-	var tags: Array[String] = Global.user_settings_data.settings_vocab_example_domain_tags.duplicate()
-	tags.sort()
-	var custom := Global.user_settings_data.settings_vocab_example_domain_custom.strip_edges()
-	return "|".join(tags) + "||" + custom
+	var pieces := _collect_openai_domain_pieces()
+	return "|".join(pieces)
+
+
+func notify_example_preferences_changed() -> void:
+	_vocab_example_zh_gave_up_ids.clear()
+	_invalidate_example_cache()
+	Global.profile_data.profile_vocab_seq_example_last_day = 0
+	FileLoader.save_profile()
+	reload_from_settings()
 
 
 func _apply_vocab_example_file_cache(w: Dictionary) -> void:
@@ -253,7 +275,8 @@ func _run_daily_sequential_example_batch_async() -> void:
 	if _words.size() > 0:
 		start = posmod(start, _words.size())
 	var total: int = mini(n, _words.size())
-	var api_done: int = 0
+
+	var words_to_process: Array[Dictionary] = []
 	for k in range(total):
 		var idx: int = posmod(start + k, _words.size())
 		var w: Dictionary = _words[idx]
@@ -264,41 +287,64 @@ func _run_daily_sequential_example_batch_async() -> void:
 			continue
 		if _example_fetch_in_progress.get(wid, false):
 			continue
-		_example_fetch_in_progress[wid] = true
-		var system := _build_openai_system_prompt()
-		var user_pl := _build_openai_user_payload_from_word_entry(w)
+		words_to_process.append(w)
+
+	const BATCH_SIZE: int = 5
+	var api_done: int = 0
+	var process_total: int = words_to_process.size()
+
+	for i in range(0, words_to_process.size(), BATCH_SIZE):
+		var batch: Array[Dictionary] = words_to_process.slice(i, i + BATCH_SIZE)
+		for w in batch:
+			_example_fetch_in_progress[str(w.get("id", ""))] = true
+
+		var system := _build_openai_system_prompt(true)
+		var user_pl := _build_openai_user_payload_batch(batch)
 		var resp := await _http_openai_chat_completion(_example_http_batch, system, user_pl)
+
 		if not bool(resp.get("ok", false)):
-			push_warning("VocabStudy daily batch examples: ", wid, " ", resp.get("err", "?"))
-			_example_fetch_in_progress.erase(wid)
+			push_warning("VocabStudy daily batch: batch API error %s" % str(resp.get("err", "?")))
+			for w in batch:
+				_example_fetch_in_progress.erase(str(w.get("id", "")))
 			continue
-		var batch_raw := str(resp.get("content", ""))
-		var examples: Array = _parse_examples_content(batch_raw)
-		if examples.is_empty():
-			var clip_batch := batch_raw.strip_edges()
-			clip_batch = clip_batch.substr(0, mini(200, clip_batch.length()))
-			push_warning("VocabStudy daily batch: 200 但解析不到例句（id=%s）。片段：%s" % [wid, clip_batch])
-			_example_fetch_in_progress.erase(wid)
+
+		var batch_results: Dictionary = _parse_batch_examples_content(str(resp.get("content", "")))
+		if batch_results.is_empty():
+			var clip := str(resp.get("content", "")).strip_edges()
+			clip = clip.substr(0, mini(280, clip.length()))
+			push_warning("VocabStudy daily batch: 批量解析失败,跳过本批 %d 条。片段: %s" % [batch.size(), clip])
+			for w in batch:
+				_example_fetch_in_progress.erase(str(w.get("id", "")))
 			continue
-		w["study_examples"] = examples.duplicate(true)
-		if not _word_study_examples_need_zh_refresh(w):
-			_vocab_example_zh_gave_up_ids.erase(wid)
-		else:
-			push_warning(
-				"VocabStudy daily batch: 例句仍缺 sentence_zh（本条本局不再自动重拉），id=%s" % wid
-			)
-			_vocab_example_zh_gave_up_ids[wid] = true
-		_persist_examples_to_example_cache_file(wid, examples)
-		_patch_word_examples_in_pool(wid, examples)
-		_example_fetch_in_progress.erase(wid)
-		api_done += 1
-		Signals.vocab_example_api_progress.emit(api_done, total, wid)
-		await get_tree().create_timer(0.35).timeout
+
+		for w in batch:
+			var wid: String = str(w.get("id", ""))
+			var examples: Array = batch_results.get(wid, []) as Array
+			if examples.is_empty():
+				push_warning("VocabStudy daily batch: 本批返回中缺少 id=%s 的例句,跳过。" % wid)
+				_example_fetch_in_progress.erase(wid)
+				continue
+
+			w["study_examples"] = examples.duplicate(true)
+			if not _word_study_examples_need_zh_refresh(w):
+				_vocab_example_zh_gave_up_ids.erase(wid)
+			else:
+				push_warning(
+					"VocabStudy daily batch: 例句仍缺 sentence_zh（本条本局不再自动重拉），id=%s" % wid
+				)
+				_vocab_example_zh_gave_up_ids[wid] = true
+
+			_persist_examples_to_example_cache_file(wid, examples)
+			_patch_word_examples_in_pool(wid, examples)
+			_example_fetch_in_progress.erase(wid)
+			api_done += 1
+			Signals.vocab_example_api_progress.emit(api_done, process_total, wid)
+
 	Global.profile_data.profile_vocab_seq_example_cursor = posmod(start + n, _words.size())
 	Global.profile_data.profile_vocab_seq_example_last_day = day
 	FileLoader.save_profile()
 	_sequential_batch_busy = false
-	Signals.vocab_example_api_progress.emit(total, total, "done")
+	Signals.vocab_example_api_progress.emit(process_total, process_total, "done")
 
 ## 供设置界面或调试：替换启用词书列表并持久化、重建词池。
 func set_enabled_vocab_books(book_ids: Array[String]) -> void:
@@ -318,6 +364,7 @@ func _rebuild_book_index() -> void:
 	_book_id_to_path.clear()
 	_book_id_to_path[BUILTIN_DEFAULT_ID] = LEGACY_VOCAB_PATH
 	_scan_book_dir(PACKAGED_BOOKS_DIR)
+	_scan_book_dir(JSON_BOOKS_DIR)
 	_ensure_user_vocab_dir()
 	_scan_book_dir(USER_BOOKS_DIR)
 
@@ -331,12 +378,28 @@ func _scan_book_dir(dir_path: String) -> void:
 		if not dir.current_is_dir() and fname.ends_with(".json") and not fname.begins_with("_"):
 			var full: String = dir_path.path_join(fname)
 			var bid: String = _read_book_id_from_file(full)
+			if bid == "":
+				bid = _derive_book_id_from_filename(fname)
 			if bid != "" and bid != BUILTIN_DEFAULT_ID:
 				if _book_id_to_path.has(bid):
 					push_warning("VocabStudy: duplicate book_id ", bid, " — using ", full)
 				_book_id_to_path[bid] = full
 		fname = dir.get_next()
 	dir.list_dir_end()
+
+func _derive_book_id_from_filename(fname: String) -> String:
+	var base := fname.get_basename()
+	var dash := base.find("-")
+	if dash != -1:
+		var prefix := base.substr(0, dash)
+		if prefix.is_valid_int():
+			return base.substr(dash + 1)
+	return base
+
+
+func _derive_book_name_from_filename(fname: String) -> String:
+	return _derive_book_id_from_filename(fname)
+
 
 func _read_book_id_from_file(path: String) -> String:
 	if not FileAccess.file_exists(path):
@@ -400,6 +463,27 @@ func import_book_from_user_absolute_path(abs_path: String, overwrite: bool = tru
 	f.close()
 	return import_book_from_json_text(text, overwrite)
 
+func delete_user_book(book_id: String) -> bool:
+	if book_id == BUILTIN_DEFAULT_ID:
+		return false
+	var path: String = str(_book_id_to_path.get(book_id, ""))
+	if path.is_empty() or not path.begins_with(USER_BOOKS_DIR):
+		return false
+	if FileAccess.file_exists(path):
+		var err := DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+		if err != OK:
+			push_warning("VocabStudy: failed to delete book file: ", path, " err=", err)
+			return false
+	var enabled: Array[String] = Global.user_settings_data.settings_vocab_enabled_book_ids.duplicate()
+	if enabled.has(book_id):
+		enabled.erase(book_id)
+		if enabled.is_empty():
+			enabled.append(BUILTIN_DEFAULT_ID)
+		Global.user_settings_data.settings_vocab_enabled_book_ids = enabled
+		FileLoader.save_user_settings()
+	reload_from_settings()
+	return true
+
 func list_known_books() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	out.append({
@@ -418,8 +502,70 @@ func list_known_books() -> Array[Dictionary]:
 		out.append(meta)
 	return out
 
+
+func get_vocab_dashboard_stats() -> Dictionary:
+	var now: int = int(Time.get_unix_time_from_system())
+	var due_ids: Array[String] = []
+	var new_count: int = 0
+	var introduced_count: int = 0
+	var learned_count: int = 0
+	var example_ready_count: int = 0
+	var book_counts: Dictionary = {}
+	for w: Dictionary in _words:
+		var wid: String = str(w.get("id", ""))
+		var bid := _book_id_from_word_id(wid)
+		book_counts[bid] = int(book_counts.get(bid, 0)) + 1
+		var st: Dictionary = _get_state(wid)
+		var introduced := bool(st.get("introduced", false))
+		if introduced:
+			introduced_count += 1
+		else:
+			new_count += 1
+		if bool(st.get("learned", false)):
+			learned_count += 1
+		if introduced and int(st.get("d", 0)) <= now:
+			due_ids.append(wid)
+		if _word_dict_has_nonempty_examples(w):
+			example_ready_count += 1
+	var enabled := _enabled_book_ids()
+	return {
+		"total_words": _words.size(),
+		"enabled_book_count": enabled.size(),
+		"known_book_count": list_known_books().size(),
+		"new_words": new_count,
+		"introduced_words": introduced_count,
+		"learned_words": learned_count,
+		"due_review_words": due_ids.size(),
+		"due_review_available_today": _slice_due_ids_for_daily_budget(due_ids).size(),
+		"example_ready_words": example_ready_count,
+		"example_missing_words": maxi(0, _words.size() - example_ready_count),
+		"book_counts": book_counts,
+		"has_openai": has_openai_configured(),
+		"domain_summary": example_domain_summary(),
+		"daily_example_batch_size": int(Global.user_settings_data.settings_vocab_daily_ordered_example_words),
+		"daily_example_batch_done_today": int(Global.profile_data.profile_vocab_seq_example_last_day) == _vocab_calendar_day_id(),
+		"daily_example_cursor": int(Global.profile_data.profile_vocab_seq_example_cursor),
+	}
+
+
+func _book_id_from_word_id(wid: String) -> String:
+	var colon := wid.find(":")
+	if colon == -1:
+		return BUILTIN_DEFAULT_ID
+	return wid.substr(0, colon)
+
 func _read_book_name(path: String) -> String:
 	if not FileAccess.file_exists(path):
+		return ""
+	# 先读第一行判断格式,避免把 json 目录下几 MB 的数组文件全读进内存
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return ""
+	var first_line := str(f.get_line()).strip_edges()
+	f.close()
+	if first_line.begins_with("["):
+		if path.begins_with(JSON_BOOKS_DIR):
+			return _derive_book_name_from_filename(path.get_file())
 		return ""
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if typeof(data) != TYPE_DICTIONARY:
@@ -435,6 +581,8 @@ func _enabled_book_ids() -> Array[String]:
 func _load_word_list() -> void:
 	_words.clear()
 	var seen_ids: Dictionary[String, bool] = {}
+	var duplicate_count: int = 0
+	var duplicate_samples: PackedStringArray = []
 	var enabled: Array[String] = _enabled_book_ids()
 	for book_id: String in enabled:
 		var entries: Array[Dictionary] = _load_words_for_book(book_id)
@@ -443,7 +591,9 @@ func _load_word_list() -> void:
 			if wid == "":
 				continue
 			if seen_ids.has(wid):
-				push_warning("VocabStudy: duplicate word id skipped: ", wid)
+				duplicate_count += 1
+				if duplicate_samples.size() < 5:
+					duplicate_samples.append(wid)
 				continue
 			seen_ids[wid] = true
 			_enrich_study_fields(w)
@@ -453,6 +603,11 @@ func _load_word_list() -> void:
 	if not _words.is_empty():
 		var cc: int = int(Global.profile_data.profile_vocab_seq_example_cursor)
 		Global.profile_data.profile_vocab_seq_example_cursor = posmod(cc, _words.size())
+	if duplicate_count > 0:
+		push_warning(
+			"VocabStudy: skipped %d duplicate word ids after loading books. Samples: %s"
+			% [duplicate_count, ", ".join(duplicate_samples)]
+		)
 
 func _load_words_for_book(book_id: String) -> Array[Dictionary]:
 	if book_id == BUILTIN_DEFAULT_ID:
@@ -461,6 +616,8 @@ func _load_words_for_book(book_id: String) -> Array[Dictionary]:
 	if path == "" or not FileAccess.file_exists(path):
 		push_warning("VocabStudy: unknown or missing book: ", book_id)
 		return []
+	if path.begins_with(JSON_BOOKS_DIR):
+		return _load_json_folder_book(path, book_id)
 	var text := FileAccess.get_file_as_string(path)
 	var data: Variant = JSON.parse_string(text)
 	if typeof(data) != TYPE_DICTIONARY:
@@ -471,6 +628,60 @@ func _load_words_for_book(book_id: String) -> Array[Dictionary]:
 		push_warning("VocabStudy: 文件内 book_id 与启用 id 不一致: ", file_book_id, " != ", book_id)
 		return []
 	return _entries_array_from_parse(_parse_book_entries(root))
+
+func _load_json_folder_book(path: String, book_id: String) -> Array[Dictionary]:
+	if not FileAccess.file_exists(path):
+		return []
+	var text := FileAccess.get_file_as_string(path)
+	var data: Variant = JSON.parse_string(text)
+	if typeof(data) != TYPE_ARRAY:
+		return []
+	var out: Array[Dictionary] = []
+	var by_id: Dictionary = {}
+	for item: Variant in data:
+		if typeof(item) != TYPE_DICTIONARY:
+			continue
+		var d: Dictionary = item
+		var word: String = str(d.get("word", "")).strip_edges()
+		if word.is_empty():
+			continue
+		var translations: Array = []
+		var trans_raw: Variant = d.get("translations", [])
+		if typeof(trans_raw) == TYPE_ARRAY:
+			translations = trans_raw as Array
+		var meanings: Array[String] = []
+		for t: Variant in translations:
+			if typeof(t) == TYPE_DICTIONARY:
+				var td: Dictionary = t
+				var tr: String = str(td.get("translation", "")).strip_edges()
+				if not tr.is_empty():
+					meanings.append(tr)
+		var meaning_str := "；".join(meanings) if not meanings.is_empty() else ""
+		var full_id: String = "%s:%s" % [book_id, word]
+		if by_id.has(full_id):
+			var existing: Dictionary = by_id[full_id]
+			var existing_meaning := str(existing.get("study_meaning", ""))
+			for mn: String in meanings:
+				if mn.is_empty():
+					continue
+				if existing_meaning.is_empty():
+					existing_meaning = mn
+				elif not existing_meaning.split("；").has(mn):
+					existing_meaning += "；" + mn
+			existing["study_meaning"] = existing_meaning
+			existing["prompt"] = "释义：%s\n请写出对应英文单词" % existing_meaning
+			continue
+		var prompt := "释义：%s\n请写出对应英文单词" % meaning_str
+		var entry: Dictionary = {
+			"id": full_id,
+			"prompt": prompt,
+			"answers": [word.to_lower()],
+			"study_headword": word,
+			"study_meaning": meaning_str,
+		}
+		by_id[full_id] = entry
+		out.append(entry)
+	return out
 
 func _load_legacy_vocab_file(path: String, book_id: String) -> Array[Dictionary]:
 	if not FileAccess.file_exists(path):
@@ -573,17 +784,49 @@ func _extract_meaning_from_prompt(prompt: String) -> String:
 		return t.substr(idx).strip_edges()
 	return t.substr(idx, end - idx).strip_edges()
 
-## 是否还需要「先学」一步（从未点过「记住了」的词条）。
+## 是否还需要「先学」一步。introduced 是新版学习介绍页标记；旧存档没有该字段时，即使 learned=true 也补看一次。
 func word_needs_learn_phase(word_id: String) -> bool:
 	var st: Dictionary = _get_state(word_id)
-	return not bool(st.get("learned", false))
+	if st.is_empty():
+		return true
+	return not bool(st.get("introduced", false))
 
 ## 学完一面后调用，写入 profile（与间隔复习状态同表合并）。
 func mark_word_learned(word_id: String) -> void:
+	if word_id.is_empty():
+		return
 	var st: Dictionary = _get_state(word_id)
 	st["learned"] = true
+	st["introduced"] = true
 	Global.profile_data.profile_vocab_word_states[word_id] = st
 	FileLoader.save_profile()
+
+
+func mark_word_introduced(word_id: String) -> void:
+	if word_id.is_empty():
+		return
+	var st: Dictionary = _get_state(word_id)
+	st["introduced"] = true
+	Global.profile_data.profile_vocab_word_states[word_id] = st
+	FileLoader.save_profile()
+
+
+func preview_next_review_hours(word_id: String, correct: bool) -> float:
+	var st: Dictionary = _get_state(word_id)
+	var r: int = int(st.get("r", 0))
+	var i: float = float(st.get("i", 0.0))
+	var e: float = float(st.get("e", 2.5))
+	if correct:
+		r += 1
+		if r <= 1:
+			i = 1.0
+		elif r == 2:
+			i = 6.0
+		else:
+			i = max(1.0, i * e)
+	else:
+		i = 1.0
+	return i
 
 func _parse_book_entries(root: Dictionary) -> Dictionary:
 	var book_id: String = str(root.get("book_id", "")).strip_edges()
@@ -700,7 +943,7 @@ func _split_domain_csv_gd(s: String) -> Array[String]:
 	return out
 
 
-func _build_openai_domain_line() -> String:
+func _collect_openai_domain_pieces() -> Array[String]:
 	var pieces: Array[String] = []
 	for tid: String in Global.user_settings_data.settings_vocab_example_domain_tags:
 		var zh: String = str(PRESET_DOMAIN_ZH.get(tid, tid))
@@ -719,24 +962,34 @@ func _build_openai_domain_line() -> String:
 		if not z.is_empty() and not pieces.has(z):
 			pieces.append(z)
 	if pieces.is_empty():
+		for tid: String in DEFAULT_EXAMPLE_DOMAIN_PRESETS:
+			var fallback := str(PRESET_DOMAIN_ZH.get(tid, tid))
+			if not fallback.is_empty() and not pieces.has(fallback):
+				pieces.append(fallback)
+	return pieces
+
+
+func example_domain_summary() -> String:
+	return "、".join(_collect_openai_domain_pieces())
+
+
+func _build_openai_domain_line() -> String:
+	var pieces := _collect_openai_domain_pieces()
+	if pieces.is_empty():
 		return ""
-	var joined := ""
-	for i in range(pieces.size()):
-		if i > 0:
-			joined += "、"
-		joined += pieces[i]
 	return (
-		"用户希望例句语境优先贴近："
-		+ joined
+		"用户个人兴趣/例句语境偏好优先贴近："
+		+ "、".join(pieces)
 		+ "。（在自然地道前提下尽量体现；无法兼顾时以词语准确用法为准）"
 	)
 
 
-func _build_openai_system_prompt() -> String:
+func _build_openai_system_prompt(batch_mode: bool = false) -> String:
+	var base := OPENAI_EXAMPLE_SYSTEM_BATCH if batch_mode else OPENAI_EXAMPLE_SYSTEM_BASE
 	var dom := _build_openai_domain_line()
 	if dom.is_empty():
-		return OPENAI_EXAMPLE_SYSTEM_BASE
-	return OPENAI_EXAMPLE_SYSTEM_BASE + "\n\n【例句语境偏好】" + dom
+		return base
+	return base + "\n\n【例句语境偏好】" + dom
 
 
 func _strip_json_fence_gd(s: String) -> String:
@@ -817,6 +1070,29 @@ func _parse_examples_content(content: String) -> Array:
 			if not coerced.is_empty():
 				return coerced
 	return []
+
+
+func _parse_batch_examples_content(content: String) -> Dictionary:
+	var stripped := _strip_json_fence_gd(content)
+	var parsed: Variant = JSON.parse_string(stripped)
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
+	var d: Dictionary = parsed as Dictionary
+	var batch: Variant = d.get("batch")
+	if typeof(batch) != TYPE_ARRAY:
+		return {}
+	var out: Dictionary = {}
+	for item: Variant in batch:
+		if typeof(item) != TYPE_DICTIONARY:
+			continue
+		var item_d: Dictionary = item as Dictionary
+		var wid: String = str(item_d.get("word_id", ""))
+		if wid.is_empty():
+			continue
+		var ex: Array = _coerce_api_examples(item_d.get("examples", []))
+		if not ex.is_empty():
+			out[wid] = ex
+	return out
 
 
 func _word_dict_has_nonempty_examples(wd: Dictionary) -> bool:
@@ -991,8 +1267,28 @@ func _build_openai_user_payload_from_word_entry(wd: Dictionary) -> String:
 		"id": wd.get("id"),
 		"study_headword": wd.get("study_headword", ""),
 		"study_meaning": wd.get("study_meaning", ""),
+		"book_name": _word_book_name(wd),
 		"answers": wd.get("answers", []),
 		"prompt_plain": prompt_plain,
+	}
+	return JSON.stringify(payload)
+
+
+func _build_openai_user_payload_batch(words: Array[Dictionary]) -> String:
+	var items: Array[Dictionary] = []
+	for w: Dictionary in words:
+		var prompt_plain := str(w.get("prompt", ""))
+		prompt_plain = prompt_plain.replace("[center]", "").replace("[/center]", "").strip_edges()
+		items.append({
+			"word_id": w.get("id"),
+			"study_headword": w.get("study_headword", ""),
+			"study_meaning": w.get("study_meaning", ""),
+			"book_name": _word_book_name(w),
+			"answers": w.get("answers", []),
+			"prompt_plain": prompt_plain,
+		})
+	var payload := {
+		"words": items,
 	}
 	return JSON.stringify(payload)
 
@@ -1234,19 +1530,28 @@ func _slice_due_ids_for_daily_budget(ids: Array[String]) -> Array[String]:
 
 func _pick_word_for_prompt() -> Dictionary:
 	var now: int = int(Time.get_unix_time_from_system())
-	var due_ids: Array[String] = []
+	var due_review_ids: Array[String] = []
+	var new_ids: Array[String] = []
 	for w: Dictionary in _words:
 		var id: String = str(w["id"])
 		var st: Dictionary = _get_state(id)
 		var due: int = int(st.get("d", 0))
-		if st.is_empty() or due <= now:
-			due_ids.append(id)
-	if not due_ids.is_empty():
-		var pool: Array[String] = _slice_due_ids_for_daily_budget(due_ids)
+		if st.is_empty():
+			new_ids.append(id)
+		elif not bool(st.get("introduced", false)):
+			if due <= now:
+				new_ids.append(id)
+		elif due <= now:
+			due_review_ids.append(id)
+	if not due_review_ids.is_empty():
+		var pool: Array[String] = _slice_due_ids_for_daily_budget(due_review_ids)
 		if pool.is_empty():
-			pool = due_ids
+			pool = due_review_ids
 		var rng: RandomNumberGenerator = Global.player_data.get_player_rng("rng_vocab_pick")
 		return _word_by_id(pool[rng.randi_range(0, len(pool) - 1)])
+	if not new_ids.is_empty():
+		var rng_new: RandomNumberGenerator = Global.player_data.get_player_rng("rng_vocab_new")
+		return _word_by_id(new_ids[rng_new.randi_range(0, len(new_ids) - 1)])
 	var rng_cold: RandomNumberGenerator = Global.player_data.get_player_rng("rng_vocab_cold")
 	if rng_cold.randf() > cold_review_chance:
 		return {}
@@ -1257,6 +1562,24 @@ func _word_by_id(id: String) -> Dictionary:
 		if str(w.get("id", "")) == id:
 			return w.duplicate(true)
 	return {}
+
+func _word_book_name(wd: Dictionary) -> String:
+	var wid := str(wd.get("id", ""))
+	var colon := wid.find(":")
+	var bid: String
+	if colon != -1:
+		bid = wid.substr(0, colon)
+	else:
+		bid = BUILTIN_DEFAULT_ID
+	if bid == BUILTIN_DEFAULT_ID:
+		return "内置词书"
+	for meta: Dictionary in list_known_books():
+		if str(meta.get("book_id", "")) == bid:
+			var nm: String = str(meta.get("book_name", "")).strip_edges()
+			if not nm.is_empty():
+				return nm
+			return bid
+	return bid
 
 func _get_state(id: String) -> Dictionary:
 	var raw: Variant = Global.profile_data.profile_vocab_word_states.get(id, null)
@@ -1284,6 +1607,9 @@ func _record_result(id: String, correct: bool) -> void:
 		i = 1.0
 		e = max(1.3, e - 0.2)
 	var next_due: int = now + int(i * 3600.0)
-	var learned: bool = bool(st.get("learned", false))
-	Global.profile_data.profile_vocab_word_states[id] = {"r": r, "i": i, "e": e, "d": next_due, "learned": learned}
+	st["r"] = r
+	st["i"] = i
+	st["e"] = e
+	st["d"] = next_due
+	Global.profile_data.profile_vocab_word_states[id] = st
 	FileLoader.save_profile()

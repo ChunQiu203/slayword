@@ -245,6 +245,9 @@ func start_run(character_object_id: String, run_seed: int, difficulty_level: int
 	player_data.player_location_id = "location_0"
 	player_data.player_act = 1
 	player_data.player_run_difficulty_level = difficulty_level
+
+	# Reset run statistics for new run
+	player_data.reset_run_statistics()
 	
 	# determine the run modifiers
 	player_data.player_run_modifier_object_ids = []
@@ -275,20 +278,54 @@ enum RUN_ENDS {QUIT, LOSS, VICTORY}
 
 ## Ends the player's current run under the given status.
 func end_run(run_end_state: int = RUN_ENDS.QUIT) -> void:
+	_record_run_history(run_end_state)
 	match run_end_state:
 		RUN_ENDS.QUIT:
 			pass
 		RUN_ENDS.LOSS:
 			FileLoader.delete_save()
 			profile_data.lose_run(player_data.player_character_object_id)
-			FileLoader.save_profile()
 		RUN_ENDS.VICTORY:
 			FileLoader.delete_save()
 			profile_data.win_run(player_data.player_character_object_id)
-			FileLoader.save_profile()
-	
+	FileLoader.save_profile()
+
+	# Signal that player manually ended the run (for statistics display)
+	if run_end_state == RUN_ENDS.QUIT or run_end_state == RUN_ENDS.LOSS:
+		Signals.run_ended_by_player.emit(run_end_state)
+
 	is_run = false
 	Signals.run_ended.emit()
+
+func _record_run_history(run_end_state: int) -> void:
+	if player_data == null:
+		return
+	var stats := player_data.get_statistics_for_summary()
+	var result := "QUIT"
+	match run_end_state:
+		RUN_ENDS.LOSS:
+			result = "DEFEAT"
+		RUN_ENDS.VICTORY:
+			result = "VICTORY"
+	var stamp := Time.get_datetime_dict_from_system(false)
+	var entry := {
+		"timestamp": Time.get_unix_time_from_system(),
+		"date": "%04d/%02d/%02d %02d:%02d" % [int(stamp.year), int(stamp.month), int(stamp.day), int(stamp.hour), int(stamp.minute)],
+		"result": result,
+		"character_id": player_data.player_character_object_id,
+		"difficulty": player_data.player_run_difficulty_level,
+		"seed": player_data.player_run_seed,
+		"stats": stats,
+		"route": player_data.get_run_route_summary(),
+		"deck": player_data.get_deck_summary_for_history(),
+		"artifacts": player_data.get_artifact_summary_for_history(),
+		"vocab": VocabStudy.get_vocab_dashboard_stats() if has_node("/root/VocabStudy") else {},
+	}
+	var hist: Array = profile_data.profile_run_history.duplicate(true)
+	hist.push_front(entry)
+	while hist.size() > 30:
+		hist.pop_back()
+	profile_data.profile_run_history = hist
 
 ## Performs any custom logic for each modifier done at the very beginning of a run
 func perform_start_of_run_modifiers() -> void:
