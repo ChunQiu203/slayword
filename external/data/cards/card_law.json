@@ -6,7 +6,7 @@
 		"card_add_to_deck_actions": [],
 		"card_appears_in_card_packs": true,
 		"card_color_id": "color_red",
-		"card_description": "Attack for [damage] damage. Improve all Law cards by 3 this combat.",
+		"card_description": "Attack for [damage] damage. Improve all Law cards by 5 this combat.",
 		"card_description_preview_overrides": [],
 		"card_discard_actions": [],
 		"card_draw_actions": [],
@@ -35,7 +35,7 @@
 			{
 				"res://scripts/actions/cardset_actions/ActionImproveCardValues.gd": {
 					"card_value_improvements": {
-						"damage": 3
+						"damage": 5
 					},
 					"improve_parent_card": false,
 					"pick_played_card": true

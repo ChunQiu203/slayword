@@ -1,6 +1,6 @@
 extends Node
 
-const DEFAULT_LOCALE: String = "en_US"
+const DEFAULT_LOCALE: String = "zh_CN"
 const LOCALE_DIR: String = "external/locale/"
 
 var current_locale: String = DEFAULT_LOCALE

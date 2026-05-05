@@ -68,7 +68,7 @@
 			"block": 5
 		},
 		"card_values": {
-			"block": 5,
+			"block": 8,
 			"end_turn_immediacy_level": 2
 		},
 		"object_id": "end_turn_card",
