@@ -208,6 +208,8 @@
   "vocab.review.learn_skip": "Later",
   "vocab.review.learn_next_spell": "Start spelling",
   "vocab.review.learn_next_quiz": "Start quiz",
+  "vocab.review.relearn": "Relearn",
+  "vocab.review.relearn_tip": "Open the learning page with the word, meaning, and cached or generated examples. This does not change this review result.",
   "vocab.review.peek_quiz_feedback": "Correct answer: {0}\n{1}\n(Tap Continue to count as failed.)",
   "vocab.review.correct_feedback": "Result: passed\nYour answer: {0}\nCorrect answer: {1}\n{2}",
   "vocab.review.wrong_feedback": "Result: not passed\nYour answer: {0}\nCorrect answer: {1}\n{2}",

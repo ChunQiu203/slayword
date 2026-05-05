@@ -23,7 +23,7 @@ class_name UserSettingsData
 ## 自然日内从「到期复习」池中最多参与出牌复习的词数（0=不限制）。按日期固定随机子集，第二天会换一批。
 @export var settings_vocab_daily_due_cap: int = 30
 ## 每个自然日从合并词池中按固定顺序取多少词，用 API 预生成例句并写入 user://vocab_example_cache.json（0=不跑每日批次）。
-@export var settings_vocab_daily_ordered_example_words: int = 20
+@export var settings_vocab_daily_ordered_example_words: int = 80
 
 ## 离线生成例句（tools/generate_vocab_examples.py）时的领域偏好：预设 id，见新开局界面勾选。
 @export var settings_vocab_example_domain_tags: Array[String] = ["game_scifi", "daily"]

@@ -38,6 +38,7 @@ var _panel: PanelContainer
 var _outer: VBoxContainer
 var _learn_panel: VBoxContainer
 var _learn_text: RichTextLabel
+var _learn_action_row: HBoxContainer
 var _learn_button: Button
 var _learn_show_answer_button: Button
 var _prompt: RichTextLabel
@@ -46,6 +47,7 @@ var _feedback: Label
 var _submit: Button
 var _peek_answer_quiz_button: Button
 var _skip: Button
+var _relearn_button: Button
 var _return_after_peek_button: Button
 ## 默写阶段已点「看答案」，等待用户点「返回」再结束（便于阅读答案）。
 var _quiz_peek_answer_shown: bool = false
@@ -55,6 +57,7 @@ var _review_outcome: int = REVIEW_OUTCOME_OK
 var _quiz_wrong_submits: int = 0
 var _answers: Array[String] = []
 var _word_id: String = ""
+var _active_word: Dictionary = {}
 var _last_answer_text: String = ""
 var _in_learn_wait: bool = false
 var _learn_show_answer_busy: bool = false
@@ -113,17 +116,17 @@ func _ready() -> void:
 	_learn_text.add_theme_font_size_override("normal_font_size", FONT_LEARN_MEANING)
 	_learn_panel.add_child(_learn_text)
 
-	var learn_row := HBoxContainer.new()
-	learn_row.add_theme_constant_override("separation", 12)
-	learn_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_learn_panel.add_child(learn_row)
+	_learn_action_row = HBoxContainer.new()
+	_learn_action_row.add_theme_constant_override("separation", 12)
+	_learn_action_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_learn_panel.add_child(_learn_action_row)
 
 	_learn_button = Button.new()
 	_learn_button.text = I18N.tr_key("vocab.review.learn_next_spell")
 	_learn_button.custom_minimum_size = Vector2(200, TOUCH_MIN_BUTTON_H)
 	_learn_button.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_learn_button.pressed.connect(_on_learn_ack_pressed)
-	learn_row.add_child(_learn_button)
+	_learn_action_row.add_child(_learn_button)
 
 	_learn_show_answer_button = Button.new()
 	_learn_show_answer_button.text = "看答案"
@@ -132,7 +135,7 @@ func _ready() -> void:
 	_learn_show_answer_button.custom_minimum_size = Vector2(140, TOUCH_MIN_BUTTON_H)
 	_learn_show_answer_button.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_learn_show_answer_button.pressed.connect(_on_learn_show_answer_pressed)
-	learn_row.add_child(_learn_show_answer_button)
+	_learn_action_row.add_child(_learn_show_answer_button)
 
 	_prompt = RichTextLabel.new()
 	_prompt.bbcode_enabled = true
@@ -197,6 +200,15 @@ func _ready() -> void:
 	_skip.pressed.connect(_on_skip_pressed)
 	hb.add_child(_skip)
 
+	_relearn_button = Button.new()
+	_relearn_button.text = I18N.tr_key("vocab.review.relearn")
+	_relearn_button.tooltip_text = I18N.tr_key("vocab.review.relearn_tip")
+	_relearn_button.visible = false
+	_relearn_button.custom_minimum_size = Vector2(150, TOUCH_MIN_BUTTON_H)
+	_relearn_button.add_theme_font_size_override("font_size", FONT_BUTTON)
+	_relearn_button.pressed.connect(_on_relearn_pressed)
+	hb.add_child(_relearn_button)
+
 	_feedback = Label.new()
 	_feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -231,6 +243,8 @@ func _refresh_i18n() -> void:
 	_submit.text = I18N.tr_key("vocab.review.submit")
 	_peek_answer_quiz_button.text = I18N.tr_key("vocab.review.peek_answer")
 	_skip.text = I18N.tr_key("vocab.review.learn_skip") if _in_learn_wait else I18N.tr_key("vocab.review.skip")
+	_relearn_button.text = I18N.tr_key("vocab.review.relearn")
+	_relearn_button.tooltip_text = I18N.tr_key("vocab.review.relearn_tip")
 	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
 	if _input.visible:
 		if _quiz_review_mode == VocabStudy.VOCAB_REVIEW_MODE_MEANING:
@@ -272,6 +286,8 @@ func _reset_quiz_peek_state() -> void:
 	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
 	_return_after_peek_button.disabled = false
 	_return_after_peek_button.visible = false
+	_relearn_button.disabled = false
+	_relearn_button.visible = false
 	_submit.disabled = false
 	_peek_answer_quiz_button.disabled = false
 	_skip.disabled = false
@@ -559,6 +575,7 @@ func run_review(word: Dictionary) -> int:
 	_review_outcome = REVIEW_OUTCOME_OK
 	_quiz_wrong_submits = 0
 	_word_id = str(word.get("id", ""))
+	_active_word = word
 	_answers.clear()
 	_last_answer_text = ""
 	for a: Variant in word.get("answers", []):
@@ -569,6 +586,7 @@ func run_review(word: Dictionary) -> int:
 	_refresh_i18n()
 
 	VocabStudy.merge_disk_and_pool_examples_into_word(word)
+	_active_word = word
 
 	var need_learn: bool = VocabStudy.word_needs_learn_phase(_word_id)
 	_apply_panel_layout()
@@ -594,6 +612,7 @@ func run_review(word: Dictionary) -> int:
 		_feedback.text = I18N.tr_key("vocab.fetching_examples")
 		await get_tree().process_frame
 		await VocabStudy.ensure_examples_for_word_on_demand_async(word)
+		_active_word = word
 		_feedback.text = ""
 		_feedback.visible = false
 		_skip.visible = true
@@ -608,12 +627,14 @@ func run_review(word: Dictionary) -> int:
 		)
 		_learn_text.text = _build_learn_panel_bbcode(word)
 		_learn_panel.visible = true
+		_learn_action_row.visible = true
 		_learn_show_answer_button.visible = false
 		_prompt.visible = false
 		_input.visible = false
 		_submit.visible = false
 		_peek_answer_quiz_button.visible = false
 		_return_after_peek_button.visible = false
+		_relearn_button.visible = false
 		_feedback.visible = false
 		_skip.text = I18N.tr_key("vocab.review.learn_skip")
 		_in_learn_wait = true
@@ -634,6 +655,7 @@ func run_review(word: Dictionary) -> int:
 
 	_reset_quiz_peek_state()
 	_skip.text = I18N.tr_key("vocab.review.skip")
+	_relearn_button.visible = false
 	_prompt.visible = true
 	_peek_answer_quiz_button.visible = true
 	_feedback.visible = true
@@ -693,6 +715,38 @@ func _on_return_after_peek_pressed() -> void:
 		_return_after_peek_button.disabled = true
 		_finish(false, REVIEW_OUTCOME_WRONG, false)
 
+
+func _on_relearn_pressed() -> void:
+	if not visible or not _finished or _active_word.is_empty():
+		return
+	_relearn_button.disabled = true
+	_feedback.visible = true
+	VocabStudy.merge_disk_and_pool_examples_into_word(_active_word)
+	var needs_examples: bool = (
+		not VocabStudy.word_has_nonempty_examples(_active_word)
+		or VocabStudy.word_study_examples_need_zh_refresh(_active_word)
+	)
+	if needs_examples and VocabStudy.has_openai_configured():
+		_feedback.text = I18N.tr_key("vocab.fetching_examples")
+		await get_tree().process_frame
+		await VocabStudy.ensure_examples_for_word_on_demand_async(_active_word)
+		VocabStudy.merge_disk_and_pool_examples_into_word(_active_word)
+	_feedback.text = ""
+	_feedback.visible = false
+	_learn_text.text = _build_learn_panel_bbcode(_active_word)
+	_learn_panel.visible = true
+	_learn_action_row.visible = false
+	_prompt.visible = false
+	_input.visible = false
+	_submit.visible = false
+	_peek_answer_quiz_button.visible = false
+	_skip.visible = false
+	_relearn_button.visible = false
+	_mc_container.visible = false
+	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
+	_return_after_peek_button.disabled = false
+	_return_after_peek_button.visible = true
+
 func _on_skip_pressed() -> void:
 	if _in_learn_wait:
 		_learn_resolved.emit(LEARN_EXIT_SKIP)
@@ -703,6 +757,9 @@ func _cleanup_hide() -> void:
 	_input.release_focus()
 	visible = false
 	_learn_panel.visible = false
+	_learn_action_row.visible = true
+	_active_word = {}
+	_relearn_button.visible = false
 	if _mc_container:
 		_mc_container.visible = false
 	_reset_quiz_peek_state()
@@ -768,6 +825,8 @@ func _show_final_feedback() -> void:
 	_submit.disabled = true
 	_peek_answer_quiz_button.disabled = true
 	_skip.disabled = true
+	_relearn_button.disabled = false
+	_relearn_button.visible = true
 	_input.editable = false
 	for mb: Button in _mc_option_buttons:
 		mb.disabled = true
