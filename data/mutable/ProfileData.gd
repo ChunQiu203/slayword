@@ -22,6 +22,10 @@ class_name ProfileData
 @export var profile_vocab_seq_example_cursor: int = 0
 ## 上次完成「顺序预生成」批次的自然日（与 VocabStudy._vocab_calendar_day_id 同格式）
 @export var profile_vocab_seq_example_last_day: int = 0
+## 每日「优先新词」计划的自然日（YYYYMMDD）；与 profile_vocab_daily_new_word_ids 同步。
+@export var profile_vocab_daily_new_plan_day: int = 0
+## 当日优先学习的词 id 列表（词池顺序取尚未 learned 的前 N 个）；出牌复习优先清空此队列再到期复习。
+@export var profile_vocab_daily_new_word_ids: Array = []
 
 func win_run(character_object_id: String) -> void:
 	profile_total_wins += 1
