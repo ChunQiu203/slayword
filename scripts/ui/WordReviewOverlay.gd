@@ -51,6 +51,7 @@ var _relearn_button: Button
 var _return_after_peek_button: Button
 ## 默写阶段已点「看答案」，等待用户点「返回」再结束（便于阅读答案）。
 var _quiz_peek_answer_shown: bool = false
+var _relearn_return_to_quiz: bool = false
 var _finished: bool = false
 var _result_ok: bool = false
 var _review_outcome: int = REVIEW_OUTCOME_OK
@@ -283,6 +284,7 @@ func _apply_panel_layout() -> void:
 
 func _reset_quiz_peek_state() -> void:
 	_quiz_peek_answer_shown = false
+	_relearn_return_to_quiz = false
 	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
 	_return_after_peek_button.disabled = false
 	_return_after_peek_button.visible = false
@@ -655,7 +657,8 @@ func run_review(word: Dictionary) -> int:
 
 	_reset_quiz_peek_state()
 	_skip.text = I18N.tr_key("vocab.review.skip")
-	_relearn_button.visible = false
+	_relearn_button.disabled = false
+	_relearn_button.visible = true
 	_prompt.visible = true
 	_peek_answer_quiz_button.visible = true
 	_feedback.visible = true
@@ -701,12 +704,36 @@ func _on_show_answer_quiz_pressed() -> void:
 	_submit.disabled = true
 	_peek_answer_quiz_button.disabled = true
 	_skip.disabled = true
+	_relearn_button.disabled = true
 	_input.editable = false
 	for mb: Button in _mc_option_buttons:
 		mb.disabled = true
 	_return_after_peek_button.visible = true
 
 func _on_return_after_peek_pressed() -> void:
+	if _relearn_return_to_quiz:
+		_relearn_return_to_quiz = false
+		_learn_panel.visible = false
+		_learn_action_row.visible = true
+		_return_after_peek_button.disabled = false
+		_return_after_peek_button.visible = false
+		_prompt.visible = true
+		_feedback.visible = true
+		_peek_answer_quiz_button.visible = true
+		_skip.visible = true
+		_submit.disabled = false
+		_peek_answer_quiz_button.disabled = false
+		_skip.disabled = false
+		_relearn_button.disabled = false
+		_relearn_button.visible = true
+		_input.editable = true
+		for mb: Button in _mc_option_buttons:
+			mb.disabled = false
+		_apply_quiz_mode_layout(_active_word)
+		await get_tree().process_frame
+		if _input.visible:
+			_input.grab_focus()
+		return
 	if _finished:
 		_return_after_peek_button.disabled = true
 		review_completed.emit(_result_ok)
@@ -717,9 +744,17 @@ func _on_return_after_peek_pressed() -> void:
 
 
 func _on_relearn_pressed() -> void:
-	if not visible or not _finished or _active_word.is_empty():
+	if not visible or _quiz_peek_answer_shown or _active_word.is_empty():
 		return
+	_relearn_return_to_quiz = not _finished
 	_relearn_button.disabled = true
+	if _relearn_return_to_quiz:
+		_submit.disabled = true
+		_peek_answer_quiz_button.disabled = true
+		_skip.disabled = true
+		_input.editable = false
+		for mb: Button in _mc_option_buttons:
+			mb.disabled = true
 	_feedback.visible = true
 	VocabStudy.merge_disk_and_pool_examples_into_word(_active_word)
 	var needs_examples: bool = (
@@ -759,6 +794,7 @@ func _cleanup_hide() -> void:
 	_learn_panel.visible = false
 	_learn_action_row.visible = true
 	_active_word = {}
+	_relearn_return_to_quiz = false
 	_relearn_button.visible = false
 	if _mc_container:
 		_mc_container.visible = false

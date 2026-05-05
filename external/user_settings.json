@@ -3,7 +3,7 @@
 	"settings_audio_effects_volume": 10,
 	"settings_audio_master_volume": 10,
 	"settings_audio_music_volume": 10,
-	"settings_language": "en_US",
+	"settings_language": "zh_CN",
 	"settings_openai_api_key": "",
 	"settings_openai_base_url": "https://api.openai.com/v1",
 	"settings_openai_model": "gpt-4o-mini",
