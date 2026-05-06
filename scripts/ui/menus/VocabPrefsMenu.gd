@@ -31,6 +31,9 @@ const _SECTION_BOOKS := "books"
 const _SECTION_QUIZ := "quiz"
 const _SECTION_EXAMPLES := "examples"
 
+const _VOCAB_LEARN_STEP_IDS: Array[String] = ["en2zh", "zh2en", "spell", "dictation"]
+const _VOCAB_REVIEW_MODE_IDS: Array[String] = ["spell", "meaning", "mc4", "recall"]
+
 var _dashboard_grid: GridContainer
 var _console_summary: Label
 var _section_id_to_button: Dictionary[String, Button] = {}
@@ -47,12 +50,20 @@ var _examples_status: Label
 var _vocab_daily_label: Label
 var _vocab_daily_hint: Label
 var _vocab_daily_spin: SpinBox
+var _vocab_daily_new_label: Label
+var _vocab_daily_new_hint: Label
+var _vocab_daily_new_spin: SpinBox
 var _vocab_ord_label: Label
 var _vocab_ord_hint: Label
 var _vocab_ord_spin: SpinBox
-var _vocab_review_mode_label: Label
-var _vocab_review_mode_opt: OptionButton
-var _vocab_review_mode_hint: Label
+var _vocab_learn_steps_label: Label
+var _vocab_learn_steps_hint: Label
+var _vocab_learn_steps_flow: FlowContainer
+var _learn_step_id_to_checkbox: Dictionary[String, CheckBox] = {}
+var _vocab_review_modes_label: Label
+var _vocab_review_modes_flow: FlowContainer
+var _review_mode_id_to_checkbox: Dictionary[String, CheckBox] = {}
+var _vocab_review_modes_hint: Label
 var _vocab_style_sub: Label
 var _vocab_custom_label: Label
 var _preset_id_to_checkbox: Dictionary[String, CheckBox] = {}
@@ -493,6 +504,23 @@ func _build_today_plan_card(parent: Node) -> void:
 	col_b.add_child(_vocab_ord_spin)
 	_vocab_ord_hint = _add_hint(col_b)
 
+	var col_c := VBoxContainer.new()
+	col_c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col_c.add_theme_constant_override("separation", 6)
+	two_col.add_child(col_c)
+	_vocab_daily_new_label = _add_section_subtitle(col_c, 15)
+	_vocab_daily_new_spin = SpinBox.new()
+	_vocab_daily_new_spin.min_value = 0.0
+	_vocab_daily_new_spin.max_value = 300.0
+	_vocab_daily_new_spin.step = 1.0
+	_vocab_daily_new_spin.custom_minimum_size = Vector2(0, 36)
+	_vocab_daily_new_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_vocab_daily_new_spin.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_vocab_daily_new_spin.value_changed.connect(_on_vocab_daily_new_words_changed)
+	_style_spin_box(_vocab_daily_new_spin)
+	col_c.add_child(_vocab_daily_new_spin)
+	_vocab_daily_new_hint = _add_hint(col_c)
+
 
 func _build_books_status_card(parent: Node) -> void:
 	var box := _make_dashboard_card(parent, 330, _SECTION_BOOKS)
@@ -525,19 +553,43 @@ func _build_books_status_card(parent: Node) -> void:
 
 
 func _build_quiz_card(parent: Node) -> void:
-	var box := _make_dashboard_card(parent, 230, _SECTION_QUIZ)
+	var box := _make_dashboard_card(parent, 440, _SECTION_QUIZ)
 	_quiz_title = _add_section_subtitle(box, 18)
 	_quiz_status = _add_status_text(box)
 	_add_separator(box)
-	_vocab_review_mode_label = _add_section_subtitle(box, 15)
-	_vocab_review_mode_opt = OptionButton.new()
-	_vocab_review_mode_opt.custom_minimum_size = Vector2(0, 38)
-	_vocab_review_mode_opt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_vocab_review_mode_opt.add_theme_font_size_override("font_size", 15)
-	_vocab_review_mode_opt.item_selected.connect(_on_vocab_review_mode_selected)
-	_style_option_button(_vocab_review_mode_opt)
-	box.add_child(_vocab_review_mode_opt)
-	_vocab_review_mode_hint = _add_hint(box)
+	_vocab_learn_steps_label = _add_section_subtitle(box, 15)
+	_vocab_learn_steps_flow = FlowContainer.new()
+	_vocab_learn_steps_flow.add_theme_constant_override("h_separation", 14)
+	_vocab_learn_steps_flow.add_theme_constant_override("v_separation", 8)
+	_vocab_learn_steps_flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(_vocab_learn_steps_flow)
+	_learn_step_id_to_checkbox.clear()
+	for sid: String in _VOCAB_LEARN_STEP_IDS:
+		var cb_ls := CheckBox.new()
+		cb_ls.name = "LearnStep_" + sid
+		cb_ls.add_theme_font_size_override("font_size", 14)
+		cb_ls.toggled.connect(_on_learn_step_toggled.bind(sid))
+		_style_check_box(cb_ls)
+		_vocab_learn_steps_flow.add_child(cb_ls)
+		_learn_step_id_to_checkbox[sid] = cb_ls
+	_vocab_learn_steps_hint = _add_hint(box)
+	_add_separator(box)
+	_vocab_review_modes_label = _add_section_subtitle(box, 15)
+	_vocab_review_modes_flow = FlowContainer.new()
+	_vocab_review_modes_flow.add_theme_constant_override("h_separation", 14)
+	_vocab_review_modes_flow.add_theme_constant_override("v_separation", 8)
+	_vocab_review_modes_flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(_vocab_review_modes_flow)
+	_review_mode_id_to_checkbox.clear()
+	for mid: String in _VOCAB_REVIEW_MODE_IDS:
+		var cb_rm := CheckBox.new()
+		cb_rm.name = "ReviewMode_" + mid
+		cb_rm.add_theme_font_size_override("font_size", 14)
+		cb_rm.toggled.connect(_on_review_mode_toggled.bind(mid))
+		_style_check_box(cb_rm)
+		_vocab_review_modes_flow.add_child(cb_rm)
+		_review_mode_id_to_checkbox[mid] = cb_rm
+	_vocab_review_modes_hint = _add_hint(box)
 
 
 func _build_examples_status_card(parent: Node) -> void:
@@ -600,16 +652,28 @@ func _refresh_vocab_study_prefs_i18n() -> void:
 		_vocab_daily_label.text = I18N.tr_key("menu.vocab_daily_cap_label")
 	if _vocab_daily_hint:
 		_vocab_daily_hint.text = I18N.tr_key("menu.vocab_daily_cap_hint")
+	if _vocab_daily_new_label:
+		_vocab_daily_new_label.text = I18N.tr_key("menu.vocab_daily_new_label")
+	if _vocab_daily_new_hint:
+		_vocab_daily_new_hint.text = I18N.tr_key("menu.vocab_daily_new_hint")
 	if _vocab_ord_label:
 		_vocab_ord_label.text = I18N.tr_key("menu.vocab_ordered_batch_label")
 	if _vocab_ord_hint:
 		_vocab_ord_hint.text = I18N.tr_key("menu.vocab_ordered_batch_hint")
-	if _vocab_review_mode_label:
-		_vocab_review_mode_label.text = I18N.tr_key("menu.vocab_review_mode_label")
-	if _vocab_review_mode_hint:
-		_vocab_review_mode_hint.text = I18N.tr_key("menu.vocab_review_mode_hint")
-	if _vocab_review_mode_opt:
-		_populate_vocab_review_mode_option(str(Global.user_settings_data.settings_vocab_combat_review_mode))
+	if _vocab_learn_steps_label:
+		_vocab_learn_steps_label.text = I18N.tr_key("menu.vocab_learn_steps_label")
+	if _vocab_learn_steps_hint:
+		_vocab_learn_steps_hint.text = I18N.tr_key("menu.vocab_learn_steps_hint")
+	if _vocab_review_modes_label:
+		_vocab_review_modes_label.text = I18N.tr_key("menu.vocab_review_modes_label")
+	if _vocab_review_modes_hint:
+		_vocab_review_modes_hint.text = I18N.tr_key("menu.vocab_review_modes_hint")
+	for sid: String in _learn_step_id_to_checkbox.keys():
+		var cb_ls: CheckBox = _learn_step_id_to_checkbox[sid]
+		cb_ls.text = I18N.tr_key("menu.vocab_learn_" + sid)
+	for mid: String in _review_mode_id_to_checkbox.keys():
+		var cb_rm: CheckBox = _review_mode_id_to_checkbox[mid]
+		cb_rm.text = I18N.tr_key("vocab.review.mode_" + mid)
 	if _vocab_style_sub:
 		_vocab_style_sub.text = I18N.tr_key("menu.vocab_console_domain_label")
 	if _vocab_custom_label:
@@ -629,10 +693,20 @@ func _refresh_vocab_study_prefs_i18n() -> void:
 func _sync_vocab_study_prefs_from_settings() -> void:
 	if _vocab_daily_spin:
 		_vocab_daily_spin.set_value_no_signal(float(Global.user_settings_data.settings_vocab_daily_due_cap))
+	if _vocab_daily_new_spin:
+		_vocab_daily_new_spin.set_value_no_signal(float(Global.user_settings_data.settings_vocab_daily_new_words))
 	if _vocab_ord_spin:
 		_vocab_ord_spin.set_value_no_signal(float(Global.user_settings_data.settings_vocab_daily_ordered_example_words))
-	if _vocab_review_mode_opt:
-		_populate_vocab_review_mode_option(str(Global.user_settings_data.settings_vocab_combat_review_mode))
+	for sid: String in _learn_step_id_to_checkbox.keys():
+		var cb_ls: CheckBox = _learn_step_id_to_checkbox[sid]
+		cb_ls.set_block_signals(true)
+		cb_ls.button_pressed = _array_contains_str(Global.user_settings_data.settings_vocab_learn_steps_enabled, sid)
+		cb_ls.set_block_signals(false)
+	for mid: String in _review_mode_id_to_checkbox.keys():
+		var cb_rm: CheckBox = _review_mode_id_to_checkbox[mid]
+		cb_rm.set_block_signals(true)
+		cb_rm.button_pressed = _array_contains_str(Global.user_settings_data.settings_vocab_review_modes_enabled, mid)
+		cb_rm.set_block_signals(false)
 	for pid: String in _preset_id_to_checkbox.keys():
 		var cb: CheckBox = _preset_id_to_checkbox[pid]
 		cb.set_block_signals(true)
@@ -678,9 +752,9 @@ func _refresh_dashboard_stats() -> void:
 			total_words,
 		])
 	if _quiz_status:
-		var mode := str(Global.user_settings_data.settings_vocab_combat_review_mode)
 		_quiz_status.text = I18N.tr_key("menu.vocab_console_quiz_stats", [
-			I18N.tr_key("vocab.review.mode_" + mode),
+			_format_enabled_learn_steps_summary(),
+			_format_enabled_review_modes_summary(),
 		])
 	if _examples_status:
 		var api_state := (
@@ -712,40 +786,76 @@ func _on_vocab_daily_cap_changed(v: float) -> void:
 	_refresh_dashboard_stats()
 
 
+func _on_vocab_daily_new_words_changed(v: float) -> void:
+	Global.user_settings_data.settings_vocab_daily_new_words = clampi(int(round(v)), 0, 300)
+	FileLoader.save_user_settings()
+	VocabStudy.reload_from_settings()
+	_refresh_dashboard_stats()
+
+
 func _on_vocab_ordered_example_words_changed(v: float) -> void:
 	Global.user_settings_data.settings_vocab_daily_ordered_example_words = clampi(int(round(v)), 0, 200)
 	FileLoader.save_user_settings()
 	_refresh_dashboard_stats()
 
 
-func _populate_vocab_review_mode_option(select_mode: String) -> void:
-	if _vocab_review_mode_opt == null:
-		return
-	_vocab_review_mode_opt.set_block_signals(true)
-	_vocab_review_mode_opt.clear()
-	var ids: Array[String] = [
-		VocabStudy.VOCAB_REVIEW_MODE_SPELL,
-		VocabStudy.VOCAB_REVIEW_MODE_MEANING,
-		VocabStudy.VOCAB_REVIEW_MODE_MC4,
-	]
-	for mid: String in ids:
-		_vocab_review_mode_opt.add_item(I18N.tr_key("vocab.review.mode_" + mid))
-		_vocab_review_mode_opt.set_item_metadata(_vocab_review_mode_opt.item_count - 1, mid)
-	var pick: int = 0
-	for i in range(_vocab_review_mode_opt.item_count):
-		if str(_vocab_review_mode_opt.get_item_metadata(i)) == select_mode:
-			pick = i
-			break
-	_vocab_review_mode_opt.select(pick)
-	_vocab_review_mode_opt.set_block_signals(false)
+func _array_contains_str(arr: Variant, needle: String) -> bool:
+	if typeof(arr) != TYPE_ARRAY:
+		return false
+	for v: Variant in arr as Array:
+		if str(v).strip_edges() == needle:
+			return true
+	return false
 
 
-func _on_vocab_review_mode_selected(idx: int) -> void:
-	if _vocab_review_mode_opt == null:
-		return
-	var m: Variant = _vocab_review_mode_opt.get_item_metadata(idx)
-	Global.user_settings_data.settings_vocab_combat_review_mode = str(m)
+func _format_enabled_learn_steps_summary() -> String:
+	var parts: PackedStringArray = []
+	for sid: String in _VOCAB_LEARN_STEP_IDS:
+		if _array_contains_str(Global.user_settings_data.settings_vocab_learn_steps_enabled, sid):
+			parts.append(I18N.tr_key("menu.vocab_learn_" + sid))
+	return " · ".join(parts)
+
+
+func _format_enabled_review_modes_summary() -> String:
+	var parts: PackedStringArray = []
+	for mid: String in _VOCAB_REVIEW_MODE_IDS:
+		if _array_contains_str(Global.user_settings_data.settings_vocab_review_modes_enabled, mid):
+			parts.append(I18N.tr_key("vocab.review.mode_" + mid))
+	return " · ".join(parts)
+
+
+func _on_learn_step_toggled(_pressed: bool, step_id: String) -> void:
+	var arr: Array[String] = []
+	for sid: String in _VOCAB_LEARN_STEP_IDS:
+		if _learn_step_id_to_checkbox[sid].button_pressed:
+			arr.append(sid)
+	if arr.is_empty():
+		var cb: CheckBox = _learn_step_id_to_checkbox[step_id]
+		cb.set_block_signals(true)
+		cb.button_pressed = true
+		cb.set_block_signals(false)
+		arr.append(step_id)
+	Global.user_settings_data.settings_vocab_learn_steps_enabled = arr
 	FileLoader.save_user_settings()
+	VocabStudy.reload_from_settings()
+	_refresh_dashboard_stats()
+
+
+func _on_review_mode_toggled(_pressed: bool, mode_id: String) -> void:
+	var arr: Array[String] = []
+	for mid: String in _VOCAB_REVIEW_MODE_IDS:
+		if _review_mode_id_to_checkbox[mid].button_pressed:
+			arr.append(mid)
+	if arr.is_empty():
+		var cb: CheckBox = _review_mode_id_to_checkbox[mode_id]
+		cb.set_block_signals(true)
+		cb.button_pressed = true
+		cb.set_block_signals(false)
+		arr.append(mode_id)
+	Global.user_settings_data.settings_vocab_review_modes_enabled = arr
+	Global.user_settings_data.settings_vocab_combat_review_mode = arr[0]
+	FileLoader.save_user_settings()
+	VocabStudy.reload_from_settings()
 	_refresh_dashboard_stats()
 
 

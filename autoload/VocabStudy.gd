@@ -17,6 +17,10 @@ const ARTIFACT_ARCHIVIST_FIRST_DRAFT_ID := "artifact_archivist_first_draft"
 const VOCAB_REVIEW_MODE_SPELL := "spell"
 const VOCAB_REVIEW_MODE_MEANING := "meaning"
 const VOCAB_REVIEW_MODE_MC4 := "mc4"
+## 仅英文提示自评：记得 / 不记得（不记得可标记回未学）
+const VOCAB_REVIEW_MODE_RECALL := "recall"
+## 学习环节 id 的固定顺序（与 settings_vocab_learn_steps_enabled 组合）
+const VOCAB_LEARN_STEP_ORDER: Array[String] = ["en2zh", "zh2en", "spell", "dictation"]
 
 const OPENAI_EXAMPLE_SYSTEM_BASE := """你是英语学习词书编辑。用户会给出词条的英文 headword、中文释义、以及游戏里的默写题干说明。
 请生成 2～4 条英文例句，尽量覆盖不同义项或用法；每条配一行简短中文 gloss 标明该句侧重的义（可与释义栏对应）。
@@ -46,8 +50,6 @@ const PRESET_DOMAIN_ZH: Dictionary = {
 	"game_scifi": "游戏 / 科幻",
 }
 const DEFAULT_EXAMPLE_DOMAIN_PRESETS: Array[String] = ["game_scifi", "daily"]
-
-@export var cold_review_chance: float = 0.35
 
 var _words: Array[Dictionary] = []
 var _overlay: WordReviewOverlay = null
@@ -164,9 +166,71 @@ func register_word_overlay(overlay: WordReviewOverlay) -> void:
 	_overlay = overlay
 
 func reload_from_settings() -> void:
+	_migrate_vocab_settings_arrays()
 	_invalidate_example_cache()
 	_rebuild_book_index()
 	_load_word_list()
+	_ensure_daily_new_plan()
+
+
+func _migrate_vocab_settings_arrays() -> void:
+	var migrated := false
+	var learn_raw: Variant = Global.user_settings_data.settings_vocab_learn_steps_enabled
+	if typeof(learn_raw) != TYPE_ARRAY or (learn_raw as Array).is_empty():
+		Global.user_settings_data.settings_vocab_learn_steps_enabled = ["en2zh", "zh2en", "spell", "dictation"]
+		migrated = true
+	var rev_raw: Variant = Global.user_settings_data.settings_vocab_review_modes_enabled
+	if typeof(rev_raw) != TYPE_ARRAY or (rev_raw as Array).is_empty():
+		Global.user_settings_data.settings_vocab_review_modes_enabled = _review_modes_from_legacy_string(
+			str(Global.user_settings_data.settings_vocab_combat_review_mode)
+		)
+		migrated = true
+	if migrated:
+		FileLoader.save_user_settings()
+
+
+func _review_modes_from_legacy_string(legacy: String) -> Array[String]:
+	var s := legacy.strip_edges()
+	if s == VOCAB_REVIEW_MODE_SPELL or s == VOCAB_REVIEW_MODE_MEANING or s == VOCAB_REVIEW_MODE_MC4 or s == VOCAB_REVIEW_MODE_RECALL:
+		return [s]
+	return [VOCAB_REVIEW_MODE_SPELL, VOCAB_REVIEW_MODE_MEANING, VOCAB_REVIEW_MODE_MC4, VOCAB_REVIEW_MODE_RECALL]
+
+
+## 按固定顺序返回本次学习流水线要跑的环节 id（至少一项）。
+func learn_pipeline_enabled_step_ids_ordered() -> Array[String]:
+	var raw: Variant = Global.user_settings_data.settings_vocab_learn_steps_enabled
+	var picked: Dictionary = {}
+	if typeof(raw) == TYPE_ARRAY:
+		for item: Variant in raw as Array:
+			var id: String = str(item).strip_edges()
+			if id != "":
+				picked[id] = true
+	var out: Array[String] = []
+	for id2: String in VOCAB_LEARN_STEP_ORDER:
+		if picked.has(id2):
+			out.append(id2)
+	if out.is_empty():
+		return VOCAB_LEARN_STEP_ORDER.duplicate()
+	return out
+
+
+func _normalized_review_modes_enabled() -> Array[String]:
+	var raw: Variant = Global.user_settings_data.settings_vocab_review_modes_enabled
+	var out: Array[String] = []
+	if typeof(raw) == TYPE_ARRAY:
+		for item: Variant in raw as Array:
+			var m: String = str(item).strip_edges()
+			if (
+				m == VOCAB_REVIEW_MODE_SPELL
+				or m == VOCAB_REVIEW_MODE_MEANING
+				or m == VOCAB_REVIEW_MODE_MC4
+				or m == VOCAB_REVIEW_MODE_RECALL
+			):
+				if not out.has(m):
+					out.append(m)
+	if out.is_empty():
+		return _review_modes_from_legacy_string(str(Global.user_settings_data.settings_vocab_combat_review_mode))
+	return out
 
 
 func _invalidate_example_cache() -> void:
@@ -545,7 +609,73 @@ func get_vocab_dashboard_stats() -> Dictionary:
 		"daily_example_batch_size": int(Global.user_settings_data.settings_vocab_daily_ordered_example_words),
 		"daily_example_batch_done_today": int(Global.profile_data.profile_vocab_seq_example_last_day) == _vocab_calendar_day_id(),
 		"daily_example_cursor": int(Global.profile_data.profile_vocab_seq_example_cursor),
+		"daily_new_words_setting": int(Global.user_settings_data.settings_vocab_daily_new_words),
+		"daily_new_pending": _count_daily_new_pending(),
 	}
+
+
+func _ensure_daily_new_plan() -> void:
+	var day: int = _vocab_calendar_day_id()
+	var lim: int = int(Global.user_settings_data.settings_vocab_daily_new_words)
+	if lim <= 0:
+		if int(Global.profile_data.profile_vocab_daily_new_plan_day) != day:
+			Global.profile_data.profile_vocab_daily_new_plan_day = day
+			Global.profile_data.profile_vocab_daily_new_word_ids.clear()
+			FileLoader.save_profile()
+		return
+	if int(Global.profile_data.profile_vocab_daily_new_plan_day) == day:
+		return
+	Global.profile_data.profile_vocab_daily_new_plan_day = day
+	Global.profile_data.profile_vocab_daily_new_word_ids.clear()
+	var picked: Array = []
+	for w: Dictionary in _words:
+		if picked.size() >= lim:
+			break
+		var wid: String = str(w.get("id", ""))
+		if wid.is_empty():
+			continue
+		var st: Dictionary = _get_state(wid)
+		if bool(st.get("learned", false)):
+			continue
+		picked.append(wid)
+	Global.profile_data.profile_vocab_daily_new_word_ids = picked
+	FileLoader.save_profile()
+
+
+func _pending_daily_new_word_id() -> String:
+	var lim: int = int(Global.user_settings_data.settings_vocab_daily_new_words)
+	if lim <= 0:
+		return ""
+	_ensure_daily_new_plan()
+	for item: Variant in Global.profile_data.profile_vocab_daily_new_word_ids:
+		var wid: String = str(item)
+		if wid.is_empty():
+			continue
+		var st: Dictionary = _get_state(wid)
+		if not bool(st.get("learned", false)):
+			return wid
+	return ""
+
+
+func _count_daily_new_pending() -> int:
+	var lim: int = int(Global.user_settings_data.settings_vocab_daily_new_words)
+	if lim <= 0:
+		return 0
+	_ensure_daily_new_plan()
+	var n: int = 0
+	for item: Variant in Global.profile_data.profile_vocab_daily_new_word_ids:
+		var wid: String = str(item)
+		if wid.is_empty():
+			continue
+		var st: Dictionary = _get_state(wid)
+		if not bool(st.get("learned", false)):
+			n += 1
+	return n
+
+
+func is_word_marked_learned(word_id: String) -> bool:
+	var st: Dictionary = _get_state(word_id)
+	return bool(st.get("learned", false))
 
 
 func _book_id_from_word_id(wid: String) -> String:
@@ -807,6 +937,21 @@ func mark_word_introduced(word_id: String) -> void:
 		return
 	var st: Dictionary = _get_state(word_id)
 	st["introduced"] = true
+	Global.profile_data.profile_vocab_word_states[word_id] = st
+	FileLoader.save_profile()
+
+
+## 自评「不记得」或需要重学：清空已学/已介绍与 SRS，回到未学状态。
+func mark_word_unlearned(word_id: String) -> void:
+	if word_id.is_empty():
+		return
+	var st: Dictionary = _get_state(word_id)
+	st.erase("learned")
+	st.erase("introduced")
+	st["r"] = 0
+	st["i"] = 0.0
+	st["e"] = 2.5
+	st["d"] = 0
 	Global.profile_data.profile_vocab_word_states[word_id] = st
 	FileLoader.save_profile()
 
@@ -1435,10 +1580,14 @@ func fill_missing_examples_via_api(max_words: int = 35) -> Dictionary:
 
 
 func combat_vocab_review_mode() -> String:
-	var m := str(Global.user_settings_data.settings_vocab_combat_review_mode).strip_edges()
-	if m == VOCAB_REVIEW_MODE_MEANING or m == VOCAB_REVIEW_MODE_MC4:
-		return m
-	return VOCAB_REVIEW_MODE_SPELL
+	var modes := _normalized_review_modes_enabled()
+	var rng: RandomNumberGenerator
+	if Global.player_data != null:
+		rng = Global.player_data.get_player_rng("rng_vocab_review_mode_pick")
+	else:
+		rng = RandomNumberGenerator.new()
+		rng.randomize()
+	return modes[rng.randi_range(0, modes.size() - 1)]
 
 
 ## 四选一复习：从词池取若干「其他词」的 headword 作干扰项（不含本题任一可接受拼写）。
@@ -1479,6 +1628,44 @@ func sample_distractor_headwords_for_mc(
 			continue
 		blocked[l3] = true
 		out.append(hw3)
+	return out
+
+
+## 四选一（中文释义）：从词池其它词条取干扰释义。
+func sample_distractor_meanings_for_mc(
+	exclude_word_id: String, correct_meaning: String, desired: int, rng: RandomNumberGenerator
+) -> Array[String]:
+	var blocked: Dictionary = {}
+	var cm := correct_meaning.strip_edges()
+	if not cm.is_empty():
+		blocked[cm] = true
+	var candidates: Array[String] = []
+	for w: Dictionary in _words:
+		if str(w.get("id", "")) == exclude_word_id:
+			continue
+		var mn := str(w.get("study_meaning", "")).strip_edges()
+		if mn.is_empty():
+			continue
+		if mn.length() > 80 or mn.find("\n") != -1:
+			continue
+		if blocked.has(mn):
+			continue
+		candidates.append(mn)
+	if candidates.is_empty():
+		return []
+	for i in range(candidates.size() - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var tmp: String = candidates[i]
+		candidates[i] = candidates[j]
+		candidates[j] = tmp
+	var out: Array[String] = []
+	for mn2: String in candidates:
+		if out.size() >= desired:
+			break
+		if blocked.has(mn2):
+			continue
+		blocked[mn2] = true
+		out.append(mn2)
 	return out
 
 
@@ -1529,6 +1716,10 @@ func _slice_due_ids_for_daily_budget(ids: Array[String]) -> Array[String]:
 
 
 func _pick_word_for_prompt() -> Dictionary:
+	_ensure_daily_new_plan()
+	var pend_id: String = _pending_daily_new_word_id()
+	if pend_id != "":
+		return _word_by_id(pend_id)
 	var now: int = int(Time.get_unix_time_from_system())
 	var due_review_ids: Array[String] = []
 	var new_ids: Array[String] = []
@@ -1552,9 +1743,8 @@ func _pick_word_for_prompt() -> Dictionary:
 	if not new_ids.is_empty():
 		var rng_new: RandomNumberGenerator = Global.player_data.get_player_rng("rng_vocab_new")
 		return _word_by_id(new_ids[rng_new.randi_range(0, len(new_ids) - 1)])
+	## 无到期、无「新词」队列时：仍从全词池随机一题（不再高概率直接跳过，避免出牌背词形同关闭）。
 	var rng_cold: RandomNumberGenerator = Global.player_data.get_player_rng("rng_vocab_cold")
-	if rng_cold.randf() > cold_review_chance:
-		return {}
 	return _words[rng_cold.randi_range(0, len(_words) - 1)].duplicate(true)
 
 func _word_by_id(id: String) -> Dictionary:
