@@ -9,15 +9,16 @@ var _translations: Dictionary = {}
 signal locale_changed(locale: String)
 
 func _ready() -> void:
-	load_locale(DEFAULT_LOCALE)
+	load_locale(DEFAULT_LOCALE, false)
 
-func load_locale(locale: String) -> void:
+func load_locale(locale: String, persist_setting: bool = true) -> void:
 	current_locale = _normalize_locale(locale)
 	_translations = {}
 	_merge_translations(FileLoader.load_json(LOCALE_DIR, current_locale + ".json"))
 	_merge_translations(FileLoader.load_json(LOCALE_DIR, current_locale + "_data.json"))
-	Global.user_settings_data.settings_language = current_locale
-	FileLoader.save_user_settings()
+	if persist_setting:
+		Global.user_settings_data.settings_language = current_locale
+		FileLoader.save_user_settings()
 	locale_changed.emit(current_locale)
 
 func toggle_locale() -> void:

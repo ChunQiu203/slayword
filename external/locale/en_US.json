@@ -221,6 +221,8 @@
   "vocab.review.learn_skip": "Later",
   "vocab.review.learn_next_spell": "Start spelling",
   "vocab.review.learn_next_quiz": "Start quiz",
+  "vocab.review.relearn": "Relearn",
+  "vocab.review.relearn_tip": "Open the learning page with the word, meaning, and cached or generated examples. This does not change this review result.",
   "vocab.review.learn_start_pipeline": "Start exercises",
   "vocab.review.learn_en2zh_instruction": "Pick the correct Chinese meaning.",
   "vocab.review.dictation_label": "Dictation",

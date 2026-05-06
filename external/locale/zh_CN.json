@@ -221,6 +221,8 @@
   "vocab.review.learn_skip": "\u7a0d\u540e\u518d\u5b66",
   "vocab.review.learn_next_spell": "\u5f00\u59cb\u9ed8\u5199",
   "vocab.review.learn_next_quiz": "\u5f00\u59cb\u7b54\u9898",
+  "vocab.review.relearn": "\u91cd\u65b0\u5b66\u4e60",
+  "vocab.review.relearn_tip": "\u6253\u5f00\u5b66\u4e60\u9875\uff0c\u663e\u793a\u5355\u8bcd\u3001\u91ca\u4e49\u548c\u5df2\u7f13\u5b58\u6216\u73b0\u573a\u751f\u6210\u7684\u4f8b\u53e5\uff1b\u4e0d\u6539\u53d8\u672c\u6b21\u7b54\u9898\u7ed3\u679c\u3002",
   "vocab.review.learn_start_pipeline": "\u5f00\u59cb\u7ec3\u4e60",
   "vocab.review.learn_en2zh_instruction": "\u8bf7\u9009\u62e9\u6b63\u786e\u7684\u4e2d\u6587\u91ca\u4e49\u3002",
   "vocab.review.dictation_label": "\u542c\u5199",

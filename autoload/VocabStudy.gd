@@ -17,6 +17,10 @@ const ARTIFACT_ARCHIVIST_FIRST_DRAFT_ID := "artifact_archivist_first_draft"
 const VOCAB_REVIEW_MODE_SPELL := "spell"
 const VOCAB_REVIEW_MODE_MEANING := "meaning"
 const VOCAB_REVIEW_MODE_MC4 := "mc4"
+const EXAMPLE_API_BATCH_SIZE := 10
+const BACKGROUND_EXAMPLE_PREFETCH_WORDS := 12
+const BACKGROUND_EXAMPLE_PREFETCH_START_DELAY_SECONDS := 2.0
+const BACKGROUND_EXAMPLE_PREFETCH_DELAY_SECONDS := 6.0
 ## 仅英文提示自评：记得 / 不记得（不记得可标记回未学）
 const VOCAB_REVIEW_MODE_RECALL := "recall"
 ## 学习环节 id 的固定顺序（与 settings_vocab_learn_steps_enabled 组合）
@@ -65,6 +69,9 @@ var _vocab_example_zh_gave_up_ids: Dictionary = {}
 var _example_cache_loaded: bool = false
 var _example_cache_entries: Dictionary = {}
 var _sequential_batch_busy: bool = false
+var _example_prefetch_busy: bool = false
+var _example_prefetch_timer_pending: bool = false
+var _example_prefetch_requested_this_run: int = 0
 ## 项目根 res://.env 或 DOTENV_PATH（与 tools/generate_vocab_examples.py 一致）；Godot 不会自动把 .env 注入 OS 环境变量。
 var _dotenv_parsed: bool = false
 var _dotenv_values: Dictionary = {}
@@ -145,9 +152,37 @@ func _ready() -> void:
 		Signals.combat_started.connect(_on_combat_started_reset_first_draft)
 	if not Signals.run_started.is_connected(_on_run_started_vocab_example_batch):
 		Signals.run_started.connect(_on_run_started_vocab_example_batch)
+	if not Signals.run_ended.is_connected(_on_run_ended_vocab_example_prefetch):
+		Signals.run_ended.connect(_on_run_ended_vocab_example_prefetch)
+	if not Signals.map_location_selected.is_connected(_on_vocab_example_prefetch_opportunity):
+		Signals.map_location_selected.connect(_on_vocab_example_prefetch_opportunity)
+	if not Signals.combat_ended.is_connected(_on_vocab_example_prefetch_opportunity):
+		Signals.combat_ended.connect(_on_vocab_example_prefetch_opportunity)
+	if not Signals.reward_grant_requested.is_connected(_on_reward_vocab_example_prefetch_opportunity):
+		Signals.reward_grant_requested.connect(_on_reward_vocab_example_prefetch_opportunity)
 
 func _on_combat_started_reset_first_draft(_event_id: String) -> void:
 	_combat_first_draft_forgiveness_used = false
+
+
+func _on_run_ended_vocab_example_prefetch() -> void:
+	_example_prefetch_timer_pending = false
+	_example_prefetch_requested_this_run = 0
+
+
+func _on_vocab_example_prefetch_opportunity(_arg = null) -> void:
+	_begin_background_example_prefetch()
+
+
+func _on_reward_vocab_example_prefetch_opportunity(
+	_reward_group: int,
+	_money_amount: int,
+	_card_drafts: Array[Array],
+	_artifact_ids: Array[String],
+	_custom_action_data: Array[Array]
+) -> void:
+	_begin_background_example_prefetch()
+
 
 func _player_has_first_draft_artifact() -> bool:
 	if not Global.is_run:
@@ -315,6 +350,8 @@ func _try_merge_examples_from_file_cache_into_word(word: Dictionary, wid: String
 
 func _on_run_started_vocab_example_batch() -> void:
 	_vocab_example_zh_gave_up_ids.clear()
+	_example_prefetch_requested_this_run = 0
+	_begin_background_example_prefetch("", BACKGROUND_EXAMPLE_PREFETCH_START_DELAY_SECONDS)
 	if _sequential_batch_busy:
 		return
 	get_tree().create_timer(0.25).timeout.connect(_on_sequential_example_batch_timer, CONNECT_ONE_SHOT)
@@ -322,6 +359,7 @@ func _on_run_started_vocab_example_batch() -> void:
 
 func _on_sequential_example_batch_timer() -> void:
 	await _run_daily_sequential_example_batch_async()
+	_begin_background_example_prefetch("", BACKGROUND_EXAMPLE_PREFETCH_DELAY_SECONDS)
 
 
 func _run_daily_sequential_example_batch_async() -> void:
@@ -353,12 +391,11 @@ func _run_daily_sequential_example_batch_async() -> void:
 			continue
 		words_to_process.append(w)
 
-	const BATCH_SIZE: int = 5
 	var api_done: int = 0
 	var process_total: int = words_to_process.size()
 
-	for i in range(0, words_to_process.size(), BATCH_SIZE):
-		var batch: Array[Dictionary] = words_to_process.slice(i, i + BATCH_SIZE)
+	for i in range(0, words_to_process.size(), EXAMPLE_API_BATCH_SIZE):
+		var batch: Array[Dictionary] = words_to_process.slice(i, i + EXAMPLE_API_BATCH_SIZE)
 		for w in batch:
 			_example_fetch_in_progress[str(w.get("id", ""))] = true
 
@@ -1384,6 +1421,198 @@ func ensure_examples_for_word_on_demand_async(word: Dictionary) -> void:
 	_example_fetch_in_progress.erase(wid)
 
 
+func _background_example_prefetch_budget_left() -> int:
+	var daily_budget: int = int(Global.user_settings_data.settings_vocab_daily_ordered_example_words)
+	if daily_budget <= 0:
+		return 0
+	var run_budget: int = clampi(daily_budget, EXAMPLE_API_BATCH_SIZE, 200)
+	return maxi(0, run_budget - _example_prefetch_requested_this_run)
+
+
+func _begin_background_example_prefetch(
+	exclude_word_id: String = "",
+	delay_seconds: float = BACKGROUND_EXAMPLE_PREFETCH_DELAY_SECONDS
+) -> void:
+	if _example_prefetch_busy or _example_prefetch_timer_pending:
+		return
+	if not Global.is_run or _words.is_empty() or not has_openai_configured():
+		return
+	if _background_example_prefetch_budget_left() <= 0:
+		return
+	var delay := delay_seconds
+	if delay < 0.05:
+		delay = 0.05
+	_example_prefetch_timer_pending = true
+	get_tree().create_timer(delay).timeout.connect(
+		_on_background_example_prefetch_timer.bind(exclude_word_id),
+		CONNECT_ONE_SHOT
+	)
+
+
+func _on_background_example_prefetch_timer(exclude_word_id: String = "") -> void:
+	_example_prefetch_timer_pending = false
+	await _run_background_example_prefetch_async(exclude_word_id)
+
+
+func _finish_background_example_prefetch(
+	should_continue: bool,
+	exclude_word_id: String = ""
+) -> void:
+	_example_prefetch_busy = false
+	if should_continue:
+		_begin_background_example_prefetch(exclude_word_id, BACKGROUND_EXAMPLE_PREFETCH_DELAY_SECONDS)
+
+
+func _run_background_example_prefetch_async(exclude_word_id: String = "") -> void:
+	if _example_prefetch_busy:
+		return
+	if not Global.is_run or _words.is_empty() or not has_openai_configured():
+		return
+	if _sequential_batch_busy:
+		_begin_background_example_prefetch(exclude_word_id, BACKGROUND_EXAMPLE_PREFETCH_DELAY_SECONDS)
+		return
+	var budget_left := _background_example_prefetch_budget_left()
+	if budget_left <= 0:
+		return
+	_example_prefetch_busy = true
+	var words_to_process := _collect_background_example_prefetch_words(
+		mini(BACKGROUND_EXAMPLE_PREFETCH_WORDS, budget_left),
+		exclude_word_id
+	)
+	if words_to_process.is_empty():
+		_finish_background_example_prefetch(false, exclude_word_id)
+		return
+	var batch: Array[Dictionary] = words_to_process.slice(
+		0,
+		mini(EXAMPLE_API_BATCH_SIZE, mini(words_to_process.size(), budget_left))
+	)
+	for w in batch:
+		_example_fetch_in_progress[str(w.get("id", ""))] = true
+	_example_prefetch_requested_this_run += batch.size()
+
+	var system := _build_openai_system_prompt(true)
+	var user_pl := _build_openai_user_payload_batch(batch)
+	var resp := await _http_openai_chat_completion(_example_http_batch, system, user_pl)
+
+	if not bool(resp.get("ok", false)):
+		push_warning("VocabStudy background prefetch: %s" % str(resp.get("err", "?")))
+		for w in batch:
+			_example_fetch_in_progress.erase(str(w.get("id", "")))
+		_finish_background_example_prefetch(false, exclude_word_id)
+		return
+
+	var batch_results: Dictionary = _parse_batch_examples_content(str(resp.get("content", "")))
+	if batch_results.is_empty():
+		for w in batch:
+			_example_fetch_in_progress.erase(str(w.get("id", "")))
+		_finish_background_example_prefetch(false, exclude_word_id)
+		return
+
+	for w in batch:
+		var wid: String = str(w.get("id", ""))
+		var examples: Array = batch_results.get(wid, []) as Array
+		if examples.is_empty():
+			_example_fetch_in_progress.erase(wid)
+			continue
+		w["study_examples"] = examples.duplicate(true)
+		if not _word_study_examples_need_zh_refresh(w):
+			_vocab_example_zh_gave_up_ids.erase(wid)
+		else:
+			_vocab_example_zh_gave_up_ids[wid] = true
+		_persist_examples_to_example_cache_file(wid, examples)
+		_patch_word_examples_in_pool(wid, examples)
+		_example_fetch_in_progress.erase(wid)
+	_finish_background_example_prefetch(
+		_background_example_prefetch_budget_left() > 0,
+		exclude_word_id
+	)
+
+
+func _collect_background_example_prefetch_words(limit: int, exclude_word_id: String) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if limit <= 0:
+		return out
+	var seen: Dictionary[String, bool] = {}
+	var now: int = int(Time.get_unix_time_from_system())
+	var due_review_ids: Array[String] = []
+	var new_ids: Array[String] = []
+	for w: Dictionary in _words:
+		var wid: String = str(w.get("id", ""))
+		if wid.is_empty():
+			continue
+		var st: Dictionary = _get_state(wid)
+		var due: int = int(st.get("d", 0))
+		if st.is_empty():
+			new_ids.append(wid)
+		elif not bool(st.get("introduced", false)):
+			if due <= now:
+				new_ids.append(wid)
+		elif due <= now:
+			due_review_ids.append(wid)
+
+	new_ids.shuffle()
+	for wid: String in new_ids:
+		_append_example_prefetch_word_by_id(out, seen, wid, limit, exclude_word_id)
+		if out.size() >= limit:
+			return out
+
+	var due_pool: Array[String] = _slice_due_ids_for_daily_budget(due_review_ids)
+	if due_pool.is_empty():
+		due_pool = due_review_ids
+	due_pool.shuffle()
+	for wid: String in due_pool:
+		_append_example_prefetch_word_by_id(out, seen, wid, limit, exclude_word_id)
+		if out.size() >= limit:
+			return out
+
+	var start: int = int(Global.profile_data.profile_vocab_seq_example_cursor)
+	if _words.size() > 0:
+		start = posmod(start, _words.size())
+	for k in range(_words.size()):
+		var idx: int = posmod(start + k, _words.size())
+		_append_example_prefetch_word(out, seen, _words[idx], limit, exclude_word_id)
+		if out.size() >= limit:
+			return out
+	return out
+
+
+func _append_example_prefetch_word_by_id(
+	out: Array[Dictionary],
+	seen: Dictionary[String, bool],
+	wid: String,
+	limit: int,
+	exclude_word_id: String
+) -> void:
+	var w := _word_by_id(wid)
+	if w.is_empty():
+		return
+	_append_example_prefetch_word(out, seen, w, limit, exclude_word_id)
+
+
+func _append_example_prefetch_word(
+	out: Array[Dictionary],
+	seen: Dictionary[String, bool],
+	w: Dictionary,
+	limit: int,
+	exclude_word_id: String
+) -> void:
+	if out.size() >= limit:
+		return
+	var wid := str(w.get("id", ""))
+	if wid.is_empty() or wid == exclude_word_id:
+		return
+	if bool(seen.get(wid, false)):
+		return
+	seen[wid] = true
+	if _example_fetch_in_progress.get(wid, false):
+		return
+	var probe: Dictionary = w.duplicate(true)
+	merge_disk_and_pool_examples_into_word(probe)
+	if _word_dict_has_nonempty_examples(probe) and not word_study_examples_need_zh_refresh(probe):
+		return
+	out.append(probe)
+
+
 func _load_vocab_book_root_dict(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {}
@@ -1677,6 +1906,7 @@ func gate_before_play() -> bool:
 	var word: Dictionary = _pick_word_for_prompt()
 	if word.is_empty():
 		return false
+	_begin_background_example_prefetch(str(word.get("id", "")))
 	var outcome: int = await _overlay.run_review(word)
 	var wid: String = str(word["id"])
 	match outcome:
