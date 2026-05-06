@@ -66,7 +66,7 @@
 			"damage": 5
 		},
 		"card_values": {
-			"damage": 10,
+			"damage": 20,
 			"number_of_attacks": 1
 		},
 		"object_id": "card_requires_adjacency",

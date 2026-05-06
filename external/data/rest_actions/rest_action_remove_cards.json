@@ -4,7 +4,7 @@
 	},
 	"properties": {
 		"object_id": "rest_action_remove_cards",
-		"rest_action_cost_type": 1,
+		"rest_action_cost_type": 0,
 		"rest_action_name": "Remove Cards",
 		"rest_action_texture_path": "",
 		"rest_action_validators": [

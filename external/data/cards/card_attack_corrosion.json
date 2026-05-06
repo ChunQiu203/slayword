@@ -11,7 +11,7 @@
 		"card_discard_actions": [],
 		"card_draw_actions": [],
 		"card_end_of_turn_actions": [],
-		"card_energy_cost": 1,
+		"card_energy_cost": 2,
 		"card_energy_cost_is_variable": false,
 		"card_energy_cost_until_combat": -1,
 		"card_energy_cost_until_played": -1,

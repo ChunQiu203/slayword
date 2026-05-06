@@ -757,7 +757,7 @@ func add_test_rest_actions() -> void:
 	# upgrade card rest action
 	var rest_action_upgrade_card: RestActionData = RestActionData.new("rest_action_upgrade_card")
 	rest_action_upgrade_card.rest_action_name = "Upgrade"
-	rest_action_upgrade_card.rest_action_cost_type = RestActionData.REST_ACTION_COST_TYPES.INCLUSIVE_REPEATABLE
+	rest_action_upgrade_card.rest_action_cost_type = RestActionData.REST_ACTION_COST_TYPES.INCLUSIVE
 	rest_action_upgrade_card.rest_actions = [
 	{
 	Scripts.ACTION_PICK_CARDS: {
@@ -787,7 +787,7 @@ func add_test_rest_actions() -> void:
 	# remove cards action
 	var rest_action_remove_cards: RestActionData = RestActionData.new("rest_action_remove_cards")
 	rest_action_remove_cards.rest_action_name = "Remove Cards"
-	rest_action_remove_cards.rest_action_cost_type = RestActionData.REST_ACTION_COST_TYPES.INCLUSIVE
+	rest_action_remove_cards.rest_action_cost_type = RestActionData.REST_ACTION_COST_TYPES.EXCLUSIVE
 	rest_action_remove_cards.rest_actions = [
 		{
 		Scripts.ACTION_PICK_CARDS: {
@@ -1488,13 +1488,13 @@ func add_test_characters() -> void:
 	# blue character
 	var character_blue: CharacterData = CharacterData.new("character_blue")
 	character_blue.character_player_id = "player_blue"
-	character_blue.character_name = "Blue Guy"
-	character_blue.character_description = "If they were green they would die."
+	character_blue.character_name = "Paper keeper"
+	character_blue.character_description = "Through sentences and words."
 	character_blue.character_color_id = "color_blue"
 	character_blue.character_starting_health = 70
 
-	character_blue.character_texture_path = "external/sprites/characters/character_blue/character_blue.svg"
-	character_blue.character_icon_texture_path = "external/sprites/characters/character_blue/character_blue_icon.svg"
+	character_blue.character_texture_path = "external/sprites/characters/character_blue/paperkeeper.png"
+	character_blue.character_icon_texture_path = "external/sprites/characters/character_blue/paperkeepericon.png"
 
 	character_blue.character_text_energy_texture_path = "external/sprites/characters/character_blue/character_blue_text_energy.png"
 	character_blue.character_starting_artifact_ids = ["artifact_see_top_of_draw_pile"]
@@ -2559,8 +2559,15 @@ func add_test_cards() -> void:
 	improving_attack_card.card_values = {"block": 5, "damage": 5, "number_of_attacks": 1}
 	improving_attack_card.card_play_actions = [
 	{
-	Scripts.ACTION_ATTACK_GENERATOR: 
+	Scripts.ACTION_BLOCK:
+		{
+		"target_override": BaseAction.TARGET_OVERRIDES.PARENT,
+		"time_delay": 0.0
+		}
+	},
 	{
+	Scripts.ACTION_ATTACK_GENERATOR: 
+		{
 		"time_delay": 0.0,
 		"actions_on_lethal": 
 			[
@@ -2580,7 +2587,6 @@ func add_test_cards() -> void:
 			]
 		}
 	}
-	
 	]
 	
 	register_rod(improving_attack_card)
@@ -3232,56 +3238,6 @@ func add_test_cards() -> void:
 	]
 	
 	register_rod(transform_hand_card)
-	
-	# Card that transforms into a B variant when right clicked
-	var card_right_click_transform_mode_a: CardData = CardData.new("card_right_click_transform_mode_a")
-	card_right_click_transform_mode_a.card_name = "Mode A"
-	card_right_click_transform_mode_a.card_color_id = "color_red"
-	card_right_click_transform_mode_a.card_texture_path = "external/sprites/cards/red/card_red.png"
-	card_right_click_transform_mode_a.card_description = "Attack for [damage] damage\nRight click to transform into B variant"
-	card_right_click_transform_mode_a.card_type = CardData.CARD_TYPES.ATTACK
-	card_right_click_transform_mode_a.card_rarity = CardData.CARD_RARITIES.COMMON
-	card_right_click_transform_mode_a.card_color_id = "color_red"
-	card_right_click_transform_mode_a.card_requires_target = true
-	card_right_click_transform_mode_a.card_values = {
-		"damage": 7,
-		"number_of_attacks": 1,
-		"transform_parent_card": false,
-		"keep_upgrade_level": true,
-		"pick_played_card": true,
-		"transform_into_card_object_id": "card_right_click_transform_mode_b",
-		}
-	card_right_click_transform_mode_a.card_upgrade_value_improvements = {"damage": 4}
-	card_right_click_transform_mode_a.card_play_actions = [{Scripts.ACTION_ATTACK_GENERATOR: {}}]
-	card_right_click_transform_mode_a.card_right_click_actions = [{Scripts.ACTION_TRANSFORM_CARDS: {}}]
-	
-	register_rod(card_right_click_transform_mode_a)
-	
-	# Card that transforms into a A variant when right clicked
-	# this card cannot appear in card packs and thus not draftable
-	var card_right_click_transform_mode_b: CardData = CardData.new("card_right_click_transform_mode_b")
-	card_right_click_transform_mode_b.card_name = "Mode B"
-	card_right_click_transform_mode_b.card_color_id = "color_red"
-	card_right_click_transform_mode_b.card_texture_path = "external/sprites/cards/red/card_red.png"
-	card_right_click_transform_mode_b.card_description = "Block [block]\nRight click to transform into A variant"
-	card_right_click_transform_mode_b.card_type = CardData.CARD_TYPES.SKILL
-	card_right_click_transform_mode_b.card_rarity = CardData.CARD_RARITIES.COMMON
-	card_right_click_transform_mode_b.card_appears_in_card_packs = false
-	card_right_click_transform_mode_b.card_color_id = "color_red"
-	card_right_click_transform_mode_b.card_requires_target = false
-	card_right_click_transform_mode_b.card_values = {
-		"block": 5,
-		"target_override": BaseAction.TARGET_OVERRIDES.PARENT,
-		"transform_parent_card": false,
-		"keep_upgrade_level": true,
-		"pick_played_card": true,
-		"transform_into_card_object_id": "card_right_click_transform_mode_a",
-		}
-	card_right_click_transform_mode_b.card_upgrade_value_improvements = {"block": 3}
-	card_right_click_transform_mode_b.card_play_actions = [{Scripts.ACTION_BLOCK: {}}]
-	card_right_click_transform_mode_b.card_right_click_actions = [{Scripts.ACTION_TRANSFORM_CARDS: {}}]
-	
-	register_rod(card_right_click_transform_mode_b)
 	
 	# draw cards and randomize cost of cards in hand
 	var randomize_hand_card: CardData = CardData.new("randomize_hand_card")

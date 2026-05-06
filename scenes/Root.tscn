@@ -7,13 +7,12 @@
 [ext_resource type="Script" uid="uid://dao05mln2rw4g" path="res://scripts/ui/Combat.gd" id="3_h4evn"]
 [ext_resource type="Script" uid="uid://cg1kj2nrg24jw" path="res://scripts/ui/menus/MainMenu.gd" id="3_jd5n0"]
 [ext_resource type="Texture2D" uid="uid://dedxgnlnakxfl" path="res://scenes/background.png" id="3_xur7f"]
-[ext_resource type="Texture2D" path="res://ui-free/sel_bg.png" id="48_selbg"]
 [ext_resource type="Script" uid="uid://dlwowe1wugkh4" path="res://scripts/ui/Hand.gd" id="4_i2yfj"]
 [ext_resource type="Script" uid="uid://p4ouiuival0e" path="res://scripts/ui/EnemyContainer.gd" id="4_kvn7e"]
 [ext_resource type="PackedScene" uid="uid://c0sxkaemtqb5x" path="res://scenes/combatants/Player.tscn" id="5_7crh0"]
 [ext_resource type="Script" uid="uid://c4twsg7v4ky8u" path="res://scripts/ui/menus/NewRunMenu.gd" id="5_878fa"]
-[ext_resource type="Script" path="res://scripts/ui/menus/VocabPrefsMenu.gd" id="5_vpref"]
 [ext_resource type="Script" uid="uid://cedacrx3ip1sl" path="res://scripts/ui/ArtifactContainer.gd" id="5_a7j3r"]
+[ext_resource type="Script" uid="uid://bwwme05ask3k8" path="res://scripts/ui/menus/VocabPrefsMenu.gd" id="5_vpref"]
 [ext_resource type="Script" uid="uid://chcjmcum7dbn7" path="res://scripts/ui/CharacterButtonContainer.gd" id="6_2ahpg"]
 [ext_resource type="Texture2D" uid="uid://k8bw51w22nft" path="res://scenes/label.png" id="6_kw7ld"]
 [ext_resource type="Script" uid="uid://djp4k7pq27a7e" path="res://scripts/ui/CustomRunModifierButtonContainer.gd" id="8_nlp47"]
@@ -47,8 +46,15 @@
 [ext_resource type="Texture2D" uid="uid://clnq3lnsyyvu6" path="res://ui-free/ui/map.png" id="37_i4xa7"]
 [ext_resource type="Script" uid="uid://cnst44ojx6hhi" path="res://scripts/ui/MapLocationContainer.gd" id="37_mapcn"]
 [ext_resource type="Texture2D" uid="uid://e3xlwnxw8klx" path="res://ui-free/ui/deck.png" id="38_h2aan"]
+[ext_resource type="Script" uid="uid://c52yhptje7s22" path="res://scripts/ui/RunStatisticsOverlay.gd" id="39_stats"]
+[ext_resource type="Texture2D" uid="uid://if5n5mcvfh3w" path="res://ui-free/sel_bg.png" id="48_selbg"]
 [ext_resource type="Texture2D" uid="uid://c1oyyrmehkbnb" path="res://ui-free/button/press_bg.png" id="57_8b2qk"]
-[ext_resource type="Script" uid="uid://d4l6k3f5m9n2a" path="res://scripts/ui/RunStatisticsOverlay.gd" id="39_stats"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_20dtu"]
+texture = ExtResource("25_nownq")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tpu2r"]
+texture = ExtResource("57_8b2qk")
 
 [sub_resource type="Resource" id="Resource_i7igs"]
 script = ExtResource("26_08sam")
@@ -66,9 +72,6 @@ keycode = 4194305
 
 [sub_resource type="Shortcut" id="Shortcut_i7igs"]
 events = [SubResource("InputEventKey_p8axl")]
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_20dtu"]
-texture = ExtResource("25_nownq")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_dohly"]
 texture = ExtResource("25_nownq")
@@ -278,9 +281,6 @@ corner_radius_bottom_left = 6
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gdi3b"]
 texture = ExtResource("25_nownq")
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tpu2r"]
-texture = ExtResource("57_8b2qk")
-
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_4m3bv"]
 texture = ExtResource("25_nownq")
 
@@ -369,7 +369,6 @@ custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="ForfeitRunButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=667628068]
 visible = false
@@ -377,43 +376,37 @@ custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="NewRunButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=1448564449]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="CodexButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=663223302]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="VocabPrefsButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=1990000005]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="SettingsButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=38449675]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-disabled = true
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
+disabled = true
 
 [node name="ExitButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=98597850]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="NewRunMenu" type="Control" parent="TitleScreen" unique_id=1860934140]
 visible = false
@@ -667,7 +660,6 @@ offset_right = 1238.0
 offset_bottom = 633.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="BackButton" type="Button" parent="TitleScreen/NewRunMenu" unique_id=2049432411]
 layout_mode = 0
@@ -677,7 +669,6 @@ offset_right = 1256.0
 offset_bottom = 691.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="CodexMenu" type="Control" parent="TitleScreen" unique_id=2006524794]
 visible = false
@@ -722,7 +713,6 @@ offset_right = 1273.0
 offset_bottom = 676.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="TitleScreen/CodexMenu" unique_id=1566636491]
 layout_mode = 0
@@ -790,7 +780,6 @@ offset_right = 1256.0
 offset_bottom = 691.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="RunScreen" type="Control" parent="." unique_id=1760638622]
 visible = false
@@ -1300,7 +1289,6 @@ offset_right = 687.0
 offset_bottom = 647.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="ShopOverlay" type="Control" parent="RunScreen" unique_id=1165602506]
 unique_name_in_owner = true
@@ -1386,7 +1374,6 @@ offset_right = 1198.0
 offset_bottom = 671.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="DialogueOverlay" type="Control" parent="RunScreen" unique_id=984469220]
 unique_name_in_owner = true
@@ -1481,16 +1468,6 @@ offset_right = 1280.0
 offset_bottom = 720.0
 script = ExtResource("21_fj66g")
 
-[node name="RunStatisticsOverlay" type="Control" parent="RunScreen" unique_id=1059986271]
-unique_name_in_owner = true
-process_mode = 1
-visible = false
-z_index = 11
-anchors_preset = 0
-offset_right = 1280.0
-offset_bottom = 720.0
-script = ExtResource("39_stats")
-
 [node name="Background" type="ColorRect" parent="RunScreen/RunSummaryOverlay" unique_id=73478863]
 layout_mode = 0
 offset_right = 1280.0
@@ -1518,7 +1495,7 @@ anchor_right = 1.0
 offset_top = 50.0
 offset_bottom = 130.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.4, 0.85, 0.45, 1.0)
+theme_override_colors/font_color = Color(0.4, 0.85, 0.45, 1)
 theme_override_font_sizes/font_size = 52
 text = "🎉 Victory!"
 horizontal_alignment = 1
@@ -1531,25 +1508,25 @@ anchor_right = 1.0
 offset_top = 50.0
 offset_bottom = 130.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.9, 0.35, 0.35, 1.0)
+theme_override_colors/font_color = Color(0.9, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 52
 text = "💀 Defeat"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="QuitLabel" type="Label" parent="RunScreen/RunSummaryOverlay" unique_id=136534560]
+visible = false
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_top = 50.0
 offset_bottom = 130.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1.0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
 theme_override_font_sizes/font_size = 52
 text = "🚪 提前退出"
 horizontal_alignment = 1
 vertical_alignment = 1
-visible = false
 
 [node name="PromptLabel" type="Label" parent="RunScreen/RunSummaryOverlay" unique_id=136534561]
 layout_mode = 1
@@ -1558,13 +1535,14 @@ anchor_right = 1.0
 offset_top = 150.0
 offset_bottom = 200.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.9, 0.87, 0.8, 1.0)
+theme_override_colors/font_color = Color(0.9, 0.87, 0.8, 1)
 theme_override_font_sizes/font_size = 22
 text = "点击下方按钮查看详细统计或返回主菜单"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ViewStatisticsButton" type="Button" parent="RunScreen/RunSummaryOverlay" unique_id=1305451618]
+custom_minimum_size = Vector2(230, 70)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1577,13 +1555,13 @@ offset_right = -80.0
 offset_bottom = 170.0
 grow_horizontal = 2
 grow_vertical = 2
-custom_minimum_size = Vector2(230, 70)
-theme_override_colors/font_color = Color(0.95, 0.92, 0.85, 1.0)
-theme_override_colors/font_hover_color = Color(1.0, 0.95, 0.9, 1.0)
+theme_override_colors/font_color = Color(0.95, 0.92, 0.85, 1)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.9, 1)
 theme_override_font_sizes/font_size = 24
 text = "📊 查看详细统计"
 
 [node name="EndRunButton" type="Button" parent="RunScreen/RunSummaryOverlay" unique_id=1305451617]
+custom_minimum_size = Vector2(230, 70)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1593,17 +1571,23 @@ anchor_bottom = 0.5
 offset_left = 80.0
 offset_top = 100.0
 offset_right = 310.0
-offset_bottom = 170.0
+offset_bottom = 520.0
 grow_horizontal = 2
 grow_vertical = 2
-custom_minimum_size = Vector2(230, 70)
-theme_override_colors/font_color = Color(0.95, 0.92, 0.85, 1.0)
-theme_override_colors/font_hover_color = Color(1.0, 0.95, 0.9, 1.0)
-theme_override_font_sizes/font_size = 24
-text = "🏠 返回主菜单"
-offset_bottom = 520.0
+theme_override_colors/font_color = Color(0.95, 0.92, 0.85, 1)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.9, 1)
 theme_override_font_sizes/font_size = 24
 text = "返回主菜单"
+
+[node name="RunStatisticsOverlay" type="Control" parent="RunScreen" unique_id=1059986271]
+unique_name_in_owner = true
+process_mode = 1
+visible = false
+z_index = 11
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+script = ExtResource("39_stats")
 
 [node name="RunStartOptions" type="Control" parent="RunScreen" unique_id=988387380]
 unique_name_in_owner = true
@@ -1878,10 +1862,12 @@ texture = ExtResource("36_20dtu")
 
 [node name="BackButton" type="TextureButton" parent="RunScreen/Map" unique_id=1917353835]
 layout_mode = 0
-offset_left = 1165.0
-offset_top = 642.0
+offset_left = 1140.0
+offset_top = 610.0
 offset_right = 1204.0
 offset_bottom = 674.0
+ignore_texture_size = true
+stretch_mode = 0
 texture_normal = ExtResource("22_0bxc5")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="RunScreen/Map" unique_id=192312141]
@@ -1951,12 +1937,11 @@ grow_vertical = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
 shortcut = SubResource("Shortcut_elxq6")
 shortcut_feedback = false
 shortcut_in_tooltip = false
-theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="ReturnToTitleButton" type="Button" parent="RunScreen/PauseOverlay/Background2/VBoxContainer" unique_id=1651271492]
 unique_name_in_owner = true
@@ -1964,7 +1949,6 @@ custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false
 
 [node name="ForfeitRunButton" type="Button" parent="RunScreen/PauseOverlay/Background2/VBoxContainer" unique_id=1976252994]
 unique_name_in_owner = true
@@ -1972,4 +1956,3 @@ custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
-flat = false

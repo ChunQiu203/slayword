@@ -5,9 +5,9 @@
 	"properties": {
 		"character_background_texture_path": "",
 		"character_color_id": "color_blue",
-		"character_description": "If they were green they would die.",
-		"character_icon_texture_path": "external/sprites/characters/character_blue/character_blue_icon.svg",
-		"character_name": "Blue Guy",
+		"character_description": "Through words and sentences",
+		"character_icon_texture_path": "external/sprites/characters/character_blue/paperkeepericon.png",
+		"character_name": "paper keeper",
 		"character_player_id": "player_blue",
 		"character_starting_artifact_ids": [
 			"artifact_see_top_of_draw_pile"
@@ -34,7 +34,7 @@
 		"character_starting_health": 70,
 		"character_starting_money": 999,
 		"character_text_energy_texture_path": "external/sprites/characters/character_blue/character_blue_text_energy.png",
-		"character_texture_path": "external/sprites/characters/character_blue/character_blue.svg",
+		"character_texture_path": "external/sprites/characters/character_blue/paperkeeper.png",
 		"object_id": "character_blue"
 	}
 }

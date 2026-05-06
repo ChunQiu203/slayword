@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://528isoebkdpv"]
+[gd_scene format=3 uid="uid://528isoebkdpv"]
 
 [ext_resource type="Script" uid="uid://d4l5y1jvle1mq" path="res://scripts/combatants/Enemy.gd" id="1_10iyf"]
 [ext_resource type="Texture2D" uid="uid://nh32y87hcke5" path="res://icon.svg" id="2_x4bdi"]
 [ext_resource type="PackedScene" uid="uid://b0qk0vn81d0kp" path="res://scenes/combatants/LayeredHealthBar.tscn" id="3_nimvv"]
+[ext_resource type="Texture2D" uid="uid://bg2u6a18jkocy" path="res://scenes/blockicon.png" id="4_pai7g"]
 
 [sub_resource type="Animation" id="Animation_3iu6k"]
 resource_name = "attack"
@@ -91,7 +92,7 @@ _data = {
 &"death": SubResource("Animation_8wuxe")
 }
 
-[node name="Enemy" type="Control" groups=["enemies", "enemies_alive_or_dead"]]
+[node name="Enemy" type="Control" unique_id=1188870958 groups=["enemies", "enemies_alive_or_dead"]]
 custom_minimum_size = Vector2(200, 144)
 layout_mode = 3
 anchors_preset = 0
@@ -100,23 +101,20 @@ offset_bottom = 192.0
 mouse_filter = 2
 script = ExtResource("1_10iyf")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-"": SubResource("AnimationLibrary_8y6d7")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=333636857]
+libraries/ = SubResource("AnimationLibrary_8y6d7")
 
-[node name="Visible" type="Control" parent="."]
-layout_mode = 3
+[node name="Visible" type="Control" parent="." unique_id=1888708620]
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 mouse_filter = 2
 
-[node name="Sprite" type="Sprite2D" parent="Visible"]
+[node name="Sprite" type="Sprite2D" parent="Visible" unique_id=1332221560]
 position = Vector2(99, 128)
 texture = ExtResource("2_x4bdi")
 
-[node name="NameLabel" type="Label" parent="Visible/Sprite"]
+[node name="NameLabel" type="Label" parent="Visible/Sprite" unique_id=877227460]
 visible = false
 offset_left = -75.0
 offset_top = 48.0
@@ -126,16 +124,16 @@ theme_override_font_sizes/font_size = 15
 text = "Name"
 horizontal_alignment = 1
 
-[node name="LayeredHealthBar" parent="Visible/Sprite" instance=ExtResource("3_nimvv")]
+[node name="LayeredHealthBar" parent="Visible/Sprite" unique_id=1650594313 instance=ExtResource("3_nimvv")]
 
-[node name="SelectionButton" type="Button" parent="Visible/Sprite"]
+[node name="SelectionButton" type="Button" parent="Visible/Sprite" unique_id=352107314]
 self_modulate = Color(1, 1, 1, 0)
 offset_left = -67.0
 offset_top = -64.0
 offset_right = 69.0
 offset_bottom = 64.0
 
-[node name="Intent" type="Control" parent="Visible"]
+[node name="Intent" type="Control" parent="Visible" unique_id=624965783]
 visible = false
 anchors_preset = 0
 offset_left = 58.0
@@ -144,7 +142,7 @@ offset_right = 142.0
 offset_bottom = 48.0
 mouse_filter = 2
 
-[node name="IntentTexture" type="TextureRect" parent="Visible/Intent"]
+[node name="IntentTexture" type="TextureRect" parent="Visible/Intent" unique_id=1175550048]
 layout_mode = 0
 offset_left = 80.0
 offset_top = -16.0
@@ -154,7 +152,7 @@ mouse_filter = 2
 texture = ExtResource("2_x4bdi")
 expand_mode = 1
 
-[node name="IntentAmount" type="Label" parent="Visible/Intent"]
+[node name="IntentAmount" type="Label" parent="Visible/Intent" unique_id=2083186322]
 layout_mode = 0
 offset_left = -4.0
 offset_top = 7.0
@@ -169,28 +167,24 @@ text = "15"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="FadeContainer" type="Node2D" parent="Visible"]
+[node name="FadeContainer" type="Node2D" parent="Visible" unique_id=2077949651]
 position = Vector2(100, -8)
 
-[node name="Block" type="Sprite2D" parent="Visible"]
-visible = false
-self_modulate = Color(0.188235, 0.188235, 0.188235, 1)
-position = Vector2(32, 168)
-scale = Vector2(0.25, 0.25)
-texture = ExtResource("2_x4bdi")
-metadata/_edit_group_ = true
+[node name="Block" type="Sprite2D" parent="Visible" unique_id=1055696653]
+position = Vector2(31, 165)
+texture = ExtResource("4_pai7g")
 
-[node name="BlockAmount" type="Label" parent="Visible/Block"]
-offset_left = -64.0
-offset_top = -64.0
-offset_right = 64.0
-offset_bottom = 64.0
-theme_override_font_sizes/font_size = 48
+[node name="BlockAmount" type="Label" parent="Visible/Block" unique_id=31537250]
+offset_left = -63.0
+offset_top = -50.0
+offset_right = 65.0
+offset_bottom = 78.0
+theme_override_font_sizes/font_size = 20
 text = "999"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StatusContainer" type="GridContainer" parent="Visible"]
+[node name="StatusContainer" type="GridContainer" parent="Visible" unique_id=642806914]
 layout_mode = 0
 offset_left = 16.0
 offset_top = 224.0
@@ -198,8 +192,7 @@ offset_right = 184.0
 offset_bottom = 264.0
 columns = 6
 
-[node name="CustomUIContainer" type="Control" parent="Visible"]
-layout_mode = 3
+[node name="CustomUIContainer" type="Control" parent="Visible" unique_id=1459313476]
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0

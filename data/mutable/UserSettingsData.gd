@@ -6,7 +6,7 @@ extends SerializableData
 class_name UserSettingsData
 
 ## Language
-@export var settings_language: String = "en"
+@export var settings_language: String = "zh_CN"
 
 ## Resolution
 @export var settings_window_size: Vector2 = Vector2(1200, 700)
