@@ -4,7 +4,7 @@
 	},
 	"properties": {
 		"object_id": "rest_action_upgrade_card",
-		"rest_action_cost_type": 2,
+		"rest_action_cost_type": 1,
 		"rest_action_name": "Upgrade",
 		"rest_action_texture_path": "",
 		"rest_action_validators": [

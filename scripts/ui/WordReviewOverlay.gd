@@ -15,6 +15,15 @@ const LEARN_EXIT_SKIP := 0
 const LEARN_EXIT_PROCEED := 1
 const LEARN_EXIT_PEEK_WRONG := 2
 
+signal learn_pipeline_step_done(outcome: int)
+signal recall_chosen(remembered: bool)
+signal recall_reveal_ack()
+
+const LEARN_STEP_EN2ZH := 0
+const LEARN_STEP_ZH2EN := 1
+const LEARN_STEP_SPELL := 2
+const LEARN_STEP_DICTATION := 3
+
 const TOUCH_MIN_BUTTON_H := 52
 const TOUCH_LINE_EDIT_H := 50
 const FONT_PROMPT := 18
@@ -66,6 +75,15 @@ var _learn_show_answer_busy: bool = false
 var _quiz_review_mode: String = VocabStudy.VOCAB_REVIEW_MODE_SPELL
 var _mc_container: GridContainer
 var _mc_option_buttons: Array[Button] = []
+var _learn_pipeline_active: bool = false
+var _mc_quiz_is_zh_meaning: bool = false
+var _mc_correct_zh_meaning: String = ""
+var _dictation_play_btn: Button = null
+var _recall_row: HBoxContainer = null
+var _recall_remember_btn: Button = null
+var _recall_forgot_btn: Button = null
+var _recall_waiting_ack: bool = false
+var _session_word: Dictionary = {}
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -209,6 +227,30 @@ func _ready() -> void:
 	_relearn_button.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_relearn_button.pressed.connect(_on_relearn_pressed)
 	hb.add_child(_relearn_button)
+	_dictation_play_btn = Button.new()
+	_dictation_play_btn.visible = false
+	_dictation_play_btn.custom_minimum_size = Vector2(120, TOUCH_MIN_BUTTON_H)
+	_dictation_play_btn.add_theme_font_size_override("font_size", FONT_BUTTON)
+	_dictation_play_btn.pressed.connect(_on_dictation_play_pressed)
+	hb.add_child(_dictation_play_btn)
+
+	_recall_row = HBoxContainer.new()
+	_recall_row.visible = false
+	_recall_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_recall_row.add_theme_constant_override("separation", 14)
+	_outer.add_child(_recall_row)
+
+	_recall_remember_btn = Button.new()
+	_recall_remember_btn.custom_minimum_size = Vector2(160, TOUCH_MIN_BUTTON_H)
+	_recall_remember_btn.add_theme_font_size_override("font_size", FONT_BUTTON)
+	_recall_remember_btn.pressed.connect(_on_recall_remember_pressed)
+	_recall_row.add_child(_recall_remember_btn)
+
+	_recall_forgot_btn = Button.new()
+	_recall_forgot_btn.custom_minimum_size = Vector2(160, TOUCH_MIN_BUTTON_H)
+	_recall_forgot_btn.add_theme_font_size_override("font_size", FONT_BUTTON)
+	_recall_forgot_btn.pressed.connect(_on_recall_forgot_pressed)
+	_recall_row.add_child(_recall_forgot_btn)
 
 	_feedback = Label.new()
 	_feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -234,12 +276,7 @@ func _on_locale_changed(_locale: String) -> void:
 	_refresh_i18n()
 
 func _refresh_i18n() -> void:
-	var rm0: String = VocabStudy.combat_vocab_review_mode()
-	_learn_button.text = (
-		I18N.tr_key("vocab.review.learn_next_spell")
-		if rm0 == VocabStudy.VOCAB_REVIEW_MODE_SPELL
-		else I18N.tr_key("vocab.review.learn_next_quiz")
-	)
+	_learn_button.text = I18N.tr_key("vocab.review.learn_start_pipeline")
 	_learn_show_answer_button.text = I18N.tr_key("vocab.review.peek_answer")
 	_submit.text = I18N.tr_key("vocab.review.submit")
 	_peek_answer_quiz_button.text = I18N.tr_key("vocab.review.peek_answer")
@@ -247,11 +284,14 @@ func _refresh_i18n() -> void:
 	_relearn_button.text = I18N.tr_key("vocab.review.relearn")
 	_relearn_button.tooltip_text = I18N.tr_key("vocab.review.relearn_tip")
 	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
+	if _dictation_play_btn:
+		_dictation_play_btn.text = I18N.tr_key("vocab.review.dictation_play")
+	if _recall_remember_btn:
+		_recall_remember_btn.text = I18N.tr_key("vocab.review.recall_remember")
+	if _recall_forgot_btn:
+		_recall_forgot_btn.text = I18N.tr_key("vocab.review.recall_forgot")
 	if _input.visible:
-		if _quiz_review_mode == VocabStudy.VOCAB_REVIEW_MODE_MEANING:
-			_input.placeholder_text = I18N.tr_key("vocab.review.placeholder_meaning")
-		else:
-			_input.placeholder_text = I18N.tr_key("vocab.review.placeholder_spell")
+		_input.placeholder_text = I18N.tr_key("vocab.review.placeholder_spell")
 
 func _on_viewport_size_changed() -> void:
 	if visible:
@@ -425,38 +465,46 @@ func _plain_prompt_without_answer_leaks(word: Dictionary) -> String:
 	return "\n".join(kept)
 
 
-func _build_meaning_only_quiz_bbcode(word: Dictionary, title_key: String, instruction_key: String = "") -> String:
+func _build_meaning_only_quiz_bbcode(
+	word: Dictionary,
+	title_key: String,
+	instruction_key: String = "",
+	append_hidden_note: bool = true,
+	include_meaning: bool = true,
+) -> String:
 	var mn: String = str(word.get("study_meaning", "")).strip_edges()
 	var bb := "[center]%s\n\n[color=#c8d8e8][font_size=%d]%s[/font_size][/color]" % [
 		_status_tag_bbcode("vocab.review.tag_review", "#c7a957"),
 		FONT_PROMPT,
 		_escape_bbcode_user_text(I18N.tr_key(title_key)),
 	]
-	if mn != "":
-		bb += (
-			"\n\n[color=#91c59d][font_size=%d]%s[/font_size][/color]\n"
-			% [FONT_EX_GLOSS, _escape_bbcode_user_text(I18N.tr_key("vocab.review.meaning_label"))]
-			+ "[color=#dde8f0][font_size=%d]%s[/font_size][/color]"
-			% [FONT_LEARN_MEANING + 1, _escape_bbcode_user_text(mn)]
-		)
-	else:
-		var safe_prompt := _plain_prompt_without_answer_leaks(word)
-		if safe_prompt != "":
+	if include_meaning:
+		if mn != "":
 			bb += (
-				"\n\n[color=#dde8f0][font_size=%d]%s[/font_size][/color]"
-				% [FONT_LEARN_MEANING + 1, _escape_bbcode_user_text(safe_prompt)]
+				"\n\n[color=#91c59d][font_size=%d]%s[/font_size][/color]\n"
+				% [FONT_EX_GLOSS, _escape_bbcode_user_text(I18N.tr_key("vocab.review.meaning_label"))]
+				+ "[color=#dde8f0][font_size=%d]%s[/font_size][/color]"
+				% [FONT_LEARN_MEANING + 1, _escape_bbcode_user_text(mn)]
 			)
 		else:
-			bb += (
-				"\n\n[color=#aab6c2][font_size=%d]%s[/font_size][/color]"
-				% [FONT_EX_ZH, _escape_bbcode_user_text(I18N.tr_key("vocab.review.no_safe_prompt"))]
-			)
+			var safe_prompt := _plain_prompt_without_answer_leaks(word)
+			if safe_prompt != "":
+				bb += (
+					"\n\n[color=#dde8f0][font_size=%d]%s[/font_size][/color]"
+					% [FONT_LEARN_MEANING + 1, _escape_bbcode_user_text(safe_prompt)]
+				)
+			else:
+				bb += (
+					"\n\n[color=#aab6c2][font_size=%d]%s[/font_size][/color]"
+					% [FONT_EX_ZH, _escape_bbcode_user_text(I18N.tr_key("vocab.review.no_safe_prompt"))]
+				)
 	if instruction_key != "":
 		bb += "\n\n[color=#9aa8b6]%s[/color]" % _escape_bbcode_user_text(I18N.tr_key(instruction_key))
-	bb += "\n\n[color=#6f7f90][font_size=%d]%s[/font_size][/color]" % [
-		FONT_EX_ZH,
-		_escape_bbcode_user_text(I18N.tr_key("vocab.review.quiz_hidden_note")),
-	]
+	if append_hidden_note:
+		bb += "\n\n[color=#6f7f90][font_size=%d]%s[/font_size][/color]" % [
+			FONT_EX_ZH,
+			_escape_bbcode_user_text(I18N.tr_key("vocab.review.quiz_hidden_note")),
+		]
 	bb += "[/center]"
 	return bb
 
@@ -484,8 +532,20 @@ func _mc_choice_matches_answer(choice_lower: String) -> bool:
 func _on_mc_button_pressed(b: Button) -> void:
 	if _finished or _quiz_peek_answer_shown or not b.visible:
 		return
-	var typed: String = _normalize(b.text)
 	_last_answer_text = b.text
+	if _mc_quiz_is_zh_meaning:
+		if _mc_choice_matches_zh_meaning(b.text):
+			_finish(true)
+			return
+		_quiz_wrong_submits += 1
+		if _quiz_wrong_submits >= MAX_WRONG_ATTEMPTS_IN_QUIZ:
+			_finish(false, REVIEW_OUTCOME_WRONG)
+			return
+		var left: int = MAX_WRONG_ATTEMPTS_IN_QUIZ - _quiz_wrong_submits
+		_feedback.add_theme_color_override("font_color", Color(1.0, 0.82, 0.55, 1.0))
+		_feedback.text = I18N.tr_key("vocab.review.mc_try_again", [left])
+		return
+	var typed: String = _normalize(b.text)
 	if _mc_choice_matches_answer(typed):
 		_finish(true)
 		return
@@ -506,11 +566,12 @@ func _setup_spelling_quiz_prompt(word: Dictionary) -> void:
 	)
 
 
-func _setup_meaning_quiz_prompt(word: Dictionary) -> void:
+func _setup_meaning_mc_quiz_prompt(word: Dictionary) -> void:
 	_prompt.text = _build_meaning_only_quiz_bbcode(
 		word,
-		"vocab.review.meaning_hide_hint",
-		"vocab.review.meaning_instruction"
+		"vocab.review.meaning_mc_label",
+		"vocab.review.meaning_mc_instruction",
+		false,
 	)
 
 
@@ -551,17 +612,23 @@ func _apply_quiz_mode_layout(word: Dictionary) -> void:
 	_quiz_review_mode = VocabStudy.combat_vocab_review_mode()
 	match _quiz_review_mode:
 		VocabStudy.VOCAB_REVIEW_MODE_MEANING:
-			_mc_container.visible = false
-			_input.visible = true
-			_submit.visible = true
-			_input.placeholder_text = I18N.tr_key("vocab.review.placeholder_meaning")
-			_setup_meaning_quiz_prompt(word)
+			_mc_container.visible = true
+			_input.visible = false
+			_submit.visible = false
+			_setup_meaning_mc_quiz_prompt(word)
+			_build_mc_options(word)
 		VocabStudy.VOCAB_REVIEW_MODE_MC4:
 			_mc_container.visible = true
 			_input.visible = false
 			_submit.visible = false
 			_setup_mc_quiz_prompt(word)
 			_build_mc_options(word)
+		VocabStudy.VOCAB_REVIEW_MODE_RECALL:
+			_mc_container.visible = false
+			_input.visible = true
+			_submit.visible = true
+			_input.placeholder_text = I18N.tr_key("vocab.review.placeholder_spell")
+			_setup_spelling_quiz_prompt(word)
 		_:
 			_quiz_review_mode = VocabStudy.VOCAB_REVIEW_MODE_SPELL
 			_mc_container.visible = false
@@ -571,7 +638,234 @@ func _apply_quiz_mode_layout(word: Dictionary) -> void:
 			_setup_spelling_quiz_prompt(word)
 
 
+func _normalize_zh_meaning(s: String) -> String:
+	var t := s.strip_edges()
+	while t.find("  ") != -1:
+		t = t.replace("  ", " ")
+	return t
+
+
+func _prepare_learn_pipeline_step_begin() -> void:
+	_finished = false
+	_result_ok = false
+	_review_outcome = REVIEW_OUTCOME_OK
+	_quiz_wrong_submits = 0
+	_mc_quiz_is_zh_meaning = false
+	_mc_correct_zh_meaning = ""
+	_feedback.text = ""
+	_feedback.add_theme_color_override("font_color", Color(0.84, 0.88, 0.92, 1.0))
+	_input.text = ""
+	_reset_quiz_peek_state()
+	_return_after_peek_button.visible = false
+	_submit.disabled = false
+	_peek_answer_quiz_button.disabled = false
+	_skip.disabled = false
+	_input.editable = true
+	for mb: Button in _mc_option_buttons:
+		mb.disabled = false
+
+
+func _build_en2zh_prompt_bbcode(word: Dictionary) -> String:
+	var hw: String = str(word.get("study_headword", "")).strip_edges()
+	var bb := "[center]%s\n\n[color=#f2ebe0][font_size=%d]%s[/font_size][/color]\n\n[color=#9aa8b6][font_size=%d]%s[/font_size][/color][/center]" % [
+		_status_tag_bbcode("vocab.review.tag_new", "#d8c27a"),
+		FONT_LEARN_HEAD,
+		_escape_bbcode_user_text(hw),
+		FONT_EX_ZH,
+		_escape_bbcode_user_text(I18N.tr_key("vocab.review.learn_en2zh_instruction")),
+	]
+	return bb
+
+
+func _build_mc_meaning_options(word: Dictionary) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var cm := _normalize_zh_meaning(str(word.get("study_meaning", "")))
+	if cm.is_empty():
+		cm = "?"
+	_mc_correct_zh_meaning = cm
+	var distr: Array[String] = VocabStudy.sample_distractor_meanings_for_mc(_word_id, cm, 3, rng)
+	var labels: Array[String] = []
+	for s: String in distr:
+		labels.append(s)
+	labels.append(cm)
+	for i in range(labels.size() - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var tmp: String = labels[i]
+		labels[i] = labels[j]
+		labels[j] = tmp
+	for k in range(_mc_option_buttons.size()):
+		var btn: Button = _mc_option_buttons[k]
+		if k < labels.size():
+			btn.text = labels[k]
+			btn.visible = true
+			btn.disabled = false
+		else:
+			btn.visible = false
+
+
+func _mc_choice_matches_zh_meaning(choice: String) -> bool:
+	var a := _normalize_zh_meaning(choice)
+	var b := _normalize_zh_meaning(_mc_correct_zh_meaning)
+	return a == b and not a.is_empty()
+
+
+func _setup_learn_step(word: Dictionary, step: int) -> void:
+	_dictation_play_btn.visible = step == LEARN_STEP_DICTATION
+	_prompt.visible = true
+	_peek_answer_quiz_button.visible = true
+	_skip.visible = true
+	match step:
+		LEARN_STEP_EN2ZH:
+			_mc_quiz_is_zh_meaning = true
+			_quiz_review_mode = VocabStudy.VOCAB_REVIEW_MODE_MC4
+			_mc_container.visible = true
+			_input.visible = false
+			_submit.visible = false
+			_prompt.text = _build_en2zh_prompt_bbcode(word)
+			_build_mc_meaning_options(word)
+		LEARN_STEP_ZH2EN:
+			_mc_quiz_is_zh_meaning = false
+			_mc_container.visible = true
+			_input.visible = false
+			_submit.visible = false
+			_quiz_review_mode = VocabStudy.VOCAB_REVIEW_MODE_MC4
+			_setup_meaning_mc_quiz_prompt(word)
+			_build_mc_options(word)
+		LEARN_STEP_SPELL:
+			_mc_quiz_is_zh_meaning = false
+			_quiz_review_mode = VocabStudy.VOCAB_REVIEW_MODE_SPELL
+			_mc_container.visible = false
+			_input.visible = true
+			_submit.visible = true
+			_input.placeholder_text = I18N.tr_key("vocab.review.placeholder_spell")
+			_setup_spelling_quiz_prompt(word)
+		LEARN_STEP_DICTATION:
+			_mc_quiz_is_zh_meaning = false
+			_quiz_review_mode = VocabStudy.VOCAB_REVIEW_MODE_SPELL
+			_mc_container.visible = false
+			_input.visible = true
+			_submit.visible = true
+			_input.placeholder_text = I18N.tr_key("vocab.review.placeholder_dictation")
+			_prompt.text = _build_meaning_only_quiz_bbcode(
+				word,
+				"vocab.review.dictation_label",
+				"vocab.review.dictation_instruction",
+				true,
+				false,
+			)
+	_apply_panel_layout()
+
+
+func _learn_step_int_from_id(step_id: String) -> int:
+	match step_id:
+		"en2zh":
+			return LEARN_STEP_EN2ZH
+		"zh2en":
+			return LEARN_STEP_ZH2EN
+		"spell":
+			return LEARN_STEP_SPELL
+		"dictation":
+			return LEARN_STEP_DICTATION
+	return LEARN_STEP_SPELL
+
+
+func _run_full_learn_pipeline(word: Dictionary) -> int:
+	var step_ids: Array[String] = VocabStudy.learn_pipeline_enabled_step_ids_ordered()
+	_learn_pipeline_active = true
+	for sid: String in step_ids:
+		var step: int = _learn_step_int_from_id(sid)
+		_prepare_learn_pipeline_step_begin()
+		_setup_learn_step(word, step)
+		await get_tree().process_frame
+		if _input.visible:
+			_input.grab_focus()
+		var outcome: int = await learn_pipeline_step_done
+		if outcome != REVIEW_OUTCOME_OK:
+			_learn_pipeline_active = false
+			return outcome
+	_learn_pipeline_active = false
+	return REVIEW_OUTCOME_OK
+
+
+func _speak_dictation_word(word: Dictionary) -> void:
+	var hw := str(word.get("study_headword", "")).strip_edges()
+	if hw.is_empty() or hw == "?":
+		return
+	var voices := DisplayServer.tts_get_voices_for_language("en")
+	var vid := ""
+	if voices.size() > 0:
+		var v0: Variant = voices[0]
+		if typeof(v0) == TYPE_DICTIONARY:
+			vid = str((v0 as Dictionary).get("id", ""))
+		else:
+			vid = str(v0)
+	DisplayServer.tts_speak(hw, vid)
+
+
+func _on_dictation_play_pressed() -> void:
+	if not visible:
+		return
+	var hw := str(_session_word.get("study_headword", "")).strip_edges()
+	if hw.is_empty() and not _answers.is_empty():
+		hw = _answers[0]
+	_speak_dictation_word({"study_headword": hw})
+
+
+func _run_recall_review(word: Dictionary) -> int:
+	_recall_row.visible = true
+	_recall_remember_btn.visible = true
+	_recall_forgot_btn.visible = true
+	_prompt.visible = true
+	_input.visible = false
+	_submit.visible = false
+	_peek_answer_quiz_button.visible = false
+	_skip.visible = false
+	_mc_container.visible = false
+	_feedback.visible = false
+	_dictation_play_btn.visible = false
+	_return_after_peek_button.visible = false
+	var hw := str(word.get("study_headword", "?")).strip_edges()
+	_prompt.text = (
+		"[center]%s\n\n[color=#f2ebe0][font_size=%d]%s[/font_size][/color]\n\n[color=#9aa8b6][font_size=%d]%s[/font_size][/color][/center]"
+		% [
+			_status_tag_bbcode("vocab.review.tag_review", "#c7a957"),
+			FONT_LEARN_HEAD,
+			_escape_bbcode_user_text(hw),
+			FONT_EX_ZH,
+			_escape_bbcode_user_text(I18N.tr_key("vocab.review.recall_pick_instruction")),
+		]
+	)
+	var remembered: bool = await recall_chosen
+	_prompt.text = _build_learn_panel_bbcode(word)
+	_feedback.visible = false
+	_recall_row.visible = false
+	_return_after_peek_button.visible = true
+	_return_after_peek_button.disabled = false
+	_recall_waiting_ack = true
+	await recall_reveal_ack
+	_recall_waiting_ack = false
+	Global.player_data.add_word_review(remembered)
+	if remembered:
+		return REVIEW_OUTCOME_OK
+	return REVIEW_OUTCOME_WRONG
+
+
+func _on_recall_remember_pressed() -> void:
+	if not _recall_row.visible:
+		return
+	recall_chosen.emit(true)
+
+
+func _on_recall_forgot_pressed() -> void:
+	if not _recall_row.visible:
+		return
+	VocabStudy.mark_word_unlearned(_word_id)
+	recall_chosen.emit(false)
+
+
 func run_review(word: Dictionary) -> int:
+	_session_word = word.duplicate(true)
 	_finished = false
 	_result_ok = false
 	_review_outcome = REVIEW_OUTCOME_OK
@@ -590,12 +884,15 @@ func run_review(word: Dictionary) -> int:
 	VocabStudy.merge_disk_and_pool_examples_into_word(word)
 	_active_word = word
 
-	var need_learn: bool = VocabStudy.word_needs_learn_phase(_word_id)
+	var need_full_learn: bool = not VocabStudy.is_word_marked_learned(_word_id)
+	var need_intro_panel: bool = VocabStudy.word_needs_learn_phase(_word_id)
+	_recall_row.visible = false
+	_dictation_play_btn.visible = false
 	_apply_panel_layout()
 	visible = true
 
 	var fetching_examples: bool = (
-		need_learn
+		need_full_learn
 		and VocabStudy.has_openai_configured()
 		and (
 			not VocabStudy.word_has_nonempty_examples(word)
@@ -649,11 +946,53 @@ func run_review(word: Dictionary) -> int:
 			_cleanup_hide()
 			return REVIEW_OUTCOME_WRONG
 		if _finished:
+	if need_full_learn:
+		if need_intro_panel:
+			_learn_show_answer_busy = false
+			_learn_button.text = I18N.tr_key("vocab.review.learn_start_pipeline")
+			_learn_text.text = _build_learn_panel_bbcode(word)
+			_learn_panel.visible = true
+			_learn_show_answer_button.visible = false
+			_prompt.visible = false
+			_input.visible = false
+			_submit.visible = false
+			_peek_answer_quiz_button.visible = false
+			_return_after_peek_button.visible = false
+			_feedback.visible = false
+			_skip.text = I18N.tr_key("vocab.review.learn_skip")
+			_in_learn_wait = true
+			var learn_exit: int = await _learn_resolved
+			_in_learn_wait = false
+			if learn_exit == LEARN_EXIT_SKIP:
+				Global.player_data.add_word_review(false)
+				_cleanup_hide()
+				return REVIEW_OUTCOME_SKIPPED
+			if learn_exit == LEARN_EXIT_PEEK_WRONG:
+				Global.player_data.add_word_review(false)
+				_cleanup_hide()
+				return REVIEW_OUTCOME_WRONG
+			if _finished:
+				_cleanup_hide()
+				return REVIEW_OUTCOME_OK if _result_ok else REVIEW_OUTCOME_SKIPPED
+			VocabStudy.mark_word_introduced(_word_id)
+			_learn_panel.visible = false
+			_quiz_wrong_submits = 0
+
+		var pipe_out: int = await _run_full_learn_pipeline(word)
+		if pipe_out != REVIEW_OUTCOME_OK:
+			Global.player_data.add_word_review(false)
 			_cleanup_hide()
-			return REVIEW_OUTCOME_OK if _result_ok else REVIEW_OUTCOME_SKIPPED
-		VocabStudy.mark_word_introduced(_word_id)
-		_learn_panel.visible = false
-		_quiz_wrong_submits = 0
+			return pipe_out
+		Global.player_data.add_word_review(true)
+		VocabStudy.mark_word_learned(_word_id)
+		_cleanup_hide()
+		return REVIEW_OUTCOME_OK
+
+	var rm: String = VocabStudy.combat_vocab_review_mode()
+	if rm == VocabStudy.VOCAB_REVIEW_MODE_RECALL:
+		var recall_out: int = await _run_recall_review(word)
+		_cleanup_hide()
+		return recall_out
 
 	_reset_quiz_peek_state()
 	_skip.text = I18N.tr_key("vocab.review.skip")
@@ -692,7 +1031,7 @@ func _on_learn_show_answer_pressed() -> void:
 func _on_show_answer_quiz_pressed() -> void:
 	if _finished or _quiz_peek_answer_shown:
 		return
-	if _quiz_review_mode != VocabStudy.VOCAB_REVIEW_MODE_MC4 and not _input.visible:
+	if not _input.visible and not _mc_container.visible:
 		return
 	_quiz_peek_answer_shown = true
 	var parts: PackedStringArray = []
@@ -733,6 +1072,12 @@ func _on_return_after_peek_pressed() -> void:
 		await get_tree().process_frame
 		if _input.visible:
 			_input.grab_focus()
+	if _recall_waiting_ack:
+		_return_after_peek_button.disabled = true
+		recall_reveal_ack.emit()
+		return
+	if _learn_pipeline_active and _finished:
+		learn_pipeline_step_done.emit(_review_outcome)
 		return
 	if _finished:
 		_return_after_peek_button.disabled = true
@@ -786,11 +1131,20 @@ func _on_skip_pressed() -> void:
 	if _in_learn_wait:
 		_learn_resolved.emit(LEARN_EXIT_SKIP)
 		return
+	if _learn_pipeline_active:
+		learn_pipeline_step_done.emit(REVIEW_OUTCOME_SKIPPED)
+		return
 	_finish(false, REVIEW_OUTCOME_SKIPPED, false)
 
 func _cleanup_hide() -> void:
 	_input.release_focus()
 	visible = false
+	_learn_pipeline_active = false
+	_recall_waiting_ack = false
+	if _recall_row:
+		_recall_row.visible = false
+	if _dictation_play_btn:
+		_dictation_play_btn.visible = false
 	_learn_panel.visible = false
 	_learn_action_row.visible = true
 	_active_word = {}
@@ -834,13 +1188,16 @@ func _finish(ok: bool, outcome_on_fail: int = REVIEW_OUTCOME_WRONG, wait_for_ack
 	_result_ok = ok
 	_review_outcome = REVIEW_OUTCOME_OK if ok else outcome_on_fail
 
-	# Record word review statistics
-	Global.player_data.add_word_review(ok)
+	if not _learn_pipeline_active:
+		Global.player_data.add_word_review(ok)
 
 	if wait_for_ack:
 		_show_final_feedback()
 	else:
-		review_completed.emit(ok)
+		if _learn_pipeline_active:
+			learn_pipeline_step_done.emit(_review_outcome)
+		else:
+			review_completed.emit(ok)
 
 
 func _show_final_feedback() -> void:

@@ -6,7 +6,7 @@ extends SerializableData
 class_name UserSettingsData
 
 ## Language
-@export var settings_language: String = "en"
+@export var settings_language: String = "zh_CN"
 
 ## Resolution
 @export var settings_window_size: Vector2 = Vector2(1200, 700)
@@ -18,8 +18,14 @@ class_name UserSettingsData
 
 ## 启用的词书 id（合并出题池）。默认：内置小词表 + NETEM 考研5530（见 data/vocab_books/book_netem_full.json）。
 @export var settings_vocab_enabled_book_ids: Array[String] = ["builtin_default", "netem_full"]
-## 战斗中出牌前的复习题型：spell=看题干默写英文；meaning=只看中文释义+例句后输入英文；mc4=四选一英文。
+## 战斗中出牌前的复习题型：spell / meaning / mc4 / recall（已由 settings_vocab_review_modes_enabled 取代；保留作旧存档兼容）。
 @export var settings_vocab_combat_review_mode: String = "spell"
+## 新词学习流水线启用的环节 id：en2zh / zh2en / spell / dictation（勾选顺序按固定流水线排列）。
+@export var settings_vocab_learn_steps_enabled: Array[String] = ["en2zh", "zh2en", "spell", "dictation"]
+## 出牌复习时在哪些题型中随机抽一种（至少勾选一个）。
+@export var settings_vocab_review_modes_enabled: Array[String] = ["spell", "meaning", "mc4", "recall"]
+## 每个自然日从合并词池中按顺序取多少「未 learned」词作为当日优先新词（0=不启用优先队列，行为与旧版一致）。
+@export var settings_vocab_daily_new_words: int = 15
 ## 自然日内从「到期复习」池中最多参与出牌复习的词数（0=不限制）。按日期固定随机子集，第二天会换一批。
 @export var settings_vocab_daily_due_cap: int = 30
 ## 每个自然日从合并词池中按固定顺序取多少词，用 API 预生成例句并写入 user://vocab_example_cache.json（0=不跑每日批次）。

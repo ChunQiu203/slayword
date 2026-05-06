@@ -65,6 +65,8 @@ func set_block(amount: int) -> void:
 	
 	block.visible = Global.player_data.player_block > 0
 	block_amount.text = str(Global.player_data.player_block)
+	print("Player.set_block", "amount=", amount, "player_block=", Global.player_data.player_block, "visible=", block.visible)
+	print("Player.block", "visible=", block.visible, "texture=", block.texture, "pos=", block.get_global_position())
 
 func get_block() -> int:
 	return 	Global.player_data.player_block

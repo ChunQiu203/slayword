@@ -64,7 +64,7 @@
 			"damage": 5
 		},
 		"card_values": {
-			"damage": 5,
+			"damage": 15,
 			"number_of_attacks": 1
 		},
 		"object_id": "card_attack_in_center",
