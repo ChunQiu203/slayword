@@ -9,7 +9,6 @@ var _deck_text: Label
 var _artifact_text: Label
 var _vocab_text: Label
 var _death_reason_label: Label
-var _back_button: Button
 var _finish_button: Button
 var _section_titles: Dictionary = {}
 
@@ -96,13 +95,6 @@ func _create_ui_elements() -> void:
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 12)
 	root.add_child(buttons)
-
-	_back_button = Button.new()
-	_back_button.text = I18N.tr_key("menu.back")
-	_back_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	SlayMobileStyle.style_button(_back_button, "dark", 20)
-	_back_button.pressed.connect(_on_back_button_up)
-	buttons.add_child(_back_button)
 
 	_finish_button = Button.new()
 	_finish_button.text = I18N.tr_key("overlay.back_to_main_menu")
@@ -206,8 +198,6 @@ func _refresh_static_text() -> void:
 		var title := _section_titles[title_key] as Label
 		if is_instance_valid(title):
 			title.text = I18N.tr_key(title_key)
-	if _back_button:
-		_back_button.text = I18N.tr_key("menu.back")
 	if _finish_button:
 		_finish_button.text = I18N.tr_key("overlay.back_to_main_menu")
 
@@ -283,10 +273,6 @@ func _on_run_started() -> void:
 
 
 func _on_run_ended() -> void:
-	visible = false
-
-
-func _on_back_button_up() -> void:
 	visible = false
 
 
