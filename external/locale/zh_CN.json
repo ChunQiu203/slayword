@@ -242,6 +242,8 @@
   "vocab.review.time_hours": "{0} \u5c0f\u65f6\u540e",
   "vocab.review.time_days": "{0} \u5929\u540e",
   "vocab.review.continue": "\u7ee7\u7eed",
+  "vocab.review.view_examples": "\u67e5\u770b\u4f8b\u53e5",
+  "vocab.review.hide_examples": "\u8fd4\u56de\u7b54\u9898\u7ed3\u679c",
   "vocab.review.try_again": "\u4e0d\u5bf9\uff0c\u518d\u8bd5\u4e00\u6b21\u6216\u70b9\u8df3\u8fc7\u3002\uff08\u8fd8\u53ef\u8bd5 {0} \u6b21\uff09",
   "vocab.review.mc_try_again": "\u4e0d\u5bf9\uff0c\u8fd8\u53ef\u8bd5 {0} \u6b21\u3002",
   "vocab.review.mc_wrong_cap": "\u9519\u8bef\u6b21\u6570\u5df2\u8fbe\u4e0a\u9650\uff0c\u6309\u7b54\u9519\u5904\u7406\u3002",

@@ -45,6 +45,10 @@ const MAX_WRONG_ATTEMPTS_IN_QUIZ := 5
 
 var _panel: PanelContainer
 var _outer: VBoxContainer
+## 学习说明 + 题干 + 四选一；占满中间区域，避免长内容顶掉底部按钮。
+var _scroll: ScrollContainer
+var _scroll_inner: VBoxContainer
+var _action_row: HBoxContainer
 var _learn_panel: VBoxContainer
 var _learn_text: RichTextLabel
 var _learn_action_row: HBoxContainer
@@ -78,12 +82,19 @@ var _mc_option_buttons: Array[Button] = []
 var _learn_pipeline_active: bool = false
 var _mc_quiz_is_zh_meaning: bool = false
 var _mc_correct_zh_meaning: String = ""
+var _dictation_play_row: HBoxContainer
 var _dictation_play_btn: Button = null
 var _recall_row: HBoxContainer = null
 var _recall_remember_btn: Button = null
 var _recall_forgot_btn: Button = null
 var _recall_waiting_ack: bool = false
 var _session_word: Dictionary = {}
+## 学习流水线当前子步骤（用于默写/听写结束后是否提供「查看例句」）。
+var _pipeline_step: int = -1
+var _examples_after_spell_open: bool = false
+var _spell_fb_saved_input_vis: bool = false
+var _spell_fb_saved_dictation_row_vis: bool = false
+var _examples_after_spell_btn: Button
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -121,12 +132,26 @@ func _ready() -> void:
 
 	_outer = VBoxContainer.new()
 	_outer.add_theme_constant_override("separation", 14)
+	_outer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_outer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_panel.add_child(_outer)
+
+	_scroll = ScrollContainer.new()
+	_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	_outer.add_child(_scroll)
+
+	_scroll_inner = VBoxContainer.new()
+	_scroll_inner.add_theme_constant_override("separation", 14)
+	_scroll_inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scroll.add_child(_scroll_inner)
 
 	_learn_panel = VBoxContainer.new()
 	_learn_panel.add_theme_constant_override("separation", 16)
 	_learn_panel.visible = false
-	_outer.add_child(_learn_panel)
+	_scroll_inner.add_child(_learn_panel)
 
 	_learn_text = RichTextLabel.new()
 	_learn_text.bbcode_enabled = true
@@ -156,12 +181,25 @@ func _ready() -> void:
 	_learn_show_answer_button.pressed.connect(_on_learn_show_answer_pressed)
 	_learn_action_row.add_child(_learn_show_answer_button)
 
+	_dictation_play_row = HBoxContainer.new()
+	_dictation_play_row.visible = false
+	_dictation_play_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_dictation_play_row.add_theme_constant_override("separation", 12)
+	_scroll_inner.add_child(_dictation_play_row)
+
+	_dictation_play_btn = Button.new()
+	_dictation_play_btn.visible = true
+	_dictation_play_btn.custom_minimum_size = Vector2(200, TOUCH_MIN_BUTTON_H)
+	_dictation_play_btn.add_theme_font_size_override("font_size", FONT_BUTTON)
+	_dictation_play_btn.pressed.connect(_on_dictation_play_pressed)
+	_dictation_play_row.add_child(_dictation_play_btn)
+
 	_prompt = RichTextLabel.new()
 	_prompt.bbcode_enabled = true
 	_prompt.fit_content = true
 	_prompt.scroll_active = false
 	_prompt.add_theme_font_size_override("normal_font_size", FONT_PROMPT)
-	_outer.add_child(_prompt)
+	_scroll_inner.add_child(_prompt)
 
 	_mc_container = GridContainer.new()
 	_mc_container.visible = false
@@ -169,7 +207,7 @@ func _ready() -> void:
 	_mc_container.add_theme_constant_override("h_separation", 10)
 	_mc_container.add_theme_constant_override("v_separation", 10)
 	_mc_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_outer.add_child(_mc_container)
+	_scroll_inner.add_child(_mc_container)
 	for _i in range(4):
 		var mb := Button.new()
 		mb.visible = false
@@ -190,17 +228,17 @@ func _ready() -> void:
 	_input.text_submitted.connect(_on_lineedit_text_submitted)
 	_outer.add_child(_input)
 
-	var hb := HBoxContainer.new()
-	hb.add_theme_constant_override("separation", 12)
-	hb.alignment = BoxContainer.ALIGNMENT_CENTER
-	_outer.add_child(hb)
+	_action_row = HBoxContainer.new()
+	_action_row.add_theme_constant_override("separation", 12)
+	_action_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_outer.add_child(_action_row)
 
 	_submit = Button.new()
 	_submit.text = I18N.tr_key("vocab.review.submit")
 	_submit.custom_minimum_size = Vector2(140, TOUCH_MIN_BUTTON_H)
 	_submit.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_submit.pressed.connect(_on_submit)
-	hb.add_child(_submit)
+	_action_row.add_child(_submit)
 
 	_peek_answer_quiz_button = Button.new()
 	_peek_answer_quiz_button.name = "PeekAnswerQuizButton"
@@ -209,7 +247,7 @@ func _ready() -> void:
 	_peek_answer_quiz_button.custom_minimum_size = Vector2(120, TOUCH_MIN_BUTTON_H)
 	_peek_answer_quiz_button.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_peek_answer_quiz_button.pressed.connect(_on_show_answer_quiz_pressed)
-	hb.add_child(_peek_answer_quiz_button)
+	_action_row.add_child(_peek_answer_quiz_button)
 
 	_skip = Button.new()
 	_skip.text = I18N.tr_key("vocab.review.skip")
@@ -217,7 +255,7 @@ func _ready() -> void:
 	_skip.custom_minimum_size = Vector2(140, TOUCH_MIN_BUTTON_H)
 	_skip.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_skip.pressed.connect(_on_skip_pressed)
-	hb.add_child(_skip)
+	_action_row.add_child(_skip)
 
 	_relearn_button = Button.new()
 	_relearn_button.text = I18N.tr_key("vocab.review.relearn")
@@ -226,13 +264,7 @@ func _ready() -> void:
 	_relearn_button.custom_minimum_size = Vector2(150, TOUCH_MIN_BUTTON_H)
 	_relearn_button.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_relearn_button.pressed.connect(_on_relearn_pressed)
-	hb.add_child(_relearn_button)
-	_dictation_play_btn = Button.new()
-	_dictation_play_btn.visible = false
-	_dictation_play_btn.custom_minimum_size = Vector2(120, TOUCH_MIN_BUTTON_H)
-	_dictation_play_btn.add_theme_font_size_override("font_size", FONT_BUTTON)
-	_dictation_play_btn.pressed.connect(_on_dictation_play_pressed)
-	hb.add_child(_dictation_play_btn)
+	_action_row.add_child(_relearn_button)
 
 	_recall_row = HBoxContainer.new()
 	_recall_row.visible = false
@@ -257,6 +289,15 @@ func _ready() -> void:
 	_feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_feedback.add_theme_font_size_override("font_size", FONT_FEEDBACK)
 	_outer.add_child(_feedback)
+
+	_examples_after_spell_btn = Button.new()
+	_examples_after_spell_btn.visible = false
+	_examples_after_spell_btn.text = I18N.tr_key("vocab.review.view_examples")
+	_examples_after_spell_btn.tooltip_text = I18N.tr_key("vocab.review.view_examples")
+	_examples_after_spell_btn.custom_minimum_size = Vector2(200, TOUCH_MIN_BUTTON_H)
+	_examples_after_spell_btn.add_theme_font_size_override("font_size", FONT_BUTTON)
+	_examples_after_spell_btn.pressed.connect(_on_examples_after_spell_pressed)
+	_outer.add_child(_examples_after_spell_btn)
 
 	_return_after_peek_button = Button.new()
 	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
@@ -284,6 +325,12 @@ func _refresh_i18n() -> void:
 	_relearn_button.text = I18N.tr_key("vocab.review.relearn")
 	_relearn_button.tooltip_text = I18N.tr_key("vocab.review.relearn_tip")
 	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
+	if _examples_after_spell_btn:
+		_examples_after_spell_btn.text = (
+			I18N.tr_key("vocab.review.hide_examples")
+			if _examples_after_spell_open
+			else I18N.tr_key("vocab.review.view_examples")
+		)
 	if _dictation_play_btn:
 		_dictation_play_btn.text = I18N.tr_key("vocab.review.dictation_play")
 	if _recall_remember_btn:
@@ -314,6 +361,7 @@ func _apply_panel_layout() -> void:
 	_learn_text.custom_minimum_size = Vector2(inner_w, 0.0)
 	_feedback.custom_minimum_size = Vector2(inner_w, 0.0)
 	_return_after_peek_button.custom_minimum_size = Vector2(maxf(200.0, inner_w * 0.5), TOUCH_MIN_BUTTON_H)
+	_examples_after_spell_btn.custom_minimum_size = Vector2(maxf(200.0, inner_w * 0.5), TOUCH_MIN_BUTTON_H)
 	var mc_columns := 2 if inner_w >= MC_TWO_COLUMN_MIN_W else 1
 	_mc_container.columns = mc_columns
 	var mc_w: float = inner_w
@@ -323,6 +371,7 @@ func _apply_panel_layout() -> void:
 		mb.custom_minimum_size = Vector2(maxf(160.0, mc_w), TOUCH_MIN_BUTTON_H - 2)
 
 func _reset_quiz_peek_state() -> void:
+	_reset_examples_after_spell_ui()
 	_quiz_peek_answer_shown = false
 	_relearn_return_to_quiz = false
 	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
@@ -336,6 +385,66 @@ func _reset_quiz_peek_state() -> void:
 	_input.editable = true
 	for mb: Button in _mc_option_buttons:
 		mb.disabled = false
+
+
+func _feedback_allows_example_review() -> bool:
+	if _learn_pipeline_active:
+		return _pipeline_step == LEARN_STEP_SPELL or _pipeline_step == LEARN_STEP_DICTATION
+	return _quiz_review_mode == VocabStudy.VOCAB_REVIEW_MODE_SPELL
+
+
+func _reset_examples_after_spell_ui() -> void:
+	if _examples_after_spell_open:
+		_examples_after_spell_open = false
+		_learn_panel.visible = false
+		_prompt.visible = true
+		_input.visible = _spell_fb_saved_input_vis
+		_dictation_play_row.visible = _spell_fb_saved_dictation_row_vis
+	if _examples_after_spell_btn:
+		_examples_after_spell_btn.visible = false
+		_examples_after_spell_btn.text = I18N.tr_key("vocab.review.view_examples")
+
+
+func _close_examples_after_spell_if_open() -> void:
+	if not _examples_after_spell_open:
+		return
+	_examples_after_spell_open = false
+	_learn_panel.visible = false
+	_prompt.visible = true
+	_input.visible = _spell_fb_saved_input_vis
+	_dictation_play_row.visible = _spell_fb_saved_dictation_row_vis
+	if _examples_after_spell_btn:
+		_examples_after_spell_btn.text = I18N.tr_key("vocab.review.view_examples")
+		_examples_after_spell_btn.visible = false
+
+
+func _on_examples_after_spell_pressed() -> void:
+	if not _finished or not _feedback_allows_example_review():
+		return
+	if not _examples_after_spell_open:
+		_spell_fb_saved_input_vis = _input.visible
+		_spell_fb_saved_dictation_row_vis = _dictation_play_row.visible
+		VocabStudy.merge_disk_and_pool_examples_into_word(_active_word)
+		_learn_text.text = _build_learn_panel_bbcode(_active_word)
+		_learn_panel.visible = true
+		_learn_action_row.visible = false
+		_prompt.visible = false
+		_input.visible = false
+		_dictation_play_row.visible = false
+		_examples_after_spell_open = true
+		if _examples_after_spell_btn:
+			_examples_after_spell_btn.text = I18N.tr_key("vocab.review.hide_examples")
+		await get_tree().process_frame
+		_scroll.scroll_vertical = 0
+	else:
+		_examples_after_spell_open = false
+		_learn_panel.visible = false
+		_prompt.visible = true
+		_input.visible = _spell_fb_saved_input_vis
+		_dictation_play_row.visible = _spell_fb_saved_dictation_row_vis
+		if _examples_after_spell_btn:
+			_examples_after_spell_btn.text = I18N.tr_key("vocab.review.view_examples")
+
 
 func _on_lineedit_text_submitted(_new_text: String) -> void:
 	_on_submit()
@@ -711,7 +820,7 @@ func _mc_choice_matches_zh_meaning(choice: String) -> bool:
 
 
 func _setup_learn_step(word: Dictionary, step: int) -> void:
-	_dictation_play_btn.visible = step == LEARN_STEP_DICTATION
+	_dictation_play_row.visible = step == LEARN_STEP_DICTATION
 	_prompt.visible = true
 	_peek_answer_quiz_button.visible = true
 	_skip.visible = true
@@ -754,6 +863,7 @@ func _setup_learn_step(word: Dictionary, step: int) -> void:
 				true,
 				false,
 			)
+	_pipeline_step = step
 	_apply_panel_layout()
 
 
@@ -823,7 +933,7 @@ func _run_recall_review(word: Dictionary) -> int:
 	_skip.visible = false
 	_mc_container.visible = false
 	_feedback.visible = false
-	_dictation_play_btn.visible = false
+	_dictation_play_row.visible = false
 	_return_after_peek_button.visible = false
 	var hw := str(word.get("study_headword", "?")).strip_edges()
 	_prompt.text = (
@@ -887,7 +997,8 @@ func run_review(word: Dictionary) -> int:
 	var need_full_learn: bool = not VocabStudy.is_word_marked_learned(_word_id)
 	var need_intro_panel: bool = VocabStudy.word_needs_learn_phase(_word_id)
 	_recall_row.visible = false
-	_dictation_play_btn.visible = false
+	_dictation_play_row.visible = false
+	_pipeline_step = -1
 	_apply_panel_layout()
 	visible = true
 
@@ -901,6 +1012,7 @@ func run_review(word: Dictionary) -> int:
 	)
 	if fetching_examples:
 		_learn_panel.visible = false
+		_dictation_play_row.visible = false
 		_prompt.visible = false
 		_input.visible = false
 		_submit.visible = false
@@ -916,36 +1028,6 @@ func run_review(word: Dictionary) -> int:
 		_feedback.visible = false
 		_skip.visible = true
 
-	if need_learn:
-		_learn_show_answer_busy = false
-		var rm0: String = VocabStudy.combat_vocab_review_mode()
-		_learn_button.text = (
-			I18N.tr_key("vocab.review.learn_next_spell")
-			if rm0 == VocabStudy.VOCAB_REVIEW_MODE_SPELL
-			else I18N.tr_key("vocab.review.learn_next_quiz")
-		)
-		_learn_text.text = _build_learn_panel_bbcode(word)
-		_learn_panel.visible = true
-		_learn_action_row.visible = true
-		_learn_show_answer_button.visible = false
-		_prompt.visible = false
-		_input.visible = false
-		_submit.visible = false
-		_peek_answer_quiz_button.visible = false
-		_return_after_peek_button.visible = false
-		_relearn_button.visible = false
-		_feedback.visible = false
-		_skip.text = I18N.tr_key("vocab.review.learn_skip")
-		_in_learn_wait = true
-		var learn_exit: int = await _learn_resolved
-		_in_learn_wait = false
-		if learn_exit == LEARN_EXIT_SKIP:
-			_cleanup_hide()
-			return REVIEW_OUTCOME_SKIPPED
-		if learn_exit == LEARN_EXIT_PEEK_WRONG:
-			_cleanup_hide()
-			return REVIEW_OUTCOME_WRONG
-		if _finished:
 	if need_full_learn:
 		if need_intro_panel:
 			_learn_show_answer_busy = false
@@ -964,10 +1046,12 @@ func run_review(word: Dictionary) -> int:
 			var learn_exit: int = await _learn_resolved
 			_in_learn_wait = false
 			if learn_exit == LEARN_EXIT_SKIP:
+				VocabStudy.mark_word_unlearned(_word_id)
 				Global.player_data.add_word_review(false)
 				_cleanup_hide()
 				return REVIEW_OUTCOME_SKIPPED
 			if learn_exit == LEARN_EXIT_PEEK_WRONG:
+				VocabStudy.mark_word_unlearned(_word_id)
 				Global.player_data.add_word_review(false)
 				_cleanup_hide()
 				return REVIEW_OUTCOME_WRONG
@@ -980,6 +1064,7 @@ func run_review(word: Dictionary) -> int:
 
 		var pipe_out: int = await _run_full_learn_pipeline(word)
 		if pipe_out != REVIEW_OUTCOME_OK:
+			VocabStudy.mark_word_unlearned(_word_id)
 			Global.player_data.add_word_review(false)
 			_cleanup_hide()
 			return pipe_out
@@ -1050,10 +1135,13 @@ func _on_show_answer_quiz_pressed() -> void:
 	_return_after_peek_button.visible = true
 
 func _on_return_after_peek_pressed() -> void:
+	_close_examples_after_spell_if_open()
 	if _relearn_return_to_quiz:
 		_relearn_return_to_quiz = false
 		_learn_panel.visible = false
 		_learn_action_row.visible = true
+		if _examples_after_spell_btn:
+			_examples_after_spell_btn.visible = false
 		_return_after_peek_button.disabled = false
 		_return_after_peek_button.visible = false
 		_prompt.visible = true
@@ -1091,6 +1179,9 @@ func _on_return_after_peek_pressed() -> void:
 func _on_relearn_pressed() -> void:
 	if not visible or _quiz_peek_answer_shown or _active_word.is_empty():
 		return
+	_examples_after_spell_open = false
+	if _examples_after_spell_btn:
+		_examples_after_spell_btn.visible = false
 	_relearn_return_to_quiz = not _finished
 	_relearn_button.disabled = true
 	if _relearn_return_to_quiz:
@@ -1116,6 +1207,7 @@ func _on_relearn_pressed() -> void:
 	_learn_text.text = _build_learn_panel_bbcode(_active_word)
 	_learn_panel.visible = true
 	_learn_action_row.visible = false
+	_dictation_play_row.visible = false
 	_prompt.visible = false
 	_input.visible = false
 	_submit.visible = false
@@ -1143,8 +1235,8 @@ func _cleanup_hide() -> void:
 	_recall_waiting_ack = false
 	if _recall_row:
 		_recall_row.visible = false
-	if _dictation_play_btn:
-		_dictation_play_btn.visible = false
+	if _dictation_play_row:
+		_dictation_play_row.visible = false
 	_learn_panel.visible = false
 	_learn_action_row.visible = true
 	_active_word = {}
@@ -1223,5 +1315,14 @@ func _show_final_feedback() -> void:
 	_input.editable = false
 	for mb: Button in _mc_option_buttons:
 		mb.disabled = true
+	_examples_after_spell_open = false
+	VocabStudy.merge_disk_and_pool_examples_into_word(_active_word)
+	if _examples_after_spell_btn:
+		if _feedback_allows_example_review():
+			_examples_after_spell_btn.visible = true
+			_examples_after_spell_btn.disabled = false
+			_examples_after_spell_btn.text = I18N.tr_key("vocab.review.view_examples")
+		else:
+			_examples_after_spell_btn.visible = false
 	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
 	_return_after_peek_button.visible = true

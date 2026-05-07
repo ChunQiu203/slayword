@@ -242,6 +242,8 @@
   "vocab.review.time_hours": "{0} hours",
   "vocab.review.time_days": "{0} days",
   "vocab.review.continue": "Continue",
+  "vocab.review.view_examples": "View examples",
+  "vocab.review.hide_examples": "Back to result",
   "vocab.review.try_again": "Wrong. Try again or skip. ({0} tries left.)",
   "vocab.review.mc_try_again": "Wrong — {0} tries left.",
   "vocab.review.mc_wrong_cap": "Too many wrong picks — counted as failed.",
