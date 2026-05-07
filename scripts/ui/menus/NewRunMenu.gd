@@ -259,9 +259,6 @@ func _on_back_button_up():
 	title_screen.show_main_menu()
 
 func _on_run_ended():
-	# go back to tile screen on failed run, but not abandoned run
-	var has_save_file: bool = FileLoader.has_save_file()
-	visible = not has_save_file
 	populate_new_run_menu()
 
 func _on_locale_changed(_locale: String) -> void:
