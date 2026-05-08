@@ -42,3 +42,4 @@ func _on_run_started():
 
 func _on_run_ended():
 	visible = true
+	show_main_menu()
