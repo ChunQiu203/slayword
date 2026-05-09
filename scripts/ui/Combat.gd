@@ -457,7 +457,7 @@ func queue_end_turn(immediacy: int = CombatEndTurn.END_TURN_QUEUE_IMMEDIACY.WAIT
 		end_turn_object = CombatEndTurn.new(self, %Hand, immediacy)
 		end_turn_object.wait()
 		end_turn_button.disabled = true
-	elif immediacy > end_turn_object.end_turn_queue_value:
+	elif immediacy > end_turn_object.end_turn_queue_immediacy:
 		# higher priority end turn, replace the old with a newer one
 		end_turn_object.disable()	# stop the old one working
 		end_turn_object = CombatEndTurn.new(self, %Hand, immediacy)

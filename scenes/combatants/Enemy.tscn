@@ -171,6 +171,7 @@ vertical_alignment = 1
 position = Vector2(100, -8)
 
 [node name="Block" type="Sprite2D" parent="Visible" unique_id=1055696653]
+visible = false
 position = Vector2(31, 165)
 texture = ExtResource("4_pai7g")
 

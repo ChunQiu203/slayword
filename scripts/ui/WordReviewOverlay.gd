@@ -78,7 +78,7 @@ var _learn_show_answer_busy: bool = false
 ## 默写阶段题型（与 VocabStudy.combat_vocab_review_mode 一致）
 var _quiz_review_mode: String = VocabStudy.VOCAB_REVIEW_MODE_SPELL
 var _mc_container: GridContainer
-var _mc_option_buttons: Array[Button] = []
+var _mc_option_buttons: Array[VocabMcOptionButton] = []
 var _learn_pipeline_active: bool = false
 var _mc_quiz_is_zh_meaning: bool = false
 var _mc_correct_zh_meaning: String = ""
@@ -209,7 +209,7 @@ func _ready() -> void:
 	_mc_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_scroll_inner.add_child(_mc_container)
 	for _i in range(4):
-		var mb := Button.new()
+		var mb := VocabMcOptionButton.new()
 		mb.visible = false
 		mb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		mb.custom_minimum_size = Vector2(200, TOUCH_MIN_BUTTON_H - 4)
@@ -363,11 +363,15 @@ func _apply_panel_layout() -> void:
 	_return_after_peek_button.custom_minimum_size = Vector2(maxf(200.0, inner_w * 0.5), TOUCH_MIN_BUTTON_H)
 	_examples_after_spell_btn.custom_minimum_size = Vector2(maxf(200.0, inner_w * 0.5), TOUCH_MIN_BUTTON_H)
 	var mc_columns := 2 if inner_w >= MC_TWO_COLUMN_MIN_W else 1
+	# 新词「看英文选中文义」选项往往很长，双列易把最小宽度撑破视口；学习流水线该步强制单列。
+	if _learn_pipeline_active and _pipeline_step == LEARN_STEP_EN2ZH:
+		mc_columns = 1
 	_mc_container.columns = mc_columns
 	var mc_w: float = inner_w
 	if mc_columns == 2:
 		mc_w = (inner_w - 10.0) * 0.5
-	for mb: Button in _mc_option_buttons:
+	for mb: VocabMcOptionButton in _mc_option_buttons:
+		mb.layout_content_width = mc_w
 		mb.custom_minimum_size = Vector2(maxf(160.0, mc_w), TOUCH_MIN_BUTTON_H - 2)
 
 func _reset_quiz_peek_state() -> void:
@@ -383,7 +387,7 @@ func _reset_quiz_peek_state() -> void:
 	_peek_answer_quiz_button.disabled = false
 	_skip.disabled = false
 	_input.editable = true
-	for mb: Button in _mc_option_buttons:
+	for mb: VocabMcOptionButton in _mc_option_buttons:
 		mb.disabled = false
 
 
@@ -708,12 +712,14 @@ func _build_mc_options(word: Dictionary) -> void:
 		labels[i] = labels[j]
 		labels[j] = tmp
 	for k in range(_mc_option_buttons.size()):
-		var btn: Button = _mc_option_buttons[k]
+		var btn: VocabMcOptionButton = _mc_option_buttons[k]
 		if k < labels.size():
 			btn.text = labels[k]
+			btn.tooltip_text = labels[k]
 			btn.visible = true
 			btn.disabled = false
 		else:
+			btn.tooltip_text = ""
 			btn.visible = false
 
 
@@ -761,6 +767,8 @@ func _prepare_learn_pipeline_step_begin() -> void:
 	_quiz_wrong_submits = 0
 	_mc_quiz_is_zh_meaning = false
 	_mc_correct_zh_meaning = ""
+	# intro / 拉取例句阶段会把反馈区隐藏；流水线里「看答案」、错选提示都写在 _feedback 上，必须重新显示。
+	_feedback.visible = true
 	_feedback.text = ""
 	_feedback.add_theme_color_override("font_color", Color(0.84, 0.88, 0.92, 1.0))
 	_input.text = ""
@@ -770,7 +778,7 @@ func _prepare_learn_pipeline_step_begin() -> void:
 	_peek_answer_quiz_button.disabled = false
 	_skip.disabled = false
 	_input.editable = true
-	for mb: Button in _mc_option_buttons:
+	for mb: VocabMcOptionButton in _mc_option_buttons:
 		mb.disabled = false
 
 
@@ -804,12 +812,14 @@ func _build_mc_meaning_options(word: Dictionary) -> void:
 		labels[i] = labels[j]
 		labels[j] = tmp
 	for k in range(_mc_option_buttons.size()):
-		var btn: Button = _mc_option_buttons[k]
+		var btn: VocabMcOptionButton = _mc_option_buttons[k]
 		if k < labels.size():
 			btn.text = labels[k]
+			btn.tooltip_text = labels[k]
 			btn.visible = true
 			btn.disabled = false
 		else:
+			btn.tooltip_text = ""
 			btn.visible = false
 
 
@@ -1130,7 +1140,7 @@ func _on_show_answer_quiz_pressed() -> void:
 	_skip.disabled = true
 	_relearn_button.disabled = true
 	_input.editable = false
-	for mb: Button in _mc_option_buttons:
+	for mb: VocabMcOptionButton in _mc_option_buttons:
 		mb.disabled = true
 	_return_after_peek_button.visible = true
 
@@ -1154,7 +1164,7 @@ func _on_return_after_peek_pressed() -> void:
 		_relearn_button.disabled = false
 		_relearn_button.visible = true
 		_input.editable = true
-		for mb: Button in _mc_option_buttons:
+		for mb: VocabMcOptionButton in _mc_option_buttons:
 			mb.disabled = false
 		_apply_quiz_mode_layout(_active_word)
 		await get_tree().process_frame
@@ -1189,7 +1199,7 @@ func _on_relearn_pressed() -> void:
 		_peek_answer_quiz_button.disabled = true
 		_skip.disabled = true
 		_input.editable = false
-		for mb: Button in _mc_option_buttons:
+		for mb: VocabMcOptionButton in _mc_option_buttons:
 			mb.disabled = true
 	_feedback.visible = true
 	VocabStudy.merge_disk_and_pool_examples_into_word(_active_word)
@@ -1313,7 +1323,7 @@ func _show_final_feedback() -> void:
 	_relearn_button.disabled = false
 	_relearn_button.visible = true
 	_input.editable = false
-	for mb: Button in _mc_option_buttons:
+	for mb: VocabMcOptionButton in _mc_option_buttons:
 		mb.disabled = true
 	_examples_after_spell_open = false
 	VocabStudy.merge_disk_and_pool_examples_into_word(_active_word)
