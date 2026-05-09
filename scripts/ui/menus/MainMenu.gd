@@ -74,9 +74,6 @@ func update_continue_button_visibility() -> void:
 	new_run_button.visible = not has_save_file
 
 func _on_run_ended():
-	# go back to tile screen on abandoned run, but not failed run
-	var has_save_file: bool = FileLoader.has_save_file()
-	visible = has_save_file
 	update_continue_button_visibility()
 
 func _on_locale_changed(_locale: String) -> void:
