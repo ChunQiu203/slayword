@@ -3978,7 +3978,7 @@ func add_test_cards() -> void:
 	var card_blood_price: CardData = CardData.new("card_blood_price")
 	card_blood_price.card_name = "Blood Price"
 	card_blood_price.card_color_id = "color_red"
-	card_blood_price.card_texture_path = "external/sprites/cards/red/card_red.png"
+	card_blood_price.card_texture_path = "external/sprites/cards/generated/card_blood_price.png"
 	card_blood_price.card_description = "Lose 3 HP. Deal 20 damage."
 	card_blood_price.card_type = CardData.CARD_TYPES.ATTACK
 	card_blood_price.card_rarity = CardData.CARD_RARITIES.UNCOMMON
@@ -3995,7 +3995,7 @@ func add_test_cards() -> void:
 	var card_piercing_strike: CardData = CardData.new("card_piercing_strike")
 	card_piercing_strike.card_name = "Piercing Strike"
 	card_piercing_strike.card_color_id = "color_red"
-	card_piercing_strike.card_texture_path = "external/sprites/cards/red/card_red.png"
+	card_piercing_strike.card_texture_path = "external/sprites/cards/generated/card_piercing_strike.png"
 	card_piercing_strike.card_description = "Deal 7 damage. Bypasses Block."
 	card_piercing_strike.card_type = CardData.CARD_TYPES.ATTACK
 	card_piercing_strike.card_rarity = CardData.CARD_RARITIES.COMMON
@@ -4011,7 +4011,7 @@ func add_test_cards() -> void:
 	var card_fury_strike: CardData = CardData.new("card_fury_strike")
 	card_fury_strike.card_name = "Fury Strike"
 	card_fury_strike.card_color_id = "color_red"
-	card_fury_strike.card_texture_path = "external/sprites/cards/red/card_red.png"
+	card_fury_strike.card_texture_path = "external/sprites/cards/generated/card_fury_strike.png"
 	card_fury_strike.card_description = "Deal 4 damage 4 times."
 	card_fury_strike.card_type = CardData.CARD_TYPES.ATTACK
 	card_fury_strike.card_rarity = CardData.CARD_RARITIES.COMMON
@@ -4029,7 +4029,7 @@ func add_test_cards() -> void:
 	var card_scry: CardData = CardData.new("card_scry")
 	card_scry.card_name = "Scry"
 	card_scry.card_color_id = "color_blue"
-	card_scry.card_texture_path = "external/sprites/cards/blue/card_blue.png"
+	card_scry.card_texture_path = "external/sprites/cards/generated/card_scry.png"
 	card_scry.card_description = "Discard up to 3 cards from top of draw pile. Draw 2."
 	card_scry.card_type = CardData.CARD_TYPES.SKILL
 	card_scry.card_rarity = CardData.CARD_RARITIES.COMMON
@@ -4055,7 +4055,7 @@ func add_test_cards() -> void:
 	var card_hand_cannon: CardData = CardData.new("card_hand_cannon")
 	card_hand_cannon.card_name = "Hand Cannon"
 	card_hand_cannon.card_color_id = "color_blue"
-	card_hand_cannon.card_texture_path = "external/sprites/cards/blue/card_blue.png"
+	card_hand_cannon.card_texture_path = "external/sprites/cards/generated/card_hand_cannon.png"
 	card_hand_cannon.card_description = "Deal 3 damage for each card in hand."
 	card_hand_cannon.card_type = CardData.CARD_TYPES.ATTACK
 	card_hand_cannon.card_rarity = CardData.CARD_RARITIES.UNCOMMON
@@ -4080,7 +4080,7 @@ func add_test_cards() -> void:
 	var card_corrosion_burst: CardData = CardData.new("card_corrosion_burst")
 	card_corrosion_burst.card_name = "Corrosion Burst"
 	card_corrosion_burst.card_color_id = "color_green"
-	card_corrosion_burst.card_texture_path = "external/sprites/cards/green/card_green.png"
+	card_corrosion_burst.card_texture_path = "external/sprites/cards/generated/card_corrosion_burst.png"
 	card_corrosion_burst.card_description = "Apply 4 Corrosion to ALL enemies."
 	card_corrosion_burst.card_type = CardData.CARD_TYPES.SKILL
 	card_corrosion_burst.card_rarity = CardData.CARD_RARITIES.UNCOMMON
@@ -4098,7 +4098,7 @@ func add_test_cards() -> void:
 	var card_catalyst: CardData = CardData.new("card_catalyst")
 	card_catalyst.card_name = "Catalyst"
 	card_catalyst.card_color_id = "color_green"
-	card_catalyst.card_texture_path = "external/sprites/cards/green/card_green.png"
+	card_catalyst.card_texture_path = "external/sprites/cards/generated/card_catalyst.png"
 	card_catalyst.card_description = "Apply 8 Corrosion. Exhaust."
 	card_catalyst.card_type = CardData.CARD_TYPES.SKILL
 	card_catalyst.card_rarity = CardData.CARD_RARITIES.RARE
@@ -4117,7 +4117,7 @@ func add_test_cards() -> void:
 	var card_thorns: CardData = CardData.new("card_thorns")
 	card_thorns.card_name = "Thorns"
 	card_thorns.card_color_id = "color_green"
-	card_thorns.card_texture_path = "external/sprites/cards/green/card_green.png"
+	card_thorns.card_texture_path = "external/sprites/cards/generated/card_thorns.png"
 	card_thorns.card_description = "Gain 5 Block. If enemy attacks, apply 3 Corrosion."
 	card_thorns.card_type = CardData.CARD_TYPES.SKILL
 	card_thorns.card_rarity = CardData.CARD_RARITIES.COMMON
@@ -4145,7 +4145,7 @@ func add_test_cards() -> void:
 	var card_fortress: CardData = CardData.new("card_fortress")
 	card_fortress.card_name = "Fortress"
 	card_fortress.card_color_id = "color_orange"
-	card_fortress.card_texture_path = "external/sprites/cards/orange/card_orange.png"
+	card_fortress.card_texture_path = "external/sprites/cards/generated/card_fortress.png"
 	card_fortress.card_description = "Retain. Gain 8 Block."
 	card_fortress.card_type = CardData.CARD_TYPES.SKILL
 	card_fortress.card_rarity = CardData.CARD_RARITIES.COMMON
@@ -4164,7 +4164,7 @@ func add_test_cards() -> void:
 	var card_second_wind: CardData = CardData.new("card_second_wind")
 	card_second_wind.card_name = "Second Wind"
 	card_second_wind.card_color_id = "color_orange"
-	card_second_wind.card_texture_path = "external/sprites/cards/orange/card_orange.png"
+	card_second_wind.card_texture_path = "external/sprites/cards/generated/card_second_wind.png"
 	card_second_wind.card_description = "Shuffle discard into draw. Gain 10 Block. Exhaust."
 	card_second_wind.card_type = CardData.CARD_TYPES.SKILL
 	card_second_wind.card_rarity = CardData.CARD_RARITIES.UNCOMMON
@@ -4186,6 +4186,7 @@ func add_test_cards() -> void:
 	var card_sacrifice: CardData = CardData.new("card_sacrifice")
 	card_sacrifice.card_name = "Sacrifice"
 	card_sacrifice.card_color_id = "color_purple"
+	card_sacrifice.card_texture_path = "external/sprites/cards/generated/card_sacrifice.png"
 	card_sacrifice.card_description = "Banish a card from deck. Gain 5 HP and 5 Max HP. Exhaust."
 	card_sacrifice.card_type = CardData.CARD_TYPES.SKILL
 	card_sacrifice.card_rarity = CardData.CARD_RARITIES.RARE
@@ -4215,6 +4216,7 @@ func add_test_cards() -> void:
 	var card_chaos_strike: CardData = CardData.new("card_chaos_strike")
 	card_chaos_strike.card_name = "Chaos Strike"
 	card_chaos_strike.card_color_id = "color_purple"
+	card_chaos_strike.card_texture_path = "external/sprites/cards/generated/card_chaos_strike.png"
 	card_chaos_strike.card_description = "Deal 14 damage to a random enemy."
 	card_chaos_strike.card_type = CardData.CARD_TYPES.ATTACK
 	card_chaos_strike.card_rarity = CardData.CARD_RARITIES.COMMON
@@ -4233,6 +4235,7 @@ func add_test_cards() -> void:
 	var card_heavy_strike: CardData = CardData.new("card_heavy_strike")
 	card_heavy_strike.card_name = "Heavy Strike"
 	card_heavy_strike.card_color_id = "color_white"
+	card_heavy_strike.card_texture_path = "external/sprites/cards/generated/card_heavy_strike.png"
 	card_heavy_strike.card_description = "Deal 18 damage."
 	card_heavy_strike.card_type = CardData.CARD_TYPES.ATTACK
 	card_heavy_strike.card_rarity = CardData.CARD_RARITIES.COMMON
@@ -4248,6 +4251,7 @@ func add_test_cards() -> void:
 	var card_iron_guard: CardData = CardData.new("card_iron_guard")
 	card_iron_guard.card_name = "Iron Guard"
 	card_iron_guard.card_color_id = "color_white"
+	card_iron_guard.card_texture_path = "external/sprites/cards/generated/card_iron_guard.png"
 	card_iron_guard.card_description = "Deal 7 damage. Gain 5 Block."
 	card_iron_guard.card_type = CardData.CARD_TYPES.ATTACK
 	card_iron_guard.card_rarity = CardData.CARD_RARITIES.COMMON
@@ -4265,6 +4269,7 @@ func add_test_cards() -> void:
 	var card_adrenaline: CardData = CardData.new("card_adrenaline")
 	card_adrenaline.card_name = "Adrenaline"
 	card_adrenaline.card_color_id = "color_white"
+	card_adrenaline.card_texture_path = "external/sprites/cards/generated/card_adrenaline.png"
 	card_adrenaline.card_description = "Draw 2 cards. Gain 1 energy. Exhaust."
 	card_adrenaline.card_type = CardData.CARD_TYPES.SKILL
 	card_adrenaline.card_rarity = CardData.CARD_RARITIES.UNCOMMON
@@ -4285,7 +4290,7 @@ func add_test_cards() -> void:
 	var card_word_power: CardData = CardData.new("card_word_power")
 	card_word_power.card_name = "Word Power"
 	card_word_power.card_color_id = "color_blue"
-	card_word_power.card_texture_path = "external/sprites/cards/blue/card_blue.png"
+	card_word_power.card_texture_path = "external/sprites/cards/generated/card_word_power.png"
 	card_word_power.card_description = "Deal 8 damage. +1 damage for each word learned."
 	card_word_power.card_type = CardData.CARD_TYPES.ATTACK
 	card_word_power.card_rarity = CardData.CARD_RARITIES.RARE
@@ -4301,7 +4306,7 @@ func add_test_cards() -> void:
 	var card_knowledge_wall: CardData = CardData.new("card_knowledge_wall")
 	card_knowledge_wall.card_name = "Knowledge Wall"
 	card_knowledge_wall.card_color_id = "color_blue"
-	card_knowledge_wall.card_texture_path = "external/sprites/cards/blue/card_blue.png"
+	card_knowledge_wall.card_texture_path = "external/sprites/cards/generated/card_knowledge_wall.png"
 	card_knowledge_wall.card_description = "Retain. Gain 6 Block. +1 Block for each word learned."
 	card_knowledge_wall.card_type = CardData.CARD_TYPES.SKILL
 	card_knowledge_wall.card_rarity = CardData.CARD_RARITIES.UNCOMMON
