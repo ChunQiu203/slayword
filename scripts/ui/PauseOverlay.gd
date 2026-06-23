@@ -9,6 +9,7 @@ func _ready() -> void:
 	_strip_legacy_texture_button_labels()
 	for b in [resume_button, return_to_title_button, forfeit_run_button]:
 		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		SlayMobileStyle.style_button(b, "dark", SlayMobileStyle.FS_MD)
 	_apply_localized_text()
 	I18N.locale_changed.connect(_on_locale_changed)
 
@@ -39,13 +40,8 @@ func _apply_localized_text() -> void:
 
 func _set_pause_button_text(button: Button, localized_text: String) -> void:
 	button.text = localized_text
+	# Only override font-size dynamically (SlayMobileStyle already set the base style)
 	button.add_theme_font_size_override("font_size", _get_pause_button_font_size(localized_text))
-	button.add_theme_color_override("font_color", Color(0.96, 0.93, 0.82, 1.0))
-	button.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.0))
-	button.add_theme_constant_override("shadow_offset_x", 0)
-	button.add_theme_constant_override("shadow_offset_y", 0)
-	button.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.65))
-	button.add_theme_constant_override("outline_size", 1)
 
 func _get_pause_button_font_size(localized_text: String) -> int:
 	if localized_text.length() >= 13:

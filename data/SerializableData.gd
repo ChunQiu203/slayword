@@ -317,7 +317,7 @@ func set_serializable_properties(object_data: Dictionary, json_friendly: bool = 
 					temp_value.clear()
 					temp_value.assign(new_value)
 					var patched_dictionary = patch_dictionary(current_value, temp_value, property_patch_strategy)
-					set(property_name, temp_value)
+					set(property_name, patched_dictionary)
 				elif current_value is Array:
 					# assign for typed array safety
 					var temp_value = get(property_name).duplicate()
@@ -368,7 +368,7 @@ static func native_dict_to_json_friendly(type_hint_value: Variant, value: Dictio
 	
 	return value
 
-static func native_array_to_json_friendly(type_hint_value: Variant, value: Array) -> Array:
+static func native_array_to_json_friendly(_type_hint_value: Variant, value: Array) -> Array:
 	var json_friendly_array: Array = []
 	if value is Array[Vector2]:
 		for vect2: Vector2 in value:

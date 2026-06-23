@@ -30,10 +30,6 @@ func _ready():
 		if legacy.name == "LocalizedTextLabel":
 			legacy.queue_free()
 	continue_button.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	continue_button.add_theme_font_size_override("font_size", 20)
-	continue_button.add_theme_color_override("font_color", Color(0.96, 0.93, 0.82, 1.0))
-	continue_button.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.65))
-	continue_button.add_theme_constant_override("outline_size", 1)
 	SlayMobileStyle.style_button(continue_button, "green", 22)
 	continue_button.pressed.connect(_on_continue_button_up)
 	_apply_localized_text()
