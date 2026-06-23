@@ -688,11 +688,11 @@ func get_run_route_summary() -> Array[Dictionary]:
 			"type": type_name,
 			"event_id": loc.location_event_object_id,
 		})
-	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+	var sorter := func(a: Dictionary, b: Dictionary) -> bool:
 		if int(a.get("act", 0)) == int(b.get("act", 0)):
 			return int(a.get("floor", 0)) < int(b.get("floor", 0))
 		return int(a.get("act", 0)) < int(b.get("act", 0))
-	)
+	out.sort_custom(sorter)
 	return out
 
 func get_deck_summary_for_history() -> Array[Dictionary]:

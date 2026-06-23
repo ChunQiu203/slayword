@@ -34,15 +34,11 @@ func _ready():
 	Signals.card_purchased.connect(_on_card_purchased)
 	Signals.artifact_purchased.connect(_on_artifact_purchased)
 	Signals.consumable_purchased.connect(_on_consumable_purchased)
-	
+
 	for legacy in continue_button.get_children():
 		if legacy.name == "LocalizedTextLabel":
 			legacy.queue_free()
 	continue_button.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	continue_button.add_theme_font_size_override("font_size", 20)
-	continue_button.add_theme_color_override("font_color", Color(0.96, 0.93, 0.82, 1.0))
-	continue_button.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.65))
-	continue_button.add_theme_constant_override("outline_size", 1)
 	SlayMobileStyle.style_button(continue_button, "red", 22)
 	continue_button.pressed.connect(_on_continue_button_up)
 	_apply_shop_text()
@@ -408,6 +404,7 @@ func _on_combat_started(_event_id: String):
 func _on_shop_opened():
 	visible = true
 	populate_shop()
+	SlayMobileStyle.tween_panel_enter(self)
 
 func _on_card_purchased(_card_data: CardData):
 	_repopulate_shop_after_actions_ended()

@@ -12,12 +12,13 @@
 	"settings_vocab_daily_new_words": 15,
 	"settings_vocab_daily_ordered_example_words": 20,
 	"settings_vocab_enabled_book_ids": [
-		"CET6-顺序"
+		"builtin_default",
+		"ai_artificial_intelligence"
 	],
 	"settings_vocab_example_domain_custom": "",
 	"settings_vocab_example_domain_tags": [
 		"game_scifi",
-		"daily"
+		"anime"
 	],
 	"settings_vocab_fetch_examples_on_review": true,
 	"settings_vocab_learn_steps_enabled": [

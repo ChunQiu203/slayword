@@ -10,10 +10,7 @@ func _ready():
 		if legacy.name == "LocalizedTextLabel":
 			legacy.queue_free()
 	back_button.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	back_button.add_theme_font_size_override("font_size", 20)
-	back_button.add_theme_color_override("font_color", Color(0.96, 0.93, 0.82, 1.0))
-	back_button.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.65))
-	back_button.add_theme_constant_override("outline_size", 1)
+	SlayMobileStyle.style_button(back_button, "gold", SlayMobileStyle.FS_LG)
 	back_button.pressed.connect(_on_back_button_up)
 
 func populate_codex_menu() -> void:
@@ -25,7 +22,7 @@ func populate_codex_card_container() -> void:
 
 	for card_object_id: String in card_object_ids:
 		var card_data: CardData = Global.get_card_data(card_object_id)
-		
+
 		# generate an un-interactable card object for display
 		var card: Card = Scenes.CARD.instantiate()
 		codex_card_container.add_child(card)
