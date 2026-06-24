@@ -9,6 +9,12 @@ func _ready():
 func init(_action_on_click: BaseAction) -> void:
 	custom_minimum_size = Vector2(260, 82)
 	_style_shop_button()
+	# Reposition price label below the button
+	if price_label != null:
+		price_label.offset_top = 54
+		price_label.offset_bottom = 80
+		price_label.offset_left = 0
+		price_label.offset_right = 260
 	super(_action_on_click)
 	
 	var artifact_id: String = _action_on_click.values.get("artifact_id", "")
