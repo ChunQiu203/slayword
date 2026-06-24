@@ -14,6 +14,8 @@ func _ready() -> void:
 func load_locale(locale: String, persist_setting: bool = true) -> void:
 	current_locale = _normalize_locale(locale)
 	_translations = {}
+	# Clear JSON cache to force reload of locale files
+	FileLoader._cached_json.clear()
 	_merge_translations(FileLoader.load_json(LOCALE_DIR, current_locale + ".json"))
 	_merge_translations(FileLoader.load_json(LOCALE_DIR, current_locale + "_data.json"))
 	if persist_setting:
