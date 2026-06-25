@@ -24,5 +24,4 @@ func _on_button_up():
 			# user picked a card, remove the reward
 			queue_free()
 	else:
-		breakpoint
 		queue_free()

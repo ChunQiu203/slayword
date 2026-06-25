@@ -29,15 +29,9 @@ func get_dialogue_state(dialogue_state_object_id: String) -> DialogueStateData:
 
 ## Helper method for test data generation. Improves code readability and prevents bugs
 func _assign_option(dialogue_option_data: DialogueOptionData) -> void:
-	if dialogue_option_id_to_dialogue_options.has(dialogue_option_data.object_id):
-		breakpoint # duplicate found
 	dialogue_option_id_to_dialogue_options[dialogue_option_data.object_id] = dialogue_option_data
 ## Helper method for test data generation. Improves code readability and prevents bugs
 func _assign_state(dialogue_state_data: DialogueStateData) -> void:
-	if dialogue_state_id_to_dialogue_states.has(dialogue_state_data.object_id):
-		breakpoint # duplicate found
 	dialogue_state_id_to_dialogue_states[dialogue_state_data.object_id] = dialogue_state_data
 func _assign_initial_state(dialogue_state_data: DialogueStateData) -> void:
-	if dialogue_initial_dialogue_state_object_id != "":
-		breakpoint
 	dialogue_initial_dialogue_state_object_id = dialogue_state_data.object_id

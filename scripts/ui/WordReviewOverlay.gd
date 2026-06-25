@@ -1106,6 +1106,98 @@ func run_review(word: Dictionary) -> int:
 	_cleanup_hide()
 	return _review_outcome
 
+func run_review_single_step(word: Dictionary, step_id: String) -> int:
+	_session_word = word.duplicate(true)
+	_finished = false
+	_result_ok = false
+	_review_outcome = REVIEW_OUTCOME_OK
+	_quiz_wrong_submits = 0
+	_word_id = str(word.get("id", ""))
+	_active_word = word
+	_answers.clear()
+	_last_answer_text = ""
+	for a: Variant in word.get("answers", []):
+		_answers.append(str(a).strip_edges().to_lower())
+	_feedback.text = ""
+	_feedback.add_theme_color_override("font_color", Color(0.84, 0.88, 0.92, 1.0))
+	_input.text = ""
+	_refresh_i18n()
+
+	VocabStudy.merge_disk_and_pool_examples_into_word(word)
+	_active_word = word
+
+	_recall_row.visible = false
+	_dictation_play_row.visible = false
+	_pipeline_step = -1
+	_apply_panel_layout()
+	visible = true
+
+	var need_fetch: bool = (
+		VocabStudy.has_openai_configured()
+		and (
+			not VocabStudy.word_has_nonempty_examples(word)
+			or VocabStudy.word_study_examples_need_zh_refresh(word)
+		)
+	)
+	if need_fetch:
+		_learn_panel.visible = false
+		_dictation_play_row.visible = false
+		_prompt.visible = false
+		_input.visible = false
+		_submit.visible = false
+		_peek_answer_quiz_button.visible = false
+		_skip.visible = false
+		_return_after_peek_button.visible = false
+		_feedback.visible = true
+		_feedback.text = I18N.tr_key("vocab.fetching_examples")
+		await get_tree().process_frame
+		await VocabStudy.ensure_examples_for_word_on_demand_async(word)
+		_active_word = word
+		_feedback.text = ""
+		_feedback.visible = false
+		_skip.visible = true
+
+	if VocabStudy.word_needs_learn_phase(_word_id):
+		_learn_show_answer_busy = false
+		_learn_button.text = I18N.tr_key("vocab.review.learn_start_pipeline")
+		_learn_text.text = _build_learn_panel_bbcode(word)
+		_learn_panel.visible = true
+		_learn_show_answer_button.visible = false
+		_prompt.visible = false
+		_input.visible = false
+		_submit.visible = false
+		_peek_answer_quiz_button.visible = false
+		_return_after_peek_button.visible = false
+		_feedback.visible = false
+		_skip.text = I18N.tr_key("vocab.review.learn_skip")
+		_in_learn_wait = true
+		var learn_exit: int = await _learn_resolved
+		_in_learn_wait = false
+		if learn_exit == LEARN_EXIT_SKIP:
+			VocabStudy.mark_word_unlearned(_word_id)
+			Global.player_data.add_word_review(false)
+			_cleanup_hide()
+			return REVIEW_OUTCOME_SKIPPED
+		if learn_exit == LEARN_EXIT_PEEK_WRONG:
+			VocabStudy.mark_word_unlearned(_word_id)
+			Global.player_data.add_word_review(false)
+			_cleanup_hide()
+			return REVIEW_OUTCOME_WRONG
+		VocabStudy.mark_word_introduced(_word_id)
+		_learn_panel.visible = false
+		_quiz_wrong_submits = 0
+
+	var step: int = _learn_step_int_from_id(step_id)
+	_learn_pipeline_active = true
+	_prepare_learn_pipeline_step_begin()
+	_setup_learn_step(word, step)
+	await get_tree().process_frame
+	if _input.visible:
+		_input.grab_focus()
+	var outcome: int = await learn_pipeline_step_done
+	_cleanup_hide()
+	return outcome
+
 func _on_learn_ack_pressed() -> void:
 	if not visible or not _learn_panel.visible:
 		return
@@ -1293,13 +1385,14 @@ func _finish(ok: bool, outcome_on_fail: int = REVIEW_OUTCOME_WRONG, wait_for_ack
 	if not _learn_pipeline_active:
 		Global.player_data.add_word_review(ok)
 
+	if _learn_pipeline_active:
+		learn_pipeline_step_done.emit(_review_outcome)
+		return
+
 	if wait_for_ack:
 		_show_final_feedback()
 	else:
-		if _learn_pipeline_active:
-			learn_pipeline_step_done.emit(_review_outcome)
-		else:
-			review_completed.emit(ok)
+		review_completed.emit(ok)
 
 
 func _show_final_feedback() -> void:

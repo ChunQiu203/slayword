@@ -8,7 +8,7 @@ class_name BaseCardsetAction
 func perform_action() -> void:
 	# picked_cards = get_picked_cards()
 	# iterate over and perform actions against picked_cards
-	breakpoint
+	pass
 
 ### Keep
 

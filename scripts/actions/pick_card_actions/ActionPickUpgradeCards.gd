@@ -24,7 +24,6 @@ func is_card_pickable(_card: CardData) -> bool:
 	var card: CardData = _card
 	if upgrade_parent_card:
 		if card.parent_card == null:
-			breakpoint 
 			print("No parent card exists")
 			return false
 		else:
