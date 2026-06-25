@@ -4,7 +4,13 @@
 	},
 	"properties": {
 		"event_pool_event_object_ids": [
-			"event_pick_something"
+			"event_pick_something",
+			"event_ancient_ruins",
+			"event_word_challenge",
+			"event_cursed_chest",
+			"event_traveler",
+			"event_altar",
+			"event_lucky"
 		],
 		"event_pool_fallback_event_object_id": "",
 		"object_id": "event_pool_act_1_dialogue"

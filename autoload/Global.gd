@@ -1143,8 +1143,31 @@ func add_test_events() -> void:
 	
 	var event_pick_something: EventData = EventData.new("event_pick_something")
 	event_pick_something.event_dialogue_object_id = "dialogue_pick_something"
-	
 	register_rod(event_pick_something)
+
+	var event_ancient_ruins: EventData = EventData.new("event_ancient_ruins")
+	event_ancient_ruins.event_dialogue_object_id = "dialogue_ancient_ruins"
+	register_rod(event_ancient_ruins)
+
+	var event_word_challenge: EventData = EventData.new("event_word_challenge")
+	event_word_challenge.event_dialogue_object_id = "dialogue_word_challenge"
+	register_rod(event_word_challenge)
+
+	var event_cursed_chest: EventData = EventData.new("event_cursed_chest")
+	event_cursed_chest.event_dialogue_object_id = "dialogue_cursed_chest"
+	register_rod(event_cursed_chest)
+
+	var event_traveler: EventData = EventData.new("event_traveler")
+	event_traveler.event_dialogue_object_id = "dialogue_traveler"
+	register_rod(event_traveler)
+
+	var event_altar: EventData = EventData.new("event_altar")
+	event_altar.event_dialogue_object_id = "dialogue_altar"
+	register_rod(event_altar)
+
+	var event_lucky: EventData = EventData.new("event_lucky")
+	event_lucky.event_dialogue_object_id = "dialogue_lucky"
+	register_rod(event_lucky)
 	
 	
 	### Event Pools
@@ -1174,6 +1197,12 @@ func add_test_events() -> void:
 	var event_pool_act_1_dialogue: EventPoolData = EventPoolData.new("event_pool_act_1_dialogue")
 	event_pool_act_1_dialogue.event_pool_event_object_ids += [
 		"event_pick_something",
+		"event_ancient_ruins",
+		"event_word_challenge",
+		"event_cursed_chest",
+		"event_traveler",
+		"event_altar",
+		"event_lucky",
 		]
 	
 	register_rod(event_pool_act_1_dialogue)
@@ -1275,6 +1304,502 @@ func add_test_dialogue() -> void:
 	
 	dialogue_pick_something._assign_state(dialogue_state_pick_something_initial)
 	dialogue_pick_something._assign_initial_state(dialogue_state_pick_something_initial)
+
+	### Dialogue Event 2: Ancient Ruins
+	var dialogue_ancient_ruins: DialogueData = DialogueData.new("dialogue_ancient_ruins")
+	register_rod(dialogue_ancient_ruins)
+
+	# Result states
+	var state_ruins_safe_result: DialogueStateData = DialogueStateData.new("state_ruins_safe_result")
+	state_ruins_safe_result.dialogue_state_prompt_bbcode = "[color=green]你谨慎地搜索了遗迹，找到了一些金币！\n\n+30 金币[/color]"
+	var option_ruins_safe_continue: DialogueOptionData = DialogueOptionData.new("option_ruins_safe_continue")
+	option_ruins_safe_continue.dialogue_option_bbcode = "继续"
+	option_ruins_safe_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_ancient_ruins._assign_option(option_ruins_safe_continue)
+	state_ruins_safe_result.dialogue_state_dialogue_option_object_ids = [option_ruins_safe_continue.object_id]
+	dialogue_ancient_ruins._assign_state(state_ruins_safe_result)
+
+	var state_ruins_risky_result_success: DialogueStateData = DialogueStateData.new("state_ruins_risky_success")
+	state_ruins_risky_result_success.dialogue_state_prompt_bbcode = "[color=green]古老的机关缓缓打开，你发现了一件宝物！\n\n获得遗物：连击护符（每打出3次攻击，获得5点格挡）[/color]"
+	var option_ruins_risky_success_continue: DialogueOptionData = DialogueOptionData.new("option_ruins_risky_success_continue")
+	option_ruins_risky_success_continue.dialogue_option_bbcode = "继续"
+	option_ruins_risky_success_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_ancient_ruins._assign_option(option_ruins_risky_success_continue)
+	state_ruins_risky_result_success.dialogue_state_dialogue_option_object_ids = [option_ruins_risky_success_continue.object_id]
+	dialogue_ancient_ruins._assign_state(state_ruins_risky_result_success)
+
+	var state_ruins_risky_result_fail: DialogueStateData = DialogueStateData.new("state_ruins_risky_fail")
+	state_ruins_risky_result_fail.dialogue_state_prompt_bbcode = "[color=red]古老的机关射出暗箭，你受了伤！\n\n-15 生命[/color]"
+	var option_ruins_risky_fail_continue: DialogueOptionData = DialogueOptionData.new("option_ruins_risky_fail_continue")
+	option_ruins_risky_fail_continue.dialogue_option_bbcode = "继续"
+	option_ruins_risky_fail_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_ancient_ruins._assign_option(option_ruins_risky_fail_continue)
+	state_ruins_risky_result_fail.dialogue_state_dialogue_option_object_ids = [option_ruins_risky_fail_continue.object_id]
+	dialogue_ancient_ruins._assign_state(state_ruins_risky_result_fail)
+
+	var state_ruins_leave_result: DialogueStateData = DialogueStateData.new("state_ruins_leave_result")
+	state_ruins_leave_result.dialogue_state_prompt_bbcode = "你决定不冒险，安全离开了遗迹。"
+	var option_ruins_leave_continue: DialogueOptionData = DialogueOptionData.new("option_ruins_leave_continue")
+	option_ruins_leave_continue.dialogue_option_bbcode = "继续"
+	option_ruins_leave_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_ancient_ruins._assign_option(option_ruins_leave_continue)
+	state_ruins_leave_result.dialogue_state_dialogue_option_object_ids = [option_ruins_leave_continue.object_id]
+	dialogue_ancient_ruins._assign_state(state_ruins_leave_result)
+
+	# Options pointing to result states
+	var option_ruins_safe: DialogueOptionData = DialogueOptionData.new("option_ruins_safe")
+	option_ruins_safe.dialogue_option_bbcode = I18N.tr_key("event.ancient_ruins.option_safe")
+	option_ruins_safe.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_MONEY: {"money_amount": 30}},
+	]
+	option_ruins_safe.dialogue_option_next_dialogue_state_id = "state_ruins_safe_result"
+	dialogue_ancient_ruins._assign_option(option_ruins_safe)
+
+	var option_ruins_risky_success: DialogueOptionData = DialogueOptionData.new("option_ruins_risky_success")
+	option_ruins_risky_success.dialogue_option_bbcode = "[color=yellow]大胆探索[/color]——冒险深入（50%遗物，50%掉血）"
+	option_ruins_risky_success.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_ARTIFACT: {"artifact_id": "artifact_block_on_attacks"}},
+	]
+	option_ruins_risky_success.dialogue_option_validators = [
+		{Scripts.VALIDATOR_RNG: {"chance": 0.5}},
+	]
+	option_ruins_risky_success.dialogue_option_visible_on_failed_validation = false
+	option_ruins_risky_success.dialogue_option_next_dialogue_state_id = "state_ruins_risky_success"
+	dialogue_ancient_ruins._assign_option(option_ruins_risky_success)
+
+	var option_ruins_risky_fail: DialogueOptionData = DialogueOptionData.new("option_ruins_risky_fail")
+	option_ruins_risky_fail.dialogue_option_bbcode = "[color=yellow]大胆探索[/color]——冒险深入（50%遗物，50%掉血）"
+	option_ruins_risky_fail.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_HEALTH: {"health_amount": -15}},
+	]
+	option_ruins_risky_fail.dialogue_option_validators = [
+		{Scripts.VALIDATOR_RNG: {"chance": 0.5}},
+	]
+	option_ruins_risky_fail.dialogue_option_visible_on_failed_validation = false
+	option_ruins_risky_fail.dialogue_option_next_dialogue_state_id = "state_ruins_risky_fail"
+	dialogue_ancient_ruins._assign_option(option_ruins_risky_fail)
+
+	var option_ruins_leave: DialogueOptionData = DialogueOptionData.new("option_ruins_leave")
+	option_ruins_leave.dialogue_option_bbcode = I18N.tr_key("event.ancient_ruins.option_leave")
+	option_ruins_leave.dialogue_option_next_dialogue_state_id = "state_ruins_leave_result"
+	dialogue_ancient_ruins._assign_option(option_ruins_leave)
+
+	var state_ruins: DialogueStateData = DialogueStateData.new("state_ruins_initial")
+	state_ruins.dialogue_state_prompt_bbcode = I18N.tr_key("event.ancient_ruins.prompt")
+	state_ruins.dialogue_state_dialogue_option_object_ids = [
+		option_ruins_safe.object_id,
+		option_ruins_risky_success.object_id,
+		option_ruins_risky_fail.object_id,
+		option_ruins_leave.object_id,
+	]
+	dialogue_ancient_ruins._assign_state(state_ruins)
+	dialogue_ancient_ruins._assign_initial_state(state_ruins)
+
+	### Dialogue Event 3: Word Challenge
+	var dialogue_word_challenge: DialogueData = DialogueData.new("dialogue_word_challenge")
+	register_rod(dialogue_word_challenge)
+
+	# Result states
+	var state_challenge_accept_result: DialogueStateData = DialogueStateData.new("state_challenge_accept_result")
+	state_challenge_accept_result.dialogue_state_prompt_bbcode = "[color=green]你成功回答了挑战！\n\n+30 金币[/color]"
+	var option_challenge_accept_continue: DialogueOptionData = DialogueOptionData.new("option_challenge_accept_continue")
+	option_challenge_accept_continue.dialogue_option_bbcode = "继续"
+	option_challenge_accept_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_word_challenge._assign_option(option_challenge_accept_continue)
+	state_challenge_accept_result.dialogue_state_dialogue_option_object_ids = [option_challenge_accept_continue.object_id]
+	dialogue_word_challenge._assign_state(state_challenge_accept_result)
+
+	var state_challenge_decline_result: DialogueStateData = DialogueStateData.new("state_challenge_decline_result")
+	state_challenge_decline_result.dialogue_state_prompt_bbcode = "[color=yellow]你拒绝了挑战。\n\n+20 金币[/color]"
+	var option_challenge_decline_continue: DialogueOptionData = DialogueOptionData.new("option_challenge_decline_continue")
+	option_challenge_decline_continue.dialogue_option_bbcode = "继续"
+	option_challenge_decline_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_word_challenge._assign_option(option_challenge_decline_continue)
+	state_challenge_decline_result.dialogue_state_dialogue_option_object_ids = [option_challenge_decline_continue.object_id]
+	dialogue_word_challenge._assign_state(state_challenge_decline_result)
+
+	# Options
+	var option_challenge_accept: DialogueOptionData = DialogueOptionData.new("option_challenge_accept")
+	option_challenge_accept.dialogue_option_bbcode = "[color=green]接受挑战[/color]——回答一个单词问题"
+	option_challenge_accept.dialogue_option_actions = [
+		{Scripts.ACTION_VOCAB_REVIEW: {"money_amount": 30, "skip_money_amount": 10}},
+	]
+	option_challenge_accept.dialogue_option_next_dialogue_state_id = "state_challenge_accept_result"
+	dialogue_word_challenge._assign_option(option_challenge_accept)
+
+	var option_challenge_decline: DialogueOptionData = DialogueOptionData.new("option_challenge_decline")
+	option_challenge_decline.dialogue_option_bbcode = "[color=grey]跳过挑战[/color]"
+	option_challenge_decline.dialogue_option_actions = [{Scripts.ACTION_ADD_MONEY: {"money_amount": 20}}]
+	option_challenge_decline.dialogue_option_next_dialogue_state_id = "state_challenge_decline_result"
+	dialogue_word_challenge._assign_option(option_challenge_decline)
+
+	var state_challenge: DialogueStateData = DialogueStateData.new("state_challenge_initial")
+	state_challenge.dialogue_state_prompt_bbcode = "[center]单词挑战[/center]\n\n一个神秘的声音响起：\n「回答一个单词问题，就能获得我的馈赠……」"
+	state_challenge.dialogue_state_dialogue_option_object_ids = [
+		option_challenge_accept.object_id,
+		option_challenge_decline.object_id,
+	]
+	dialogue_word_challenge._assign_state(state_challenge)
+	dialogue_word_challenge._assign_initial_state(state_challenge)
+
+	### Dialogue Event 4: Cursed Chest
+	var dialogue_cursed_chest: DialogueData = DialogueData.new("dialogue_cursed_chest")
+	register_rod(dialogue_cursed_chest)
+
+	# Result states
+	var state_chest_open_success: DialogueStateData = DialogueStateData.new("state_chest_open_success")
+	state_chest_open_success.dialogue_state_prompt_bbcode = "[color=green]宝箱中的诅咒力量消散，你获得了一件宝物！\n\n获得遗物：藏锋护符（回合结束时不会弃掉手牌）[/color]"
+	var option_chest_open_success_continue: DialogueOptionData = DialogueOptionData.new("option_chest_open_success_continue")
+	option_chest_open_success_continue.dialogue_option_bbcode = "继续"
+	option_chest_open_success_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_cursed_chest._assign_option(option_chest_open_success_continue)
+	state_chest_open_success.dialogue_state_dialogue_option_object_ids = [option_chest_open_success_continue.object_id]
+	dialogue_cursed_chest._assign_state(state_chest_open_success)
+
+	var state_chest_open_fail: DialogueStateData = DialogueStateData.new("state_chest_open_fail")
+	state_chest_open_fail.dialogue_state_prompt_bbcode = "[color=red]诅咒力量侵蚀了你的身体！\n\n-20 生命[/color]"
+	var option_chest_open_fail_continue: DialogueOptionData = DialogueOptionData.new("option_chest_open_fail_continue")
+	option_chest_open_fail_continue.dialogue_option_bbcode = "继续"
+	option_chest_open_fail_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_cursed_chest._assign_option(option_chest_open_fail_continue)
+	state_chest_open_fail.dialogue_state_dialogue_option_object_ids = [option_chest_open_fail_continue.object_id]
+	dialogue_cursed_chest._assign_state(state_chest_open_fail)
+
+	var state_chest_smash_result: DialogueStateData = DialogueStateData.new("state_chest_smash_result")
+	state_chest_smash_result.dialogue_state_prompt_bbcode = "[color=green]你砸碎了宝箱，从碎片中找到了金币！\n\n+30 金币[/color]"
+	var option_chest_smash_continue: DialogueOptionData = DialogueOptionData.new("option_chest_smash_continue")
+	option_chest_smash_continue.dialogue_option_bbcode = "继续"
+	option_chest_smash_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_cursed_chest._assign_option(option_chest_smash_continue)
+	state_chest_smash_result.dialogue_state_dialogue_option_object_ids = [option_chest_smash_continue.object_id]
+	dialogue_cursed_chest._assign_state(state_chest_smash_result)
+
+	var state_chest_leave_result: DialogueStateData = DialogueStateData.new("state_chest_leave_result")
+	state_chest_leave_result.dialogue_state_prompt_bbcode = "[color=yellow]你谨慎地离开了，但在路边捡到了一些零钱。\n\n+10 金币[/color]"
+	var option_chest_leave_continue: DialogueOptionData = DialogueOptionData.new("option_chest_leave_continue")
+	option_chest_leave_continue.dialogue_option_bbcode = "继续"
+	option_chest_leave_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_cursed_chest._assign_option(option_chest_leave_continue)
+	state_chest_leave_result.dialogue_state_dialogue_option_object_ids = [option_chest_leave_continue.object_id]
+	dialogue_cursed_chest._assign_state(state_chest_leave_result)
+
+	# Options
+	var option_chest_open_success: DialogueOptionData = DialogueOptionData.new("option_chest_open_success")
+	option_chest_open_success.dialogue_option_bbcode = "[color=red]打开宝箱[/color]（50%遗物，50%掉20血）"
+	option_chest_open_success.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_ARTIFACT: {"artifact_id": "artifact_retain_hand"}},
+	]
+	option_chest_open_success.dialogue_option_validators = [
+		{Scripts.VALIDATOR_RNG: {"chance": 0.5}},
+	]
+	option_chest_open_success.dialogue_option_visible_on_failed_validation = false
+	option_chest_open_success.dialogue_option_next_dialogue_state_id = "state_chest_open_success"
+	dialogue_cursed_chest._assign_option(option_chest_open_success)
+
+	var option_chest_open_fail: DialogueOptionData = DialogueOptionData.new("option_chest_open_fail")
+	option_chest_open_fail.dialogue_option_bbcode = "[color=red]打开宝箱[/color]（50%遗物，50%掉20血）"
+	option_chest_open_fail.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_HEALTH: {"health_amount": -20}},
+	]
+	option_chest_open_fail.dialogue_option_validators = [
+		{Scripts.VALIDATOR_RNG: {"chance": 0.5}},
+	]
+	option_chest_open_fail.dialogue_option_visible_on_failed_validation = false
+	option_chest_open_fail.dialogue_option_next_dialogue_state_id = "state_chest_open_fail"
+	dialogue_cursed_chest._assign_option(option_chest_open_fail)
+
+	var option_chest_smash: DialogueOptionData = DialogueOptionData.new("option_chest_smash")
+	option_chest_smash.dialogue_option_bbcode = I18N.tr_key("event.cursed_chest.option_smash")
+	option_chest_smash.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_MONEY: {"money_amount": 30}},
+	]
+	option_chest_smash.dialogue_option_next_dialogue_state_id = "state_chest_smash_result"
+	dialogue_cursed_chest._assign_option(option_chest_smash)
+
+	var option_chest_leave: DialogueOptionData = DialogueOptionData.new("option_chest_leave")
+	option_chest_leave.dialogue_option_bbcode = I18N.tr_key("event.cursed_chest.option_leave")
+	option_chest_leave.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_MONEY: {"money_amount": 10}},
+	]
+	option_chest_leave.dialogue_option_next_dialogue_state_id = "state_chest_leave_result"
+	dialogue_cursed_chest._assign_option(option_chest_leave)
+
+	var state_chest: DialogueStateData = DialogueStateData.new("state_chest_initial")
+	state_chest.dialogue_state_prompt_bbcode = I18N.tr_key("event.cursed_chest.prompt")
+	state_chest.dialogue_state_dialogue_option_object_ids = [
+		option_chest_open_success.object_id,
+		option_chest_open_fail.object_id,
+		option_chest_smash.object_id,
+		option_chest_leave.object_id,
+	]
+	dialogue_cursed_chest._assign_state(state_chest)
+	dialogue_cursed_chest._assign_initial_state(state_chest)
+
+	### Dialogue Event 5: Wandering Traveler
+	var dialogue_traveler: DialogueData = DialogueData.new("dialogue_traveler")
+	register_rod(dialogue_traveler)
+
+	# Result states
+	var state_traveler_trade_result: DialogueStateData = DialogueStateData.new("state_traveler_trade_result")
+	state_traveler_trade_result.dialogue_state_prompt_bbcode = "[color=green]你与旅人交换了物品！\n\n选择一张牌加入牌组[/color]"
+	var option_traveler_trade_continue: DialogueOptionData = DialogueOptionData.new("option_traveler_trade_continue")
+	option_traveler_trade_continue.dialogue_option_bbcode = "继续"
+	option_traveler_trade_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_traveler._assign_option(option_traveler_trade_continue)
+	state_traveler_trade_result.dialogue_state_dialogue_option_object_ids = [option_traveler_trade_continue.object_id]
+	dialogue_traveler._assign_state(state_traveler_trade_result)
+
+	var state_traveler_story_result: DialogueStateData = DialogueStateData.new("state_traveler_story_result")
+	state_traveler_story_result.dialogue_state_prompt_bbcode = "[color=green]旅人的故事让你感到温暖，伤口也愈合了。\n\n+15 生命[/color]"
+	var option_traveler_story_continue: DialogueOptionData = DialogueOptionData.new("option_traveler_story_continue")
+	option_traveler_story_continue.dialogue_option_bbcode = "继续"
+	option_traveler_story_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_traveler._assign_option(option_traveler_story_continue)
+	state_traveler_story_result.dialogue_state_dialogue_option_object_ids = [option_traveler_story_continue.object_id]
+	dialogue_traveler._assign_state(state_traveler_story_result)
+
+	var state_traveler_gold_result: DialogueStateData = DialogueStateData.new("state_traveler_gold_result")
+	state_traveler_gold_result.dialogue_state_prompt_bbcode = "[color=green]旅人分享了他在路上发现的金币。\n\n+40 金币[/color]"
+	var option_traveler_gold_continue: DialogueOptionData = DialogueOptionData.new("option_traveler_gold_continue")
+	option_traveler_gold_continue.dialogue_option_bbcode = "继续"
+	option_traveler_gold_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_traveler._assign_option(option_traveler_gold_continue)
+	state_traveler_gold_result.dialogue_state_dialogue_option_object_ids = [option_traveler_gold_continue.object_id]
+	dialogue_traveler._assign_state(state_traveler_gold_result)
+
+	# Options
+	var option_traveler_trade: DialogueOptionData = DialogueOptionData.new("option_traveler_trade")
+	option_traveler_trade.dialogue_option_bbcode = I18N.tr_key("event.wandering_traveler.option_trade")
+	option_traveler_trade.dialogue_option_actions = [
+		{Scripts.ACTION_PICK_CARDS: {
+			"card_pick_type": ActionBasePickCards.CARD_PICK_TYPES.DECK,
+			"min_card_amount": 1,
+			"max_card_amount": 1,
+			"min_cards_are_required_for_action": true,
+			"random_selection": false,
+			"card_pick_text": "选择要换掉的牌",
+			"action_data": [{Scripts.ACTION_REMOVE_CARDS_FROM_DECK: {}}],
+		}},
+		{Scripts.ACTION_PICK_CARDS: {
+			"card_pick_type": ActionBasePickCards.CARD_PICK_TYPES.DRAFT,
+			"pick_draft_cards": false,
+			"draft_from_card_pool": true,
+			"action_data": [{Scripts.ACTION_ADD_CARDS_TO_DECK: {}}],
+			"validator_data": [
+				{Scripts.VALIDATOR_CARD_RARITY: {"card_rarities": [CardData.CARD_RARITIES.UNCOMMON, CardData.CARD_RARITIES.RARE]}},
+				{Scripts.VALIDATOR_CARD_DRAFTABLE: {}},
+			],
+			"rng_name": "rng_events",
+			"draft_use_player_draft": false,
+			"draft_is_weighted": false,
+			"draft_use_pity_system": false,
+			"random_selection": false,
+			"draft_max_card_amount": 1,
+			"min_card_amount": 1,
+			"max_card_amount": 1,
+			"min_cards_are_required_for_action": true,
+			"card_pick_text": "选择要换入的牌",
+		}},
+	]
+	option_traveler_trade.dialogue_option_next_dialogue_state_id = "state_traveler_trade_result"
+	dialogue_traveler._assign_option(option_traveler_trade)
+
+	var option_traveler_story: DialogueOptionData = DialogueOptionData.new("option_traveler_story")
+	option_traveler_story.dialogue_option_bbcode = I18N.tr_key("event.wandering_traveler.option_story")
+	option_traveler_story.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_HEALTH: {"health_amount": 15}},
+	]
+	option_traveler_story.dialogue_option_next_dialogue_state_id = "state_traveler_story_result"
+	dialogue_traveler._assign_option(option_traveler_story)
+
+	var option_traveler_gold: DialogueOptionData = DialogueOptionData.new("option_traveler_gold")
+	option_traveler_gold.dialogue_option_bbcode = I18N.tr_key("event.wandering_traveler.option_gold")
+	option_traveler_gold.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_MONEY: {"money_amount": 40}},
+	]
+	option_traveler_gold.dialogue_option_next_dialogue_state_id = "state_traveler_gold_result"
+	dialogue_traveler._assign_option(option_traveler_gold)
+
+	var state_traveler: DialogueStateData = DialogueStateData.new("state_traveler_initial")
+	state_traveler.dialogue_state_prompt_bbcode = I18N.tr_key("event.wandering_traveler.prompt")
+	state_traveler.dialogue_state_dialogue_option_object_ids = [
+		option_traveler_trade.object_id,
+		option_traveler_story.object_id,
+		option_traveler_gold.object_id,
+	]
+	dialogue_traveler._assign_state(state_traveler)
+	dialogue_traveler._assign_initial_state(state_traveler)
+
+	### Dialogue Event 6: Mysterious Altar
+	var dialogue_altar: DialogueData = DialogueData.new("dialogue_altar")
+	register_rod(dialogue_altar)
+
+	# Result states
+	var state_altar_blood_result: DialogueStateData = DialogueStateData.new("state_altar_blood_result")
+	state_altar_blood_result.dialogue_state_prompt_bbcode = "[color=green]你献祭了生命，祭坛的光芒注入你的武器……\n\n选择一张卡牌升级[/color]"
+	var option_altar_blood_continue: DialogueOptionData = DialogueOptionData.new("option_altar_blood_continue")
+	option_altar_blood_continue.dialogue_option_bbcode = "继续"
+	option_altar_blood_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_altar._assign_option(option_altar_blood_continue)
+	state_altar_blood_result.dialogue_state_dialogue_option_object_ids = [option_altar_blood_continue.object_id]
+	dialogue_altar._assign_state(state_altar_blood_result)
+
+	var state_altar_gold_result: DialogueStateData = DialogueStateData.new("state_altar_gold_result")
+	state_altar_gold_result.dialogue_state_prompt_bbcode = "[color=green]你献祭了金币，祭坛赐予你一件宝物！\n\n获得遗物：磨锋护符（可以在休息点永久提升攻击力）[/color]"
+	var option_altar_gold_continue: DialogueOptionData = DialogueOptionData.new("option_altar_gold_continue")
+	option_altar_gold_continue.dialogue_option_bbcode = "继续"
+	option_altar_gold_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_altar._assign_option(option_altar_gold_continue)
+	state_altar_gold_result.dialogue_state_dialogue_option_object_ids = [option_altar_gold_continue.object_id]
+	dialogue_altar._assign_state(state_altar_gold_result)
+
+	var state_altar_leave_result: DialogueStateData = DialogueStateData.new("state_altar_leave_result")
+	state_altar_leave_result.dialogue_state_prompt_bbcode = "你决定不打扰这座古老的祭坛，转身离开了。"
+	var option_altar_leave_continue: DialogueOptionData = DialogueOptionData.new("option_altar_leave_continue")
+	option_altar_leave_continue.dialogue_option_bbcode = "继续"
+	option_altar_leave_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_altar._assign_option(option_altar_leave_continue)
+	state_altar_leave_result.dialogue_state_dialogue_option_object_ids = [option_altar_leave_continue.object_id]
+	dialogue_altar._assign_state(state_altar_leave_result)
+
+	# Options
+	var option_altar_blood: DialogueOptionData = DialogueOptionData.new("option_altar_blood")
+	option_altar_blood.dialogue_option_bbcode = I18N.tr_key("event.mysterious_altar.option_blood")
+	option_altar_blood.dialogue_option_failed_validator_bbcode = "[color=grey][Locked]: Insufficient Health[/color]"
+	option_altar_blood.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_HEALTH: {"health_amount": -15}},
+		{Scripts.ACTION_PICK_UPGRADE_CARDS: {
+			"min_card_amount": 1,
+			"max_card_amount": 1,
+			"card_pick_type": ActionBasePickCards.CARD_PICK_TYPES.DECK,
+			"card_pick_text": "选择一张牌升级",
+			"min_cards_are_required_for_action": true,
+			"random_selection": false,
+		}},
+	]
+	option_altar_blood.dialogue_option_validators = [
+		{Scripts.VALIDATOR_PLAYER_HEALTH: {"health_amount": 16}},
+	]
+	option_altar_blood.dialogue_option_next_dialogue_state_id = "state_altar_blood_result"
+	dialogue_altar._assign_option(option_altar_blood)
+
+	var option_altar_gold: DialogueOptionData = DialogueOptionData.new("option_altar_gold")
+	option_altar_gold.dialogue_option_bbcode = I18N.tr_key("event.mysterious_altar.option_gold")
+	option_altar_gold.dialogue_option_failed_validator_bbcode = "[color=grey][Locked]: Insufficient Money[/color]"
+	option_altar_gold.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_MONEY: {"money_amount": -50}},
+		{Scripts.ACTION_ADD_ARTIFACT: {"artifact_id": "artifact_increase_attack_on_rest"}},
+	]
+	option_altar_gold.dialogue_option_validators = [
+		{Scripts.VALIDATOR_MONEY: {"money_amount": 50}},
+	]
+	option_altar_gold.dialogue_option_next_dialogue_state_id = "state_altar_gold_result"
+	dialogue_altar._assign_option(option_altar_gold)
+
+	var option_altar_leave: DialogueOptionData = DialogueOptionData.new("option_altar_leave")
+	option_altar_leave.dialogue_option_bbcode = I18N.tr_key("event.mysterious_altar.option_leave")
+	option_altar_leave.dialogue_option_next_dialogue_state_id = ""
+	dialogue_altar._assign_option(option_altar_leave)
+
+	var state_altar: DialogueStateData = DialogueStateData.new("state_altar_initial")
+	state_altar.dialogue_state_prompt_bbcode = I18N.tr_key("event.mysterious_altar.prompt")
+	state_altar.dialogue_state_dialogue_option_object_ids = [
+		option_altar_blood.object_id,
+		option_altar_gold.object_id,
+		option_altar_leave.object_id,
+	]
+	dialogue_altar._assign_state(state_altar)
+	dialogue_altar._assign_initial_state(state_altar)
+
+	### Dialogue Event 7: Lucky Find
+	var dialogue_lucky: DialogueData = DialogueData.new("dialogue_lucky")
+	register_rod(dialogue_lucky)
+
+	# Result states
+	var state_lucky_search_success: DialogueStateData = DialogueStateData.new("state_lucky_search_success")
+	state_lucky_search_success.dialogue_state_prompt_bbcode = "[color=green]你仔细搜索，发现了有价值的东西！\n\n+30 金币[/color]"
+	var option_lucky_search_success_continue: DialogueOptionData = DialogueOptionData.new("option_lucky_search_success_continue")
+	option_lucky_search_success_continue.dialogue_option_bbcode = "继续"
+	option_lucky_search_success_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_lucky._assign_option(option_lucky_search_success_continue)
+	state_lucky_search_success.dialogue_state_dialogue_option_object_ids = [option_lucky_search_success_continue.object_id]
+	dialogue_lucky._assign_state(state_lucky_search_success)
+
+	var state_lucky_search_fail: DialogueStateData = DialogueStateData.new("state_lucky_search_fail")
+	state_lucky_search_fail.dialogue_state_prompt_bbcode = "[color=yellow]你搜索了一番，只找到一些零钱。\n\n+10 金币[/color]"
+	var option_lucky_search_fail_continue: DialogueOptionData = DialogueOptionData.new("option_lucky_search_fail_continue")
+	option_lucky_search_fail_continue.dialogue_option_bbcode = "继续"
+	option_lucky_search_fail_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_lucky._assign_option(option_lucky_search_fail_continue)
+	state_lucky_search_fail.dialogue_state_dialogue_option_object_ids = [option_lucky_search_fail_continue.object_id]
+	dialogue_lucky._assign_state(state_lucky_search_fail)
+
+	var state_lucky_relic_result: DialogueStateData = DialogueStateData.new("state_lucky_relic_result")
+	state_lucky_relic_result.dialogue_state_prompt_bbcode = "[color=green]你发现了隐藏的宝物！\n\n获得遗物：预视护符（你可以查看抽牌堆顶的卡牌）[/color]"
+	var option_lucky_relic_continue: DialogueOptionData = DialogueOptionData.new("option_lucky_relic_continue")
+	option_lucky_relic_continue.dialogue_option_bbcode = "继续"
+	option_lucky_relic_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_lucky._assign_option(option_lucky_relic_continue)
+	state_lucky_relic_result.dialogue_state_dialogue_option_object_ids = [option_lucky_relic_continue.object_id]
+	dialogue_lucky._assign_state(state_lucky_relic_result)
+
+	var state_lucky_leave_result: DialogueStateData = DialogueStateData.new("state_lucky_leave_result")
+	state_lucky_leave_result.dialogue_state_prompt_bbcode = "你决定不碰这些东西，安全离开了。"
+	var option_lucky_leave_continue: DialogueOptionData = DialogueOptionData.new("option_lucky_leave_continue")
+	option_lucky_leave_continue.dialogue_option_bbcode = "继续"
+	option_lucky_leave_continue.dialogue_option_next_dialogue_state_id = ""
+	dialogue_lucky._assign_option(option_lucky_leave_continue)
+	state_lucky_leave_result.dialogue_state_dialogue_option_object_ids = [option_lucky_leave_continue.object_id]
+	dialogue_lucky._assign_state(state_lucky_leave_result)
+
+	# Options
+	var option_lucky_search_success: DialogueOptionData = DialogueOptionData.new("option_lucky_search_success")
+	option_lucky_search_success.dialogue_option_bbcode = "仔细搜索——发现有价值的东西（40%+30金，60%+10金）"
+	option_lucky_search_success.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_MONEY: {"money_amount": 30}},
+	]
+	option_lucky_search_success.dialogue_option_validators = [
+		{Scripts.VALIDATOR_RNG: {"chance": 0.4}},
+	]
+	option_lucky_search_success.dialogue_option_visible_on_failed_validation = false
+	option_lucky_search_success.dialogue_option_next_dialogue_state_id = "state_lucky_search_success"
+	dialogue_lucky._assign_option(option_lucky_search_success)
+
+	var option_lucky_search_fail: DialogueOptionData = DialogueOptionData.new("option_lucky_search_fail")
+	option_lucky_search_fail.dialogue_option_bbcode = "仔细搜索——发现有价值的东西（40%+30金，60%+10金）"
+	option_lucky_search_fail.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_MONEY: {"money_amount": 10}},
+	]
+	option_lucky_search_fail.dialogue_option_validators = [
+		{Scripts.VALIDATOR_RNG: {"chance": 0.4}},
+	]
+	option_lucky_search_fail.dialogue_option_visible_on_failed_validation = false
+	option_lucky_search_fail.dialogue_option_next_dialogue_state_id = "state_lucky_search_fail"
+	dialogue_lucky._assign_option(option_lucky_search_fail)
+
+	var option_lucky_relic: DialogueOptionData = DialogueOptionData.new("option_lucky_relic")
+	option_lucky_relic.dialogue_option_bbcode = I18N.tr_key("event.lucky_find.option_relic")
+	option_lucky_relic.dialogue_option_actions = [
+		{Scripts.ACTION_ADD_ARTIFACT: {"artifact_id": "artifact_see_top_of_draw_pile"}},
+	]
+	option_lucky_relic.dialogue_option_next_dialogue_state_id = "state_lucky_relic_result"
+	dialogue_lucky._assign_option(option_lucky_relic)
+
+	var option_lucky_leave: DialogueOptionData = DialogueOptionData.new("option_lucky_leave")
+	option_lucky_leave.dialogue_option_bbcode = I18N.tr_key("event.lucky_find.option_leave")
+	option_lucky_leave.dialogue_option_next_dialogue_state_id = "state_lucky_leave_result"
+	dialogue_lucky._assign_option(option_lucky_leave)
+
+	var state_lucky: DialogueStateData = DialogueStateData.new("state_lucky_initial")
+	state_lucky.dialogue_state_prompt_bbcode = I18N.tr_key("event.lucky_find.prompt")
+	state_lucky.dialogue_state_dialogue_option_object_ids = [
+		option_lucky_search_success.object_id,
+		option_lucky_search_fail.object_id,
+		option_lucky_relic.object_id,
+		option_lucky_leave.object_id,
+	]
+	dialogue_lucky._assign_state(state_lucky)
+	dialogue_lucky._assign_initial_state(state_lucky)
 
 func get_dialogue_data(dialogue_object_id: String) -> DialogueData:
 	return _id_to_dialogue_data.get(dialogue_object_id, null)

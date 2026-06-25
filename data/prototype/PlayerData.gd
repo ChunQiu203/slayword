@@ -262,20 +262,29 @@ func get_next_event_object_id_from_pool(event_pool_object_id: String) -> String:
 	
 	# populate the event pool if it doesn't exist or is empty
 	if len(event_pool_event_object_ids) == 0:
-		var message: String = "Event Pool Empty; Populating {0}...".format([event_pool_object_id])
-		DebugLogger.log_line(message, Color.YELLOW)
 		# copy event ids from corresponding event pool
 		for event_object_id: String in event_pool_data.event_pool_event_object_ids:
 			if not event_pool_event_object_ids.has(event_object_id):
 				event_pool_event_object_ids.append(event_object_id)
-			
-		# randomize the order and assign to the player event pools
-		var rng_event_pool: RandomNumberGenerator = get_player_rng("rng_event_pool")
-		event_pool_event_object_ids = Random.shuffle_array(rng_event_pool, event_pool_event_object_ids)
-		player_event_pools[event_pool_object_id] = event_pool_event_object_ids
+	else:
+		# merge any new events from the pool data that aren't in the saved pool
+		for event_object_id: String in event_pool_data.event_pool_event_object_ids:
+			if not event_pool_event_object_ids.has(event_object_id):
+				event_pool_event_object_ids.append(event_object_id)
 		
-		message = "Event Pool Repopulated: {0}".format([str(event_pool_event_object_ids)])
-		DebugLogger.log_line(message, Color.WEB_GREEN)
+		# remove events that no longer exist in the pool data
+		var to_remove: Array[String] = []
+		for saved_id: String in event_pool_event_object_ids:
+			if not event_pool_data.event_pool_event_object_ids.has(saved_id):
+				to_remove.append(saved_id)
+		for remove_id: String in to_remove:
+			event_pool_event_object_ids.erase(remove_id)
+	
+	# randomize the order and assign to the player event pools
+	player_event_pools[event_pool_object_id] = event_pool_event_object_ids
+	
+	# randomize the order and assign to the player event pools
+	player_event_pools[event_pool_object_id] = event_pool_event_object_ids
 	
 	# find the first event that passes validators and store events that don't pass
 	var failed_event_object_ids: Array[String] = [] # events that fail their validators and must be handled
