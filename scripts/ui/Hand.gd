@@ -207,6 +207,8 @@ func _on_card_selected(card: Card):
 			return
 		# check if card is generally playable
 		if not card.can_play_card():
+			if Global.player_data.player_energy < card.card_data.get_card_energy_cost():
+				_show_energy_insufficient_feedback()
 			return
 		# cannot play cards already queued
 		for card_play_request in card_play_queue:
@@ -233,6 +235,11 @@ func _on_card_selected(card: Card):
 		### picking
 		attempt_pick_card(card)
 		
+func _show_energy_insufficient_feedback() -> void:
+	var text_fade: TextFade = Scenes.TEXT_FADE.instantiate()
+	player.fade_container.add_child(text_fade)
+	text_fade.init(I18N.tr_key("combat.energy_insufficient"), Color(1.0, 0.4, 0.4, 1.0))
+
 func _on_card_right_clicked(card: Card):
 	current_selected_card = null
 	_unprompt_target()
@@ -284,7 +291,6 @@ func _play_card(card_play_request: CardPlayRequest) -> void:
 	if card_play_request == null:
 		return
 	if card_play_request.card_data == null:
-		breakpoint
 		return	
 	
 	# store the state of the hand at play time in the play request

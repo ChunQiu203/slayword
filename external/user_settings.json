@@ -26,6 +26,7 @@
 		"spell",
 		"dictation"
 	],
+	"settings_vocab_mode": "per_turn",
 	"settings_vocab_review_modes_enabled": [
 		"spell",
 		"meaning",

@@ -2,7 +2,7 @@
 ## - Creates/stores PlayerData for the current run along with helper methods for retrieving common PlayerData queries.
 ## - Stores read only data and prototype data lookup tables with getters methods for each.
 ## - Maintains schema
-## - Manages test data generation via add_test_x() methods
+## - All game data loaded from external/data/ JSON files (test data functions removed)
 ## - Stores cache of generated objects
 extends Node
 
@@ -116,7 +116,6 @@ func _generate_schema() -> void:
 func register_rod(serializeable_data: SerializableData, allow_collisions: bool = true) -> void:
 	var script_class: Script = serializeable_data.get_script() # get the type of the object
 	if not READ_ONLY_GETTER_SCHEMA.has(script_class):
-		breakpoint
 		push_error("No lookup table for ", script_class)
 		get_tree().quit()
 	else:
@@ -124,11 +123,9 @@ func register_rod(serializeable_data: SerializableData, allow_collisions: bool =
 		var lookup_table_property_name: String = READ_ONLY_GETTER_SCHEMA[script_class]
 		var lookup_table: Dictionary = get(lookup_table_property_name)
 		if serializeable_data.object_id == "":
-			breakpoint
 			push_error("Empty object ID")
 			get_tree().quit()
 		if lookup_table.has(serializeable_data.object_id) and not allow_collisions:
-			breakpoint
 			push_error("Object ID collision in ", lookup_table_property_name, " for ID: ", serializeable_data.object_id)
 			get_tree().quit()
 		# register read only object into lookup table
@@ -141,7 +138,7 @@ func register_rod(serializeable_data: SerializableData, allow_collisions: bool =
 func _ready():
 	### Schema
 	# generate the schema. This must be done before everything else in Global or errors will ensue
-	# when loading data or generating test data.
+	# when loading data from external files.
 	_generate_schema()
 	# make SerializableData make a mapping of global classes of its type to class.
 	# this must be done before everything else or you cannot load objects from file.
@@ -152,27 +149,27 @@ func _ready():
 	FileLoader.load_user_settings()
 	I18N.load_locale(user_settings_data.settings_language)
 	
-	### Test data generators
-	add_test_artifacts()
-	add_test_rest_actions()
-	add_test_status_effects()
-	add_test_consumables()
-	add_test_events()
-	add_test_dialogue()
-	add_test_acts()
-	add_test_action_interceptors()
-	add_test_colors()
-	add_test_keywords()
-	add_test_characters()
-	add_test_player_data()
-	add_test_run_modifiers()
-	add_test_run_start_options()
-	add_test_custom_ui()
-	add_test_custom_signals()
-	add_test_enemies()
-	add_test_cards()
-	add_test_card_packs()
-	add_test_artifact_packs()
+	### Test data generators (REMOVED - all data now loaded from external/data/ JSON files)
+	# add_test_artifacts()
+	# add_test_rest_actions()
+	# add_test_status_effects()
+	# add_test_consumables()
+	# add_test_events()
+	# add_test_dialogue()
+	# add_test_acts()
+	# add_test_action_interceptors()
+	# add_test_colors()
+	# add_test_keywords()
+	# add_test_characters()
+	# add_test_player_data()
+	# add_test_run_modifiers()
+	# add_test_run_start_options()
+	# add_test_custom_ui()
+	# add_test_custom_signals()
+	# add_test_enemies()
+	# add_test_cards()
+	# add_test_card_packs()
+	# add_test_artifact_packs()
 	
 	### Modding and external file loads
 	#FileLoader._generate_mod_list_data() # generates the mod list used for loading ALL external files
@@ -237,10 +234,10 @@ func start_run(character_object_id: String, run_seed: int, difficulty_level: int
 	player_data.player_health_max = character_data.character_starting_health
 	player_data.player_health = character_data.character_starting_health
 	
-	# test stuff
+	# test stuff (REMOVED - all data now loaded from external/data/ JSON files)
 	# add_test_cards_to_player_deck()
 	# add_test_artifacts_to_player()
-	add_test_consumables_to_player()
+	# add_test_consumables_to_player()
 	
 	player_data.player_location_id = "location_0"
 	player_data.player_act = 1
@@ -370,7 +367,7 @@ func is_player_turn() -> bool:
 
 #endregion
 
-#region Artifacts
+#region Artifacts (DEPRECATED - all data now in external/data/artifacts/)
 func add_test_artifacts() -> void:
 	var artifact_add_money: ArtifactData = ArtifactData.new("artifact_add_money")
 	artifact_add_money.artifact_name = "Artifact Add Money"
@@ -660,7 +657,7 @@ func get_artifact_data_from_prototype(artifact_id: String) -> ArtifactData:
 	return artifact_data.get_prototype(true)
 #endregion
 
-#region Consumables
+#region Consumables (DEPRECATED - all data now in external/data/consumables/)
 func add_test_consumables() -> void:
 	# health consumable
 	var consumable_heal: ConsumableData = ConsumableData.new("consumable_heal")
@@ -740,7 +737,7 @@ func add_test_consumables_to_player() -> void:
 	player_data.player_consumable_slot_to_consumable_object_id["2"] = "consumable_multi_damaging"
 #endregion
 
-#region Rest Actions
+#region Rest Actions (DEPRECATED - all data now in external/data/rest_actions/)
 func add_test_rest_actions() -> void:
 	# rest action
 	var rest_action_rest: RestActionData = RestActionData.new("rest_action_rest")
@@ -842,7 +839,7 @@ func get_rest_action_data(rest_action_object_id: String) -> RestActionData:
 	return _id_to_rest_action_data.get(rest_action_object_id, null)
 #endregion
 
-#region Status Effects
+#region Status Effects (DEPRECATED - all data now in external/data/status_effects/)
 func add_test_status_effects() -> void:
 	# poison like effect
 	# example of status effect that reserves health bar
@@ -1035,7 +1032,7 @@ func get_status_effect_data(status_effect_object_id: String) -> StatusEffectData
 	return _id_to_status_data.get(status_effect_object_id, null)
 #endregion
 
-#region Acts
+#region Acts (DEPRECATED - all data now in external/data/acts/)
 func add_test_acts() -> void:
 	var act_1: ActData = ActData.new("act_1")
 	act_1.act_name = "Act 1"
@@ -1074,7 +1071,7 @@ func get_act_data(act_id: String) -> ActData:
 
 #endregion
 	
-#region Events and Event Pools
+#region Events and Event Pools (DEPRECATED - all data now in external/data/events/ and external/data/event_pools/)
 func add_test_events() -> void:
 	## Act 1 Combat
 	var event_act_1_easy_combat_1: EventData = EventData.new("event_act_1_easy_combat_1")
@@ -1206,7 +1203,7 @@ func get_event_pool_data(event_pool_object_id: String) -> EventPoolData:
 	
 #endregion
 
-#region Dialogue
+#region Dialogue (DEPRECATED - all data now in external/data/dialogue/)
 
 ## Adds test DialogueData, and their embedded DialogueStateData and DialogueOptionData payloads
 func add_test_dialogue() -> void:
@@ -1281,7 +1278,7 @@ func get_dialogue_data(dialogue_object_id: String) -> DialogueData:
 
 #endregion
 
-#region Action Interceptors
+#region Action Interceptors (DEPRECATED - all data now in external/data/action_interceptors/)
 func add_test_action_interceptors() -> void:
 	# increases damage done by attackers
 	var interceptor_damage_increase: ActionInterceptorData = ActionInterceptorData.new("interceptor_damage_increase")
@@ -1360,7 +1357,7 @@ func get_action_interceptor_data(action_interceptor_object_id: String) -> Action
 	return _id_to_action_interceptor_data.get(action_interceptor_object_id, null)
 #endregion
 
-#region Colors
+#region Colors (DEPRECATED - all data now in external/data/colors/)
 
 func add_test_colors() -> void:
 	var color_green: ColorData = ColorData.new("color_green")
@@ -1391,7 +1388,7 @@ func get_color_data(color_id: String) -> ColorData:
 	return _id_to_color_data.get(color_id)
 #endregion
 
-#region Keywords
+#region Keywords (DEPRECATED - all data now in external/data/keywords/)
 func get_keyword_data(keyword_object_id: String) -> KeywordData:
 	return _id_to_keyword_data.get(keyword_object_id, null)
 
@@ -1441,7 +1438,7 @@ func add_test_keywords() -> void:
 	
 #endregion
 
-#region Characters
+#region Characters (DEPRECATED - all data now in external/data/characters/)
 
 func get_character_data(character_object_id: String) -> CharacterData:
 	return _id_to_character_data.get(character_object_id, null)
@@ -1562,7 +1559,7 @@ func add_test_characters() -> void:
 	register_rod(character_orange)
 #endregion
 
-#region Run Modifiers
+#region Run Modifiers (DEPRECATED - all data now in external/data/run_modifiers/)
 
 func get_run_modifier_data(run_modifier_object_id: String) -> RunModifierData:
 	return _id_to_run_modifier_data.get(run_modifier_object_id, null)
@@ -1646,7 +1643,7 @@ func add_test_run_modifiers() -> void:
 	
 #endregion
 
-#region Run Start Options
+#region Run Start Options (DEPRECATED - all data now in external/data/run_start_options/)
 func get_run_start_option_data(run_start_option_object_id: String) -> RunStartOptionData:
 	return _id_to_run_start_option_data.get(run_start_option_object_id, null)
 
@@ -1781,7 +1778,7 @@ func add_test_run_start_options() -> void:
 	
 #endregion
 
-#region Custom UI
+#region Custom UI (DEPRECATED - all data now in external/data/custom_ui/)
 func get_custom_ui_data(custom_ui_object_id: String) -> CustomUIData:
 	return _id_to_custom_ui_data.get(custom_ui_object_id, null)
 
@@ -1793,7 +1790,7 @@ func add_test_custom_ui() -> void:
 
 #endregion
 
-#region Custom UI
+#region Custom Signals (DEPRECATED - all data now in external/data/custom_signals/)
 func get_custom_signal_data(custom_signal_object_id: String) -> CustomSignalData:
 	return _id_to_custom_signal_data.get(custom_signal_object_id, null)
 
@@ -1835,7 +1832,6 @@ func get_next_locations(location_id: String = player_data.player_location_id) ->
 	var current_location_data: LocationData = get_location_data(location_id)
 	
 	if current_location_data == null:
-		breakpoint
 		return []
 		
 	for next_location_id in current_location_data.location_next_location_ids:
@@ -1887,7 +1883,7 @@ func get_shop_at_player_location() -> ShopData:
 
 #endregion
 
-#region Enemies
+#region Enemies (DEPRECATED - all data now in external/data/enemies/)
 func add_test_enemies() -> void:
 	var enemy_1: EnemyData = EnemyData.new("enemy_1")
 	enemy_1.enemy_name = "Red Enemy"
@@ -2140,7 +2136,7 @@ func get_enemy_data_from_prototype(enemy_object_id: String) -> EnemyData:
 	return enemy_data.get_prototype(true)
 #endregion
 
-#region Player Data Prototypes
+#region Player Data Prototypes (DEPRECATED - all data now in external/data/player/)
 
 func add_test_player_data() -> void:
 	var player_red: PlayerData = PlayerData.new("player_red")
@@ -2173,7 +2169,7 @@ func get_player_data_from_prototype(player_id: String) -> PlayerData:
 
 #endregion
 
-#region Cards
+#region Cards (DEPRECATED - all data now in external/data/cards/)
 
 func add_test_cards() -> void:
 	# Basic attack card
@@ -4074,7 +4070,7 @@ func get_card_data_from_prototypes(card_object_ids: Array[String]) -> Array[Card
 
 #endregion
 
-#region Card Packs
+#region Card Packs (DEPRECATED - all data now in external/data/card_packs/)
 
 func get_card_pack_data(card_pack_object_id: String) -> CardPackData:
 	return _id_to_card_pack_data.get(card_pack_object_id, null)
@@ -4113,7 +4109,7 @@ func add_test_card_packs() -> void:
 
 
 #endregion
-#region Artifact Packs
+#region Artifact Packs (DEPRECATED - all data now in external/data/artifact_packs/)
 
 func get_artifact_pack_data(artifact_pack_object_id: String) -> ArtifactPackData:
 	return _id_to_artifact_pack_data.get(artifact_pack_object_id, null)

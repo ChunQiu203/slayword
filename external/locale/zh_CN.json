@@ -98,6 +98,7 @@
   "combat.end_turn": "\u7ed3\u675f\u56de\u5408",
   "combat.select_target": "\u8bf7\u9009\u62e9\u76ee\u6807",
   "combat.turn": "\u7b2c {0} \u56de\u5408",
+  "combat.energy_insufficient": "\u8d39\u7528\u4e0d\u8db3",
   "shop.tab.cards": "\u5361\u724c",
   "shop.tab.artifacts": "\u9057\u7269",
   "shop.tab.consumables": "\u836f\u6c34",
@@ -280,5 +281,9 @@
   "artifact_rarity.rare": "\u7a00\u6709",
   "artifact_rarity.boss": "\u9996\u9886",
   "artifact_rarity.shop": "\u5546\u5e97",
-  "artifact_rarity.event": "\u4e8b\u4ef6"
+  "artifact_rarity.event": "\u4e8b\u4ef6",
+  "menu.vocab_mode_label": "\u80cc\u5355\u8bcd\u6a21\u5f0f",
+  "menu.vocab_mode_hint": "\u9009\u62e9\u51fa\u724c\u65f6\u7684\u80cc\u5355\u8bcd\u903b\u8f91\u3002",
+  "menu.vocab_mode_per_card": "\u6bcf\u5f20\u724c\u590d\u4e60\uff08\u73b0\u6709\u6a21\u5f0f\uff09",
+  "menu.vocab_mode_per_turn": "\u6bcf\u56de\u5408\u4e00\u4e2a\u5355\u8bcd\uff08\u987a\u5e8f\u5b66\u4e60\uff09"
 }

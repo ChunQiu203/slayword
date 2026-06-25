@@ -44,8 +44,7 @@ gdscript/warnings/integer_division=0
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/resizable=false
-window/stretch/mode="viewport"
-window/stretch/aspect="expand"
+window/stretch/mode="canvas_items"
 "##ææº/å¹³æ¿ï¼éå®æ¨ªå±ï¼ç«å±èåè¯+æ¨ªå±ææå¯èªè¡æ¹sensorï¼window/handheld/orientation"=1
 
 [input]
@@ -72,3 +71,4 @@ limits/debugger/max_chars_per_second=131072
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true

@@ -26,7 +26,7 @@ func perform_action() -> void:
 	# 4) await some_callback_signal
 	# 5) async_awaiting = false
 	# 6) perform_async_action()
-	breakpoint
+	pass
 
 ## Override this to fill with interceptable action logic, then emit action_async_finished
 func perform_async_action() -> void:

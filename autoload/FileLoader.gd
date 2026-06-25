@@ -4,8 +4,7 @@
 ## Use load_xxx() for external files, and Godot's standard load() for internal ones
 
 ## CRITICAL: When exporting the game, copy the project's "external" folder(s) from your source directory
-## into the exported .exe's directory
-## and add "exported" to the export tags
+## into the exported .exe's directory (desktop) or it will be bundled into the APK (Android).
 
 ## This singleton can also be used for other file related routines such as saving and loading the game
 extends Node
@@ -14,6 +13,12 @@ extends Node
 ## The file path where anything externally loaded is found. This will automatically change depending on whether
 ## you are running from editor (directory of project) or have built the game (full path of exe).
 var _EXTERNAL_FILE_PREFIX: String = "res://"
+
+## Whether we are running on Android platform
+var _is_android: bool = false
+
+## Prefix for read-only bundled data (res:// on Android, same as _EXTERNAL_FILE_PREFIX on desktop)
+var _BUNDLED_DATA_PREFIX: String = "res://"
 
 const EXTERNAL_DIR_PATH: String = "external/"
 const EXTERNAL_DIR_DATA_PATH: String = EXTERNAL_DIR_PATH + "data/"
@@ -46,15 +51,28 @@ const VALID_IMAGE_EXTENSIONS: Array[String] = [
 ]
 
 func _ready():
-	# change the base folder path based on the build type
+	_is_android = OS.get_name() == "Android"
+	
+	# change the base folder path based on the build type and platform
 	DebugLogger.log_line("FileLoader: To enable external file loading in builds, download an export template and add the custom feature tag \"exported\" to the export. See https://docs.godotengine.org/en/stable/tutorials/export/feature_tags.html",Color.YELLOW, DebugLogger.Severities.WARNING)
 	if !OS.has_feature("exported"):
 		# debug build uses project directory
 		_EXTERNAL_FILE_PREFIX = "res://"
+		_BUNDLED_DATA_PREFIX = "res://"
 		DebugLogger.log_line("Debug Base Directory: " + _EXTERNAL_FILE_PREFIX, Color.LIGHT_BLUE)
+	elif _is_android:
+		# Android: bundled data in res://, writable data in user://
+		_EXTERNAL_FILE_PREFIX = "user://"
+		_BUNDLED_DATA_PREFIX = "res://"
+		USER_SETTINGS_DIR_PATH = "user://"
+		PROFILE_DIR_PATH = "user://"
+		DebugLogger.log_line("Android Base Directory: " + _EXTERNAL_FILE_PREFIX, Color.LIGHT_BLUE)
+		# Copy bundled data to user:// on first run
+		_copy_bundled_data_to_user_if_needed()
 	else:
-		# release build uses exe folder for user ease of access
+		# desktop release build uses exe folder for user ease of access
 		_EXTERNAL_FILE_PREFIX = OS.get_executable_path().get_base_dir() + "/"
+		_BUNDLED_DATA_PREFIX = _EXTERNAL_FILE_PREFIX
 		DebugLogger.log_line("Build Base Directory: " + _EXTERNAL_FILE_PREFIX, Color.LIGHT_BLUE)
 		
 	if not AUTOSAVING_ENABLED:
@@ -64,13 +82,91 @@ func _get_modified_filepath(partial_filepath: String) -> String:
 	# given a partial filepath, return the full one, which will change based on the build
 	return _EXTERNAL_FILE_PREFIX + partial_filepath
 
-func get_files_in_directory(partial_dir_path: String):
+## Returns the bundled (read-only) path for a partial filepath
+func _get_bundled_filepath(partial_filepath: String) -> String:
+	return _BUNDLED_DATA_PREFIX + partial_filepath
+
+## On Android, copies bundled res://external/ data to user://external/ on first run.
+## This allows the game to read/write data on Android while keeping the original data as defaults.
+func _copy_bundled_data_to_user_if_needed() -> void:
+	var marker_path := "user://external/.data_copied"
+	if FileAccess.file_exists(marker_path):
+		return  # Already copied
+	
+	DebugLogger.log_line("FileLoader: First run on Android - copying bundled data to user://", Color.LIGHT_BLUE)
+	_copy_directory_recursive("res://external/", "user://external/")
+	
+	# Create marker file
+	var marker_dir := "user://external/"
+	DirAccess.make_dir_recursive_absolute(marker_dir)
+	var marker_file := FileAccess.open(marker_path, FileAccess.WRITE)
+	if marker_file:
+		marker_file.store_string("Data copied on first run")
+		marker_file.close()
+
+## Recursively copies a directory from source to destination
+func _copy_directory_recursive(source: String, destination: String) -> void:
+	# Ensure destination directory exists
+	DirAccess.make_dir_recursive_absolute(destination)
+	
+	var source_dir := DirAccess.open(source)
+	if source_dir == null:
+		push_error("FileLoader: Cannot open source directory: " + source)
+		return
+	
+	source_dir.list_dir_begin()
+	var file_name := source_dir.get_next()
+	
+	while file_name != "":
+		if file_name == "." or file_name == "..":
+			file_name = source_dir.get_next()
+			continue
+		
+		var source_path := source + file_name
+		var dest_path := destination + file_name
+		
+		if source_dir.current_is_dir():
+			# Recursively copy subdirectory
+			_copy_directory_recursive(source_path + "/", dest_path + "/")
+		else:
+			# Copy file
+			var source_file := FileAccess.open(source_path, FileAccess.READ)
+			if source_file:
+				var dest_file := FileAccess.open(dest_path, FileAccess.WRITE)
+				if dest_file:
+					dest_file.store_buffer(source_file.get_buffer(source_file.get_length()))
+					dest_file.close()
+				source_file.close()
+		
+		file_name = source_dir.get_next()
+	
+	source_dir.list_dir_end()
+
+func get_files_in_directory(partial_dir_path: String) -> PackedStringArray:
 	var full_path: String = _get_modified_filepath(partial_dir_path)
+	
+	# Try the primary path first
+	if DirAccess.dir_exists_absolute(full_path):
+		DirAccess.make_dir_absolute(full_path)
+		var dir := DirAccess.open(full_path)
+		if dir:
+			return dir.get_files()
+	
+	# On Android, fall back to bundled data path if user:// path doesn't exist
+	if _is_android and _BUNDLED_DATA_PREFIX != _EXTERNAL_FILE_PREFIX:
+		var bundled_path := _get_bundled_filepath(partial_dir_path)
+		if DirAccess.dir_exists_absolute(bundled_path):
+			var dir := DirAccess.open(bundled_path)
+			if dir:
+				return dir.get_files()
+	
+	# Create directory and return empty array
 	DirAccess.make_dir_absolute(full_path)
-	if not DirAccess.dir_exists_absolute(full_path):
-		DirAccess.make_dir_recursive_absolute(full_path)
-	var dir = DirAccess.open(full_path)
-	return dir.get_files()
+	DirAccess.make_dir_recursive_absolute(full_path)
+	var dir := DirAccess.open(full_path)
+	if dir:
+		return dir.get_files()
+	return PackedStringArray()
 
 func load_texture(image_partial_path, is_absolute: bool = false) -> ImageTexture:
 	# loads and caches a texture from external images
@@ -81,14 +177,24 @@ func load_texture(image_partial_path, is_absolute: bool = false) -> ImageTexture
 	if self._cached_textures.has(full_path):
 		return self._cached_textures[full_path]
 	else:
-		if FileAccess.file_exists(full_path):
-			var image := Image.load_from_file(full_path)
+		var load_path := full_path
+		
+		# Try primary path first
+		if not FileAccess.file_exists(full_path):
+			# On Android, fall back to bundled data
+			if _is_android and not is_absolute and _BUNDLED_DATA_PREFIX != _EXTERNAL_FILE_PREFIX:
+				var bundled_path := _get_bundled_filepath(image_partial_path)
+				if FileAccess.file_exists(bundled_path):
+					load_path = bundled_path
+		
+		if FileAccess.file_exists(load_path):
+			var image := Image.load_from_file(load_path)
 			var texture: ImageTexture
 			if image == null:
 				texture = ImageTexture.new()
 			else:
 				texture = ImageTexture.create_from_image(image)
-			texture.take_over_path(full_path)
+			texture.take_over_path(full_path)  # Cache with original path
 			self._cached_textures[full_path] = texture
 			return texture
 		else:
@@ -117,8 +223,13 @@ func load_animation(animation_id: String, animation_data: Dictionary) -> SpriteF
 func load_json(directory_partial_path: String, filename: String) -> Dictionary:
 	# loads an external json file
 	var full_path: String = _get_modified_filepath(directory_partial_path + filename)
+	
+	# Try primary path first
 	if FileAccess.file_exists(full_path):
-		var file = FileAccess.open(full_path, FileAccess.READ)
+		var file := FileAccess.open(full_path, FileAccess.READ)
+		if file == null:
+			push_error("JSON failed to open: ", full_path)
+			return {}
 		var file_text: String = file.get_as_text()
 		var parsed_json = JSON.parse_string(file_text)
 		
@@ -126,9 +237,25 @@ func load_json(directory_partial_path: String, filename: String) -> Dictionary:
 			push_error("JSON failed to parse: ", full_path)
 			return {}
 		return parsed_json
-	else:
-		push_error("JSON failed to load: ", full_path)
-		return {}
+	
+	# On Android, fall back to bundled data (res://) if user:// file doesn't exist
+	if _is_android and _BUNDLED_DATA_PREFIX != _EXTERNAL_FILE_PREFIX:
+		var bundled_path: String = _get_bundled_filepath(directory_partial_path + filename)
+		if FileAccess.file_exists(bundled_path):
+			var file := FileAccess.open(bundled_path, FileAccess.READ)
+			if file == null:
+				push_error("JSON failed to open bundled: ", bundled_path)
+				return {}
+			var file_text: String = file.get_as_text()
+			var parsed_json = JSON.parse_string(file_text)
+			
+			if parsed_json == null:
+				push_error("JSON failed to parse bundled: ", bundled_path)
+				return {}
+			return parsed_json
+	
+	push_error("JSON failed to load: ", full_path)
+	return {}
 
 func save_json(directory_partial_path: String, filename: String, data_dict: Dictionary) -> void:
 	# saves an external json file
@@ -352,7 +479,6 @@ func test_serialization() -> void:
 	#FileLoader.save_json("", "test_json_2.json", dict_repr_2)
 	
 	assert(dict_string_1 == dict_string_2) # these should be the same at the end
-	breakpoint # for checking in debug
 
 
 ## Gets all data on the player and converts it into a json safe format

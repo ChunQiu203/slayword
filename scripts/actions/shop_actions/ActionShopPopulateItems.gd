@@ -8,7 +8,6 @@ func perform_action():
 	# check if shop at player location
 	var shop_data: ShopData = Global.get_shop_at_player_location()
 	if shop_data == null:
-		breakpoint
 		return
 	
 	# intercept the action

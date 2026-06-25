@@ -98,6 +98,7 @@
   "combat.end_turn": "End Turn",
   "combat.select_target": "Select a target",
   "combat.turn": "Turn {0}",
+  "combat.energy_insufficient": "Not enough energy",
   "shop.tab.cards": "Cards",
   "shop.tab.artifacts": "Relics",
   "shop.tab.consumables": "Potions",
@@ -280,5 +281,9 @@
   "artifact_rarity.rare": "Rare",
   "artifact_rarity.boss": "Boss",
   "artifact_rarity.shop": "Shop",
-  "artifact_rarity.event": "Event"
+  "artifact_rarity.event": "Event",
+  "menu.vocab_mode_label": "Vocabulary mode",
+  "menu.vocab_mode_hint": "Choose the vocabulary review logic when playing cards.",
+  "menu.vocab_mode_per_card": "Per card review (current mode)",
+  "menu.vocab_mode_per_turn": "Per turn one word (sequential learning)"
 }
