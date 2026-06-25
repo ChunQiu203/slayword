@@ -34,10 +34,10 @@
 		"player_event_pools": {
 
 		},
-		"player_health": 85,
-		"player_health_max": 85,
+		"player_health": 50,
+		"player_health_max": 50,
 		"player_location_id": "location_0",
-		"player_money": 99,
+		"player_money": 0,
 		"player_previous_combat_stats": [],
 		"player_rare_card_increment_rate": 1.5,
 		"player_rare_card_modifier_base": 0.0,

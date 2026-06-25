@@ -38,6 +38,7 @@ const AUTOSAVING_ENABLED: bool = true # disabling this makes testing easier
 
 var _cached_textures: Dictionary	= {}	# maps a partial image path to a loaded image
 var _cached_animations: Dictionary = {}	# maps unique animation ids to a spriteframe object
+var _cached_json: Dictionary = {}  # maps full_path → parsed Dictionary
 
 ## Any time a read only data file is loaded for the first time, its directory and file name is stored here.
 ## Useful for migrating data via _migrate_read_only_data() and re-saving it
@@ -221,10 +222,11 @@ func load_animation(animation_id: String, animation_data: Dictionary) -> SpriteF
 		return animation
 
 func load_json(directory_partial_path: String, filename: String) -> Dictionary:
-	# loads an external json file
+	# loads an external json file (cached by full path)
 	var full_path: String = _get_modified_filepath(directory_partial_path + filename)
-	
-	# Try primary path first
+	# Only cache res:// data (mod content); user:// files mutate at runtime
+	if not full_path.begins_with("user://") and _cached_json.has(full_path):
+		return _cached_json[full_path]
 	if FileAccess.file_exists(full_path):
 		var file := FileAccess.open(full_path, FileAccess.READ)
 		if file == null:
@@ -232,10 +234,11 @@ func load_json(directory_partial_path: String, filename: String) -> Dictionary:
 			return {}
 		var file_text: String = file.get_as_text()
 		var parsed_json = JSON.parse_string(file_text)
-		
+
 		if parsed_json == null:
 			push_error("JSON failed to parse: ", full_path)
 			return {}
+		_cached_json[full_path] = parsed_json
 		return parsed_json
 	
 	# On Android, fall back to bundled data (res://) if user:// file doesn't exist

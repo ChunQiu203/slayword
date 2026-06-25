@@ -36,6 +36,7 @@ enum STATS {
 	CARDS_RETAINED,					# number of cards retained
 	CARDS_UPGRADED,					# number of cards upgraded mid combat
 	CARDS_CREATED,					# number of cards created mid combat
+	CARDS_IN_HAND,					# number of cards in hand (for card value modifiers)
 	DECK_RESHUFFLED					# number of times deck was reshuffled (initial shuffling not counted)
 }
 

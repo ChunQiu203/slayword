@@ -305,6 +305,15 @@ func _play_card(card_play_request: CardPlayRequest) -> void:
 	# find out where the card came from
 	var card_location: int = card_play_request.card_data.get_card_deck_location()
 	
+	# Card fly animation: create a visual clone that flies to target
+	var card_ui: Card = card_data_to_hand_card.get(card_play_request.card_data, null)
+	var target_pos: Vector2 = Vector2.ZERO
+	var has_target: bool = card_play_request.selected_target != null
+	if has_target:
+		target_pos = card_play_request.selected_target.global_position + Vector2(0, -40)
+	if card_ui != null:
+		_play_card_fly_animation(card_ui.global_position, target_pos, has_target)
+	
 	# remove card from hand/discard/draw/exhaust
 	move_card_to_limbo(card_play_request.card_data)
 	
@@ -355,6 +364,30 @@ func _play_card(card_play_request: CardPlayRequest) -> void:
 			Global.player_data.player_discard.append(card_play_request.card_data)
 	
 	combat.update_combat_display()
+
+func _play_card_fly_animation(from_pos: Vector2, to_pos: Vector2, has_target: bool) -> void:
+	# creates a card clone that flies from hand to target enemy
+	var card_scene: PackedScene = preload("res://scenes/ui/Card.tscn")
+	var card_clone: Card = card_scene.instantiate()
+	# set the clone to display the same card data
+	card_clone.card_data = card_play_queue[0].card_data if card_play_queue.size() > 0 else null
+	get_tree().current_scene.add_child(card_clone)
+	card_clone.global_position = from_pos
+	card_clone.z_index = 100
+	# disable interaction on clone
+	card_clone.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	var tween: Tween = create_tween()
+	if has_target:
+		# fly to target position
+		tween.tween_property(card_clone, "global_position", to_pos, 0.25).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+		tween.parallel().tween_property(card_clone, "scale", Vector2(0.6, 0.6), 0.25).set_ease(Tween.EASE_IN)
+		tween.tween_property(card_clone, "modulate:a", 0.0, 0.15)
+	else:
+		# no target: fly up and fade out
+		tween.tween_property(card_clone, "global_position", from_pos + Vector2(0, -150), 0.3).set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(card_clone, "modulate:a", 0.0, 0.3)
+	tween.tween_callback(card_clone.queue_free)
 
 ### Card Play Queue
 

@@ -77,6 +77,10 @@ var _book_id_to_checkbox: Dictionary[String, CheckBox] = {}
 var _vocab_import_btn: Button
 var _vocab_import_status: Label
 var _file_dialog: FileDialog
+var _ai_gen_dialog: AcceptDialog = null
+var _ai_gen_btn: Button = null
+var _ai_topic_input: LineEdit = null
+var _ai_count_spin: SpinBox = null
 var _delete_confirm_dialog: AcceptDialog
 var _pending_delete_book_id: String = ""
 
@@ -99,6 +103,55 @@ func _ready() -> void:
 	_delete_confirm_dialog.dialog_text = ""
 	_delete_confirm_dialog.confirmed.connect(_on_delete_confirmed)
 	add_child(_delete_confirm_dialog)
+
+	# AI generate vocab book dialog
+	_ai_gen_dialog = AcceptDialog.new()
+	_ai_gen_dialog.title = I18N.tr_key("menu.vocab_ai_gen_title")
+	_ai_gen_dialog.ok_button_text = I18N.tr_key("menu.vocab_ai_gen_go")
+	_ai_gen_dialog.min_size = Vector2i(460, 260)
+	var ai_panel := PanelContainer.new()
+	ai_panel.add_theme_stylebox_override("panel", _make_panel_stylebox())
+	var ai_margin := MarginContainer.new()
+	ai_margin.add_theme_constant_override("margin_left", 14)
+	ai_margin.add_theme_constant_override("margin_top", 10)
+	ai_margin.add_theme_constant_override("margin_right", 14)
+	ai_margin.add_theme_constant_override("margin_bottom", 10)
+	var ai_content := VBoxContainer.new()
+	ai_content.add_theme_constant_override("separation", 12)
+	var ai_hint := Label.new()
+	ai_hint.text = I18N.tr_key("menu.vocab_ai_gen_hint")
+	ai_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ai_hint.custom_minimum_size = Vector2(400, 0)
+	ai_hint.add_theme_font_size_override("font_size", 13)
+	ai_hint.add_theme_color_override("font_color", _TXT_HINT)
+	ai_content.add_child(ai_hint)
+	_ai_topic_input = LineEdit.new()
+	_ai_topic_input.placeholder_text = I18N.tr_key("menu.vocab_ai_gen_placeholder")
+	_ai_topic_input.custom_minimum_size = Vector2(400, 46)
+	_ai_topic_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_style_line_edit(_ai_topic_input)
+	ai_content.add_child(_ai_topic_input)
+	var ai_count_row := HBoxContainer.new()
+	ai_count_row.add_theme_constant_override("separation", 10)
+	ai_count_row.alignment = BoxContainer.ALIGNMENT_END
+	var ai_count_lbl := Label.new()
+	ai_count_lbl.text = I18N.tr_key("menu.vocab_ai_gen_count")
+	ai_count_lbl.add_theme_font_size_override("font_size", 14)
+	ai_count_lbl.add_theme_color_override("font_color", _TXT_PRIMARY)
+	ai_count_row.add_child(ai_count_lbl)
+	_ai_count_spin = SpinBox.new()
+	_ai_count_spin.min_value = 5
+	_ai_count_spin.max_value = 100
+	_ai_count_spin.value = 20
+	_ai_count_spin.custom_minimum_size = Vector2(80, 46)
+	_style_spin_box(_ai_count_spin)
+	ai_count_row.add_child(_ai_count_spin)
+	ai_content.add_child(ai_count_row)
+	ai_margin.add_child(ai_content)
+	ai_panel.add_child(ai_margin)
+	_ai_gen_dialog.add_child(ai_panel)
+	_ai_gen_dialog.confirmed.connect(_on_ai_generate_confirmed)
+	add_child(_ai_gen_dialog)
 
 	_build_vocab_study_prefs()
 	_apply_localized_text()
@@ -547,6 +600,12 @@ func _build_books_status_card(parent: Node) -> void:
 	_vocab_import_btn.pressed.connect(_on_vocab_import_pressed)
 	_style_button_warm(_vocab_import_btn)
 	import_row.add_child(_vocab_import_btn)
+	_ai_gen_btn = Button.new()
+	_ai_gen_btn.add_theme_font_size_override("font_size", 14)
+	_ai_gen_btn.custom_minimum_size = Vector2(220, 40)
+	_ai_gen_btn.pressed.connect(_on_ai_generate_pressed)
+	_style_button_warm(_ai_gen_btn)
+	import_row.add_child(_ai_gen_btn)
 
 	_vocab_import_status = Label.new()
 	_vocab_import_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -706,6 +765,8 @@ func _refresh_vocab_study_prefs_i18n() -> void:
 		_vocab_custom_domain.placeholder_text = I18N.tr_key("overlay.vocab_domains_custom")
 	if _vocab_import_btn:
 		_vocab_import_btn.text = I18N.tr_key("menu.vocab_import_json")
+		if _ai_gen_btn:
+			_ai_gen_btn.text = I18N.tr_key("menu.vocab_ai_gen_btn")
 	for pid: String in _preset_id_to_checkbox.keys():
 		var cb: CheckBox = _preset_id_to_checkbox[pid]
 		cb.text = I18N.tr_key("vocab.domain." + pid)
@@ -952,9 +1013,15 @@ func _rebuild_vocab_book_rows() -> void:
 		var cb := CheckBox.new()
 		cb.name = "Book_" + bid
 		cb.add_theme_font_size_override("font_size", 13)
-		cb.button_pressed = Global.user_settings_data.settings_vocab_enabled_book_ids.has(bid)
+		if _merge_mode:
+			cb.button_pressed = _merge_pending_book_ids.has(bid)
+		else:
+			cb.button_pressed = Global.user_settings_data.settings_vocab_enabled_book_ids.has(bid)
 		cb.tooltip_text = _book_row_tooltip(meta)
-		cb.toggled.connect(_on_book_toggled.bind(bid))
+		if _merge_mode:
+			cb.toggled.connect(_on_merge_check_toggled.bind(bid))
+		else:
+			cb.toggled.connect(_on_book_toggled.bind(bid))
 		_style_check_box(cb)
 		row.add_child(cb)
 		_book_id_to_checkbox[bid] = cb
@@ -967,6 +1034,16 @@ func _rebuild_vocab_book_rows() -> void:
 		cap.text = _book_row_caption(meta)
 		cap.tooltip_text = _book_row_tooltip(meta)
 		row.add_child(cap)
+		var exp_btn := Button.new()
+		exp_btn.text = "📤"
+		exp_btn.tooltip_text = I18N.tr_key("menu.vocab_export_tooltip")
+		exp_btn.custom_minimum_size = Vector2(28, 28)
+		exp_btn.add_theme_font_size_override("font_size", 14)
+		exp_btn.add_theme_color_override("font_color", Color(0.78, 0.80, 0.76, 0.92))
+		exp_btn.add_theme_color_override("font_hover_color", Color(1.0, 0.96, 0.82, 1.0))
+		exp_btn.flat = true
+		exp_btn.pressed.connect(_on_export_book_pressed.bind(bid))
+		row.add_child(exp_btn)
 		var src: String = str(meta.get("source", ""))
 		if src == "user":
 			var del_btn := Button.new()
@@ -1000,6 +1077,36 @@ func _rebuild_vocab_book_rows() -> void:
 			del_btn.pressed.connect(_on_delete_book_pressed.bind(bid))
 			row.add_child(del_btn)
 		_vocab_books_box.add_child(row)
+
+	# Merge / Split action buttons
+	var action_row := HBoxContainer.new()
+	action_row.add_theme_constant_override("separation", 10)
+	_vocab_books_box.add_child(action_row)
+
+	_merge_confirm_btn = Button.new()
+	_merge_confirm_btn.text = I18N.tr_key("menu.vocab_merge_btn")
+	_merge_confirm_btn.disabled = true
+	_merge_confirm_btn.custom_minimum_size = Vector2(160, SlayMobileStyle.TOUCH_H)
+	_style_button_warm(_merge_confirm_btn)
+	_merge_confirm_btn.visible = _merge_mode
+	_merge_confirm_btn.pressed.connect(_on_merge_confirm_pressed)
+	action_row.add_child(_merge_confirm_btn)
+
+	var merge_btn := Button.new()
+	merge_btn.text = I18N.tr_key("menu.vocab_merge_btn") if not _merge_mode else I18N.tr_key("menu.vocab_merge_cancel")
+	merge_btn.custom_minimum_size = Vector2(160, SlayMobileStyle.TOUCH_H)
+	_style_button_warm(merge_btn)
+	merge_btn.pressed.connect(_on_merge_books_pressed)
+	action_row.add_child(merge_btn)
+
+	var split_btn := Button.new()
+	split_btn.text = I18N.tr_key("menu.vocab_split_btn")
+	split_btn.custom_minimum_size = Vector2(160, SlayMobileStyle.TOUCH_H)
+	_style_button_warm(split_btn)
+	split_btn.disabled = _merge_mode
+	split_btn.pressed.connect(_on_split_book_pressed)
+	action_row.add_child(split_btn)
+
 
 
 func _on_delete_book_pressed(bid: String) -> void:
@@ -1037,15 +1144,23 @@ func _book_row_caption(meta: Dictionary) -> String:
 			nm = I18N.tr_key("menu.vocab_book_builtin_name")
 		else:
 			nm = bid
+	var head: String
 	if src == "builtin":
-		return I18N.tr_key("menu.vocab_book_row_named_locked", [nm, bid, src_disp])
-	if nm == bid:
+		head = I18N.tr_key("menu.vocab_book_row_named_locked", [nm, bid, src_disp])
+	elif nm == bid:
 		if src_disp.is_empty():
-			return bid
-		return I18N.tr_key("menu.vocab_book_row_id_only", [bid, src_disp])
-	if src_disp.is_empty():
-		return I18N.tr_key("menu.vocab_book_row_two", [nm, bid])
-	return I18N.tr_key("menu.vocab_book_row_named", [nm, bid, src_disp])
+			head = bid
+		else:
+			head = I18N.tr_key("menu.vocab_book_row_id_only", [bid, src_disp])
+	elif src_disp.is_empty():
+		head = I18N.tr_key("menu.vocab_book_row_two", [nm, bid])
+	else:
+		head = I18N.tr_key("menu.vocab_book_row_named", [nm, bid, src_disp])
+	var stats: String = _book_stats_text(bid)
+	if stats.is_empty():
+		return head
+	return head + "
+" + stats
 
 
 func _book_row_tooltip(meta: Dictionary) -> String:
@@ -1059,6 +1174,91 @@ func _book_row_tooltip(meta: Dictionary) -> String:
 			return I18N.tr_key("menu.vocab_book_user_tooltip")
 		_:
 			return ""
+
+
+func _book_stats_text(bid: String) -> String:
+	var s: Dictionary = VocabStudy.get_book_stats(bid)
+	if s.total <= 0:
+		return ""
+	var parts: PackedStringArray = []
+	parts.append(I18N.tr_key("menu.vocab_book_stats_total", [s.total]))
+	if s.mastered_count > 0:
+		parts.append(I18N.tr_key("menu.vocab_book_stats_mastered", [s.mastered_count]))
+	if s.learning_count > 0:
+		parts.append(I18N.tr_key("menu.vocab_book_stats_learning", [s.learning_count]))
+	if s.new_count > 0:
+		parts.append(I18N.tr_key("menu.vocab_book_stats_new", [s.new_count]))
+	if s.due_count > 0:
+		parts.append(I18N.tr_key("menu.vocab_book_stats_due", [s.due_count]))
+	return "  ".join(parts)
+
+
+func _on_export_book_pressed(bid: String) -> void:
+	var json_text: String = VocabStudy.export_book_json(bid)
+	if json_text.is_empty():
+		if _vocab_import_status:
+			_vocab_import_status.text = I18N.tr_key("menu.vocab_export_failed", [bid])
+		return
+	if _vocab_import_status:
+		_vocab_import_status.text = I18N.tr_key("menu.vocab_export_ok", [bid])
+
+
+var _merge_mode: bool = false
+var _merge_pending_book_ids: Array[String] = []
+var _merge_confirm_btn: Button = null
+
+func _on_merge_books_pressed() -> void:
+	_merge_mode = not _merge_mode
+	_merge_pending_book_ids.clear()
+	_rebuild_vocab_book_rows()
+
+
+func _on_split_book_pressed() -> void:
+	var metas: Array[Dictionary] = VocabStudy.list_known_books()
+	var bids: Array[String] = []
+	for m: Dictionary in metas:
+		var bid: String = str(m.get("book_id", ""))
+		if not bid.is_empty():
+			bids.append(bid)
+	if bids.is_empty():
+		return
+	var result: Array[String] = VocabStudy.split_book(bids[0], "halves")
+	if result[0].is_empty():
+		if _vocab_import_status:
+			_vocab_import_status.text = I18N.tr_key("menu.vocab_split_failed")
+		return
+	if _vocab_import_status:
+		_vocab_import_status.text = I18N.tr_key("menu.vocab_split_ok", [result[0], result[1]])
+	_rebuild_vocab_book_rows()
+	_refresh_dashboard_stats()
+
+
+func _on_merge_confirm_pressed() -> void:
+	if _merge_pending_book_ids.size() < 2:
+		return
+	var new_id: String = "merged_" + str(Time.get_unix_time_from_system())
+	var new_name: String = "Merged " + I18N.tr_key("menu.vocab_book_merged_name")
+	var ok: String = VocabStudy.merge_books(_merge_pending_book_ids, new_id, new_name)
+	_merge_mode = false
+	_merge_pending_book_ids.clear()
+	if ok.is_empty():
+		if _vocab_import_status:
+			_vocab_import_status.text = I18N.tr_key("menu.vocab_merge_failed")
+	else:
+		if _vocab_import_status:
+			_vocab_import_status.text = I18N.tr_key("menu.vocab_merge_ok", [ok])
+	_rebuild_vocab_book_rows()
+	_refresh_dashboard_stats()
+
+
+func _on_merge_check_toggled(bid: String, pressed: bool) -> void:
+	if pressed:
+		if not _merge_pending_book_ids.has(bid):
+			_merge_pending_book_ids.append(bid)
+	else:
+		_merge_pending_book_ids.erase(bid)
+	if _merge_confirm_btn:
+		_merge_confirm_btn.disabled = _merge_pending_book_ids.size() < 2
 
 
 func _refresh_single_book_row_label(bid: String) -> void:
@@ -1102,6 +1302,38 @@ func _on_book_toggled(pressed: bool, book_id: String) -> void:
 	VocabStudy.reload_from_settings()
 	call_deferred("_rebuild_vocab_book_rows")
 	call_deferred("_refresh_dashboard_stats")
+
+
+
+func _on_ai_generate_pressed() -> void:
+	if _ai_topic_input:
+		_ai_topic_input.text = ""
+	if _ai_count_spin:
+		_ai_count_spin.value = 20
+	if _ai_gen_dialog:
+		_ai_gen_dialog.popup_centered()
+
+
+func _on_ai_generate_confirmed() -> void:
+	if _ai_topic_input == null or _ai_count_spin == null:
+		return
+	var topic: String = _ai_topic_input.text.strip_edges()
+	if topic.is_empty():
+		return
+	var count: int = int(_ai_count_spin.value)
+	if _vocab_import_status:
+		_vocab_import_status.text = I18N.tr_key("menu.vocab_ai_gen_generating")
+	if _ai_gen_dialog:
+		_ai_gen_dialog.hide()
+	var res: Dictionary = await VocabStudy.generate_book_via_ai(topic, count)
+	if res.get("ok", false):
+		if _vocab_import_status:
+			_vocab_import_status.text = I18N.tr_key("menu.vocab_ai_gen_ok", [res.book_id])
+	else:
+		if _vocab_import_status:
+			_vocab_import_status.text = I18N.tr_key("menu.vocab_ai_gen_failed", [res.get("err", "unknown")])
+	_rebuild_vocab_book_rows()
+	_refresh_dashboard_stats()
 
 
 func _on_vocab_import_pressed() -> void:

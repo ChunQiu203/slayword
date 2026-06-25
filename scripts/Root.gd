@@ -1,10 +1,36 @@
 extends Node2D
 
 const TEXTURE_BUTTON_LABEL_NAME := "LocalizedTextLabel"
+const MIN_WINDOW_WIDTH := 960
+const MIN_WINDOW_HEIGHT := 540
 
 func _ready() -> void:
+	# Enforce minimum window size
+	get_window().min_size = Vector2i(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)
+	# Notify SlayMobileStyle of initial viewport size for font scaling
+	_update_viewport_ref_size()
+	get_window().size_changed.connect(_update_viewport_ref_size)
+
+	_apply_base_theme()
 	_apply_static_localization()
 	I18N.locale_changed.connect(_on_locale_changed)
+
+func _update_viewport_ref_size() -> void:
+	# In viewport stretch mode the game always renders at 1280×720.
+	# Font scaling uses this as the baseline (scale = 1.0 at 720p).
+	SlayMobileStyle.set_viewport_ref(Vector2i(1280, 720))
+
+func _apply_base_theme() -> void:
+	# Load custom fonts (best-effort — falls back to system fonts)
+	SlayMobileStyle.load_fonts()
+
+	# Build a base Theme so every child inherits font & colour defaults.
+	# Apply to both top-level Control nodes so ALL UI benefits.
+	var base_theme := SlayMobileStyle.create_base_theme()
+	for unique_name in ["TitleScreen", "RunScreen"]:
+		var ctrl := get_node_or_null(NodePath("%" + unique_name)) as Control
+		if ctrl != null:
+			ctrl.theme = base_theme
 
 func _on_locale_changed(_locale: String) -> void:
 	_apply_static_localization()
