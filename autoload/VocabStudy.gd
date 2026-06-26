@@ -26,6 +26,10 @@ const VOCAB_REVIEW_MODE_RECALL := "recall"
 ## 学习环节 id 的固定顺序（与 settings_vocab_learn_steps_enabled 组合）
 const VOCAB_LEARN_STEP_ORDER: Array[String] = ["en2zh", "zh2en", "spell", "dictation"]
 
+## 背单词模式
+const VOCAB_MODE_PER_CARD := "per_card"  ## 每张牌复习一次（现有模式）
+const VOCAB_MODE_PER_TURN := "per_turn"  ## 每回合一个单词，按顺序学习/复习
+
 const OPENAI_EXAMPLE_SYSTEM_BASE := """你是英语学习词书编辑。用户会给出词条的英文 headword、中文释义、以及游戏里的默写题干说明。
 请生成 2～4 条英文例句，尽量覆盖不同义项或用法；每条配一行简短中文 gloss 标明该句侧重的义（可与释义栏对应）。
 每条必须另附 sentence_zh：对该英文例句的完整、自然的中文翻译（整句译意，不要只重复 gloss；不要留空字符串）。
@@ -105,6 +109,10 @@ var _example_prefetch_requested_this_run: int = 0
 var _dotenv_parsed: bool = false
 var _dotenv_values: Dictionary = {}
 
+## 每回合模式状态
+var _per_turn_current_word_id: String = ""  ## 当前回合的单词ID
+var _per_turn_current_step_index: int = 0  ## 当前单词的复习步骤索引（en2zh→zh2en→spell→dictation）
+
 
 func _ensure_project_dotenv_loaded() -> void:
 	if _dotenv_parsed:
@@ -179,6 +187,9 @@ func _ready() -> void:
 	reload_from_settings()
 	if not Signals.combat_started.is_connected(_on_combat_started_reset_first_draft):
 		Signals.combat_started.connect(_on_combat_started_reset_first_draft)
+	# 应用启动时直接调用例句预生成（无需等待 run_started）
+	_on_run_started_vocab_example_batch()
+	# 仍需监听 run_started 来重置 per_turn 状态和清理标记
 	if not Signals.run_started.is_connected(_on_run_started_vocab_example_batch):
 		Signals.run_started.connect(_on_run_started_vocab_example_batch)
 	if not Signals.run_ended.is_connected(_on_run_ended_vocab_example_prefetch):
@@ -379,9 +390,14 @@ func _try_merge_examples_from_file_cache_into_word(word: Dictionary, wid: String
 	return true
 
 
+func _reset_per_turn_state() -> void:
+	_per_turn_current_word_id = ""
+	_per_turn_current_step_index = 0
+
 func _on_run_started_vocab_example_batch() -> void:
 	_vocab_example_zh_gave_up_ids.clear()
 	_example_prefetch_requested_this_run = 0
+	_reset_per_turn_state()
 	_begin_background_example_prefetch("", BACKGROUND_EXAMPLE_PREFETCH_START_DELAY_SECONDS)
 	if _sequential_batch_busy:
 		return
@@ -2242,6 +2258,14 @@ func gate_before_play() -> bool:
 		return false
 	if not Global.is_player_in_combat():
 		return false
+
+	var current_mode: String = Global.user_settings_data.settings_vocab_mode
+	if current_mode == VOCAB_MODE_PER_TURN:
+		return await _gate_before_play_per_turn()
+	else:
+		return await _gate_before_play_per_card()
+
+func _gate_before_play_per_card() -> bool:
 	var word: Dictionary = _pick_word_for_prompt()
 	if word.is_empty():
 		print("VocabStudy.gate: _pick_word_for_prompt returned empty")
@@ -2264,6 +2288,96 @@ func gate_before_play() -> bool:
 		_:
 			_record_result(wid, false)
 			return true
+
+## per_turn 模式：返回当前步骤对应的复习方式 id
+func per_turn_sequential_review_step() -> String:
+	var steps := learn_pipeline_enabled_step_ids_ordered()
+	if steps.is_empty():
+		return VOCAB_REVIEW_MODE_SPELL
+	return steps[_per_turn_current_step_index % steps.size()]
+
+
+func _gate_before_play_per_turn() -> bool:
+	var word: Dictionary = _pick_word_for_per_turn_mode()
+	if word.is_empty():
+		return false
+
+	var wid: String = str(word.get("id", ""))
+	_begin_background_example_prefetch(wid)
+
+	var step := per_turn_sequential_review_step()
+	var outcome: int = await _overlay.run_review_single_step(word, step)
+
+	match outcome:
+		WordReviewOverlay.REVIEW_OUTCOME_OK:
+			_record_result(wid, true)
+			_per_turn_current_step_index += 1
+			var steps := learn_pipeline_enabled_step_ids_ordered()
+			if steps.is_empty():
+				steps = VOCAB_LEARN_STEP_ORDER
+			if _per_turn_current_step_index >= steps.size():
+				_per_turn_current_step_index = 0
+				_advance_per_turn_word()
+			return false
+		WordReviewOverlay.REVIEW_OUTCOME_SKIPPED:
+			_record_result(wid, false)
+			return true
+		WordReviewOverlay.REVIEW_OUTCOME_WRONG:
+			if _try_first_draft_forgive_wrong_answer():
+				return false
+			_record_result(wid, false)
+			return true
+		_:
+			_record_result(wid, false)
+			return true
+
+func _pick_word_for_per_turn_mode() -> Dictionary:
+	# 如果已有当前单词且仍在词池中，继续使用
+	if not _per_turn_current_word_id.is_empty():
+		for w: Dictionary in _words:
+			if str(w.get("id", "")) == _per_turn_current_word_id:
+				return w.duplicate(true)
+		_per_turn_current_word_id = ""
+
+	if _words.is_empty():
+		return {}
+
+	# SRS 调度：到期复习词 > 新词 > 随机
+	var now: int = int(Time.get_unix_time_from_system())
+	var due_review_ids: Array[String] = []
+	var new_ids: Array[String] = []
+	for w: Dictionary in _words:
+		var id: String = str(w["id"])
+		var st: Dictionary = _get_state(id)
+		var due: int = int(st.get("d", 0))
+		if st.is_empty():
+			new_ids.append(id)
+		elif not bool(st.get("introduced", false)):
+			if due <= now:
+				new_ids.append(id)
+		elif due <= now:
+			due_review_ids.append(id)
+
+	if not due_review_ids.is_empty():
+		var rng: RandomNumberGenerator = Global.player_data.get_player_rng("rng_vocab_pick")
+		var pick_id: String = due_review_ids[rng.randi_range(0, len(due_review_ids) - 1)]
+		_per_turn_current_word_id = pick_id
+		return _word_by_id(pick_id)
+
+	if not new_ids.is_empty():
+		var rng: RandomNumberGenerator = Global.player_data.get_player_rng("rng_vocab_new")
+		var pick_id: String = new_ids[rng.randi_range(0, len(new_ids) - 1)]
+		_per_turn_current_word_id = pick_id
+		return _word_by_id(pick_id)
+
+	# 兜底：随机
+	var rng: RandomNumberGenerator = Global.player_data.get_player_rng("rng_vocab_cold")
+	var pick_idx: int = rng.randi_range(0, len(_words) - 1)
+	_per_turn_current_word_id = str(_words[pick_idx].get("id", ""))
+	return _words[pick_idx].duplicate(true)
+
+func _advance_per_turn_word() -> void:
+	_per_turn_current_word_id = ""
 
 func _vocab_calendar_day_id() -> int:
 	var d: Dictionary = Time.get_datetime_dict_from_system(false)

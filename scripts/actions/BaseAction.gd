@@ -64,7 +64,7 @@ func perform_action() -> void:
 	# 2) iterate over results
 	# 3) get shadowed values
 	# 4) perform action logic
-	breakpoint
+	pass
 
 ## See BaseAsyncAction
 func perform_async_action() -> void:

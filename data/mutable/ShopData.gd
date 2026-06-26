@@ -102,8 +102,6 @@ func add_shop_card(card_data: CardData, price: int = -1):
 		
 		shop_card_prices.append(card_price)
 		shop_cards.append(card_data)
-	else:
-		breakpoint
 
 func remove_shop_card(card_data: CardData) -> void:
 	var index: int = shop_cards.find(card_data)
@@ -131,8 +129,6 @@ func add_shop_artifact(artifact_id: String, price: int = -1) -> void:
 		
 		shop_artifact_prices.append(artifact_price)
 		shop_artifact_ids.append(artifact_data.object_id)
-	else:
-		breakpoint
 
 func remove_shop_artifact(artifact_id: String) -> void:
 	var index: int = shop_artifact_ids.find(artifact_id)
@@ -170,8 +166,6 @@ func add_shop_consumable(consumable_object_id: String, price: int = -1):
 		
 		shop_consumable_slot_to_consumable_object_id[slot_index] = consumable_object_id
 		shop_consumable_slot_to_consumable_price[slot_index] = consumable_price
-	else:
-		breakpoint
 
 func get_next_empty_shop_consumable_slot() -> int:
 	var slot_index: int = 0

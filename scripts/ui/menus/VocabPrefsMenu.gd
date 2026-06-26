@@ -64,6 +64,9 @@ var _vocab_review_modes_label: Label
 var _vocab_review_modes_flow: FlowContainer
 var _review_mode_id_to_checkbox: Dictionary[String, CheckBox] = {}
 var _vocab_review_modes_hint: Label
+var _vocab_mode_label: Label
+var _vocab_mode_option: OptionButton
+var _vocab_mode_hint: Label
 var _vocab_style_sub: Label
 var _vocab_custom_label: Label
 var _preset_id_to_checkbox: Dictionary[String, CheckBox] = {}
@@ -309,6 +312,7 @@ func _style_check_box(cb: CheckBox) -> void:
 	sb_p.content_margin_top = 2
 	sb_p.content_margin_bottom = 2
 	cb.add_theme_stylebox_override("pressed", sb_p)
+
 
 
 func _style_line_edit(le: LineEdit) -> void:
@@ -616,6 +620,20 @@ func _build_quiz_card(parent: Node) -> void:
 	_quiz_title = _add_section_subtitle(box, 18)
 	_quiz_status = _add_status_text(box)
 	_add_separator(box)
+	
+	# 背单词模式选择
+	_vocab_mode_label = _add_section_subtitle(box, 15)
+	_vocab_mode_option = OptionButton.new()
+	_vocab_mode_option.add_theme_font_size_override("font_size", 14)
+	_vocab_mode_option.custom_minimum_size = Vector2(200, 36)
+	_vocab_mode_option.add_item("每张牌复习（现有模式）", 0)
+	_vocab_mode_option.add_item("每回合一个单词（顺序学习）", 1)
+	_vocab_mode_option.item_selected.connect(_on_vocab_mode_selected)
+	_style_option_button(_vocab_mode_option)
+	box.add_child(_vocab_mode_option)
+	_vocab_mode_hint = _add_hint(box)
+	
+	_add_separator(box)
 	_vocab_learn_steps_label = _add_section_subtitle(box, 15)
 	_vocab_learn_steps_flow = FlowContainer.new()
 	_vocab_learn_steps_flow.add_theme_constant_override("h_separation", 14)
@@ -727,6 +745,12 @@ func _refresh_vocab_study_prefs_i18n() -> void:
 		_vocab_review_modes_label.text = I18N.tr_key("menu.vocab_review_modes_label")
 	if _vocab_review_modes_hint:
 		_vocab_review_modes_hint.text = I18N.tr_key("menu.vocab_review_modes_hint")
+	if _vocab_mode_label:
+		_vocab_mode_label.text = I18N.tr_key("menu.vocab_mode_label")
+	if _vocab_mode_hint:
+		_vocab_mode_hint.text = I18N.tr_key("menu.vocab_mode_hint")
+	_vocab_mode_option.set_item_text(0, I18N.tr_key("menu.vocab_mode_per_card"))
+	_vocab_mode_option.set_item_text(1, I18N.tr_key("menu.vocab_mode_per_turn"))
 	for sid: String in _learn_step_id_to_checkbox.keys():
 		var cb_ls: CheckBox = _learn_step_id_to_checkbox[sid]
 		cb_ls.text = I18N.tr_key("menu.vocab_learn_" + sid)
@@ -758,6 +782,13 @@ func _sync_vocab_study_prefs_from_settings() -> void:
 		_vocab_daily_new_spin.set_value_no_signal(float(Global.user_settings_data.settings_vocab_daily_new_words))
 	if _vocab_ord_spin:
 		_vocab_ord_spin.set_value_no_signal(float(Global.user_settings_data.settings_vocab_daily_ordered_example_words))
+	if _vocab_mode_option:
+		_vocab_mode_option.set_block_signals(true)
+		if Global.user_settings_data.settings_vocab_mode == "per_turn":
+			_vocab_mode_option.selected = 1
+		else:
+			_vocab_mode_option.selected = 0
+		_vocab_mode_option.set_block_signals(false)
 	for sid: String in _learn_step_id_to_checkbox.keys():
 		var cb_ls: CheckBox = _learn_step_id_to_checkbox[sid]
 		cb_ls.set_block_signals(true)
@@ -901,6 +932,15 @@ func _on_learn_step_toggled(_pressed: bool, step_id: String) -> void:
 	VocabStudy.reload_from_settings()
 	_refresh_dashboard_stats()
 
+
+func _on_vocab_mode_selected(index: int) -> void:
+	if index == 0:
+		Global.user_settings_data.settings_vocab_mode = "per_card"
+	else:
+		Global.user_settings_data.settings_vocab_mode = "per_turn"
+	FileLoader.save_user_settings()
+	VocabStudy.reload_from_settings()
+	_refresh_dashboard_stats()
 
 func _on_review_mode_toggled(_pressed: bool, mode_id: String) -> void:
 	var arr: Array[String] = []

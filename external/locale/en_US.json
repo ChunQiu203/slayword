@@ -123,6 +123,7 @@
   "combat.end_turn": "End Turn",
   "combat.select_target": "Select a target",
   "combat.turn": "Turn {0}",
+  "combat.energy_insufficient": "Not enough energy",
   "shop.tab.cards": "Cards",
   "shop.tab.artifacts": "Relics",
   "shop.tab.consumables": "Potions",

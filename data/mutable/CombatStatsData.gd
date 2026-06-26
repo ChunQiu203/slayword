@@ -174,8 +174,6 @@ func _get_stat_name(stat_enum: int) -> String:
 	# helper method to convert stat enum to string representation
 	if stat_enum < len(STATS.keys()):
 		return STATS.keys()[stat_enum]
-	else:
-		breakpoint
 	return ""
 
 ## Adds a value to this turn's stats for a given hard coded CombatStatsData.STATS

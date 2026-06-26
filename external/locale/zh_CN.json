@@ -123,6 +123,7 @@
   "combat.end_turn": "\u7ed3\u675f\u56de\u5408",
   "combat.select_target": "\u8bf7\u9009\u62e9\u76ee\u6807",
   "combat.turn": "\u7b2c {0} \u56de\u5408",
+  "combat.energy_insufficient": "\u8d39\u7528\u4e0d\u8db3",
   "shop.tab.cards": "\u5361\u724c",
   "shop.tab.artifacts": "\u9057\u7269",
   "shop.tab.consumables": "\u836f\u6c34",
