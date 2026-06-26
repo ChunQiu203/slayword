@@ -1,0 +1,20 @@
+{
+	"patch_data": {},
+	"properties": {
+		"object_id": "consumable_starlight_elixir",
+		"consumable_name": "Starlight Elixir",
+		"consumable_description": "Place 2 Stars in random Houses.",
+		"consumable_texture_path": "",
+		"consumable_requires_target": false,
+		"consumable_rarity": 0,
+		"consumable_actions": [
+			{
+				"res://scripts/actions/star_chart_actions/ActionPlaceStar.gd": {
+					"star_house": -1,
+					"star_count": 2
+				}
+			}
+		],
+		"object_uid": ""
+	}
+}

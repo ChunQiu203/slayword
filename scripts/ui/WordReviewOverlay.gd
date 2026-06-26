@@ -469,16 +469,30 @@ func _status_tag_bbcode(label_key: String, color: String = "#d8c27a") -> String:
 func _build_learn_panel_bbcode(word: Dictionary) -> String:
 	var hw: String = str(word.get("study_headword", ""))
 	var mn: String = str(word.get("study_meaning", ""))
+	var phonetic: String = str(word.get("study_phonetic", "")).strip_edges()
+	var pos: String = str(word.get("study_pos", "")).strip_edges()
 	var body: String = (
 		"[center]%s\n\n"
 		% _status_tag_bbcode("vocab.review.tag_new", "#d8c27a")
-		+ "[color=#f2ebe0][font_size=%d]%s[/font_size][/color]\n\n"
+		+ "[color=#f2ebe0][font_size=%d]%s[/font_size][/color]"
 		% [FONT_LEARN_HEAD, _escape_bbcode_user_text(hw)]
-		+ "[color=#91c59d][font_size=%d]%s[/font_size][/color]\n"
+	)
+	if phonetic != "":
+		body += (
+			"\n[color=#8a8a8a][font_size=%d]%s[/font_size][/color]"
+			% [FONT_EX_GLOSS, _escape_bbcode_user_text(phonetic)]
+		)
+	body += (
+		"\n\n[color=#91c59d][font_size=%d]%s[/font_size][/color]\n"
 		% [FONT_EX_GLOSS, _escape_bbcode_user_text(I18N.tr_key("vocab.review.learn_meaning_label"))]
 		+ "[color=#d4ecd4][font_size=%d]%s[/font_size][/color]"
 		% [FONT_LEARN_MEANING, _escape_bbcode_user_text(mn)]
 	)
+	if pos != "":
+		body += (
+			"\n[color=#8a8a8a][font_size=%d]%s[/font_size][/color]"
+			% [FONT_EX_GLOSS, _escape_bbcode_user_text(pos)]
+		)
 	var ex: String = _format_study_examples_bbcode(word.get("study_examples", null))
 	if ex != "":
 		body += "\n\n" + ex
