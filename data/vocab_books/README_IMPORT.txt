@@ -12,10 +12,15 @@
 
 每个词条：
 
-  id       （必填）本书内唯一；运行时会变成「book_id:id」存入复习状态，避免与别的书冲突
-  prompt   （必填）题干，可用 \\n 换行；支持 RichText BBCode（与 WordReviewOverlay 一致）
-  answers  （必填）字符串数组，任一命中即算对（去首尾空格、英文不区分大小写）
-  answer   （可选）单个字符串，等价于 answers: [answer]
+  id             （必填）本书内唯一；运行时会变成「book_id:id」存入复习状态，避免与别的书冲突
+  prompt         （必填）题干，可用 \\n 换行；支持 RichText BBCode（与 WordReviewOverlay 一致）
+  answers        （必填）字符串数组，任一命中即算对（去首尾空格、英文不区分大小写）
+  answer         （可选）单个字符串，等价于 answers: [answer]
+  study_headword （可选）英文单词，学习面板标题
+  study_meaning  （可选）中文释义
+  study_phonetic （可选）音标，例如 /əˈbændən/，学习面板灰色显示
+  study_pos      （可选）词性，例如 v./n./adj.，学习面板灰色显示
+  study_examples （可选）例句数组，详见下方
 
 放置位置
 --------
@@ -36,3 +41,8 @@
   VocabStudy.set_enabled_vocab_books(["builtin_default", "demo_postgraduate"])
 
 移动端：用系统文件选择器读入 UTF-8 文本后调 import_book_from_json_text；写入 user://vocab_books/。
+
+json/ 目录顺序词库（初中/高中/CET4/CET6/考研/托福/SAT）
+----------------------------------------------------------
+格式为 JSON 数组，每项 {"word": "...", "translations": [{"translation": "...", "type": "v"}]}。
+VocabStudy 自动将 translations[].type 提取为词性（study_pos），无需手动转换。

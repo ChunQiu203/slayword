@@ -18,21 +18,38 @@
 				"He felt abandoned by his friends when nobody showed up."
 			],
 			"prompt": "[center]英文：abandon\n请写出常见中文释义（填一词即可）[/center]",
-			"answers": ["放弃", "抛弃", "遗弃"]
+			"answers": [
+				"放弃",
+				"抛弃",
+				"遗弃"
+			],
+			"study_phonetic": "/əˈbændən/",
+			"study_pos": "n.v."
 		},
 		{
 			"id": "hypothesis",
 			"study_headword": "hypothesis",
 			"study_meaning": "假设；假说",
 			"prompt": "[center]英文：hypothesis\n请写出常见中文释义：[/center]",
-			"answers": ["假设", "假说"]
+			"answers": [
+				"假设",
+				"假说"
+			],
+			"study_phonetic": "/haɪˈpɑθəsəs/",
+			"study_pos": "n."
 		},
 		{
 			"id": "paradigm",
 			"study_headword": "paradigm",
 			"study_meaning": "范式；典范；模型",
 			"prompt": "[center]英文：paradigm\n请写出常见中文释义：[/center]",
-			"answers": ["范式", "典范", "模型"]
+			"answers": [
+				"范式",
+				"典范",
+				"模型"
+			],
+			"study_phonetic": "/ˈpɛrəˌdaɪm/",
+			"study_pos": "n."
 		}
 	]
 }

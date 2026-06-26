@@ -21,7 +21,7 @@ android/
 # AI assistant configs
 .claude/
 .mimocode/
-
+.vscode/
 # Python cache
 __pycache__/
 *.pyc

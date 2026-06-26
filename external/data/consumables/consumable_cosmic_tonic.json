@@ -1,0 +1,25 @@
+{
+	"patch_data": {},
+	"properties": {
+		"object_id": "consumable_cosmic_tonic",
+		"consumable_name": "Cosmic Tonic",
+		"consumable_description": "Gain 2 Energy. Stars rotate 2 Houses.",
+		"consumable_texture_path": "",
+		"consumable_requires_target": false,
+		"consumable_rarity": 1,
+		"consumable_actions": [
+			{
+				"res://scripts/actions/ActionAddEnergy.gd": {
+					"energy_amount": 2
+				}
+			},
+			{
+				"res://scripts/actions/star_chart_actions/ActionRotateStars.gd": {
+					"rotate_direction": 1,
+					"rotate_times": 2
+				}
+			}
+		],
+		"object_uid": ""
+	}
+}

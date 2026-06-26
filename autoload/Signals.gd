@@ -150,3 +150,11 @@ signal consumable_purchased(consumable_object_id: String)
 
 signal add_consumable_requested(consumable_object_id: String)
 #endregion
+
+#region Star Chart (Astrologer)
+signal star_placed(house: int)                     # a Star was placed into a House (0-5)
+signal star_consumed(house: int, count: int)       # Stars were consumed from a House
+signal stars_rotated()                             # all Stars rotated clockwise one House
+signal alignment_triggered(house: int, stars: int) # Alignment triggered in a House
+signal eclipse_triggered(total_stars: int)         # Eclipse consumed all Stars
+#endregion

@@ -1,0 +1,50 @@
+{
+	"patch_data": {},
+	"properties": {
+		"object_id": "artifact_telescope_of_fate",
+		"artifact_name": "Telescope of Fate",
+		"artifact_description": "At start of turn, Scry 3. You may place a Star in any House.",
+		"artifact_texture_path": "",
+		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
+		"artifact_counter": 0,
+		"artifact_counter_max": 1,
+		"artifact_counter_reset_on_turn_start": -1,
+		"artifact_counter_reset_on_combat_end": -1,
+		"artifact_counter_wraparound": true,
+		"artifact_color_id": "color_blue",
+		"artifact_appears_in_artifact_packs": true,
+		"artifact_rarity": 4,
+		"artifact_max_counter_actions": [],
+		"artifact_add_actions": [],
+		"artifact_remove_actions": [],
+		"artifact_right_click_actions": [],
+		"artifact_right_click_validators": [],
+		"artifact_first_turn_actions": [],
+		"artifact_end_of_combat_actions": [],
+		"artifact_turn_start_actions": [
+			{
+				"res://scripts/actions/pick_card_actions/ActionPickCards.gd": {
+					"min_card_amount": 0,
+					"max_card_amount": 3,
+					"min_cards_are_required_for_action": false,
+					"random_selection": false,
+					"card_pick_type": 0,
+					"card_pick_text": "Telescope: Choose cards to discard.",
+					"action_data": [
+						{
+							"res://scripts/actions/cardset_actions/ActionDiscardCards.gd": {}
+						}
+					]
+				}
+			},
+			{
+				"res://scripts/actions/star_chart_actions/ActionPlaceStar.gd": {
+					"star_house": 0,
+					"star_count": 1
+				}
+			}
+		],
+		"artifact_turn_end_actions": [],
+		"object_uid": ""
+	}
+}

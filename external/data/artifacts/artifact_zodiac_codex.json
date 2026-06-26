@@ -1,0 +1,34 @@
+{
+	"patch_data": {},
+	"properties": {
+		"object_id": "artifact_zodiac_codex",
+		"artifact_name": "Zodiac Codex",
+		"artifact_description": "At start of turn, if any House has 3+ Stars, gain 1 Energy.",
+		"artifact_texture_path": "",
+		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
+		"artifact_counter": 0,
+		"artifact_counter_max": 1,
+		"artifact_counter_reset_on_turn_start": -1,
+		"artifact_counter_reset_on_combat_end": -1,
+		"artifact_counter_wraparound": true,
+		"artifact_color_id": "color_blue",
+		"artifact_appears_in_artifact_packs": true,
+		"artifact_rarity": 3,
+		"artifact_max_counter_actions": [],
+		"artifact_add_actions": [],
+		"artifact_remove_actions": [],
+		"artifact_right_click_actions": [],
+		"artifact_right_click_validators": [],
+		"artifact_first_turn_actions": [],
+		"artifact_end_of_combat_actions": [],
+		"artifact_turn_start_actions": [
+			{
+				"res://scripts/actions/ActionAddEnergy.gd": {
+					"energy_amount": 1
+				}
+			}
+		],
+		"artifact_turn_end_actions": [],
+		"object_uid": ""
+	}
+}
