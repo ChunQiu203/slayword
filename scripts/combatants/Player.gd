@@ -110,8 +110,10 @@ func update_incoming_damage_amount(recalculate_enemy_intent: bool = true) -> voi
 	incoming_damage_amount_text.text = str(incoming_damage_amount)
 	incoming_damage.visible = incoming_damage_amount > 0
 
+const INTENT_INCOMING_DAMAGE_TEXTURE: String = "external/sprites/intents/intent_incoming_damage.svg"
+
 func _setup_incoming_damage_badge() -> void:
-	incoming_damage_texture.texture = FileLoader.load_texture(Enemy.INTENT_TEXTURE_ATTACK)
+	incoming_damage_texture.texture = FileLoader.load_texture(INTENT_INCOMING_DAMAGE_TEXTURE)
 	incoming_damage_texture.modulate = Color(1.0, 0.32, 0.22, 1.0)
 	incoming_damage_amount_text.add_theme_color_override("font_color", Color.WHITE)
 

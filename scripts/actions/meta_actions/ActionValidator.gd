@@ -20,7 +20,8 @@ func _validate() -> bool:
 	# checks if action passes all validators
 	var validators: Array[Dictionary] = []
 	validators.assign(get_action_value("validator_data", []))
-	return Global.validate(validators, card_play_request.card_data, self)
+	var card_data = card_play_request.card_data if card_play_request != null else null
+	return Global.validate(validators, card_data, self)
 
 func is_instant_action() -> bool:
 	return true

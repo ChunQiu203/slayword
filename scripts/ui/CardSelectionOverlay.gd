@@ -99,6 +99,12 @@ func _on_card_selected(card: Card):
 
 func _on_confirm_button_up():
 	visible = false
+	# restore dialogue overlay if it was hidden
+	var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
+	if scene_tree:
+		var dialogue_overlay: Control = scene_tree.current_scene.get_node_or_null("%DialogueOverlay")
+		if dialogue_overlay != null:
+			dialogue_overlay.visible = true
 	Signals.card_pick_confirmed.emit()
 
 func _on_back_button_up():

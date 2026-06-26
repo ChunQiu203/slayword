@@ -60,6 +60,7 @@ const ACTION_UPDATE_DRAFT_CARDS = "res://scripts/actions/player_actions/ActionUp
 const ACTION_UPDATE_REST_ACTIONS = "res://scripts/actions/player_actions/ActionUpdateRestActions.gd"
 const ACTION_ADD_CONSUMABLE: String = "res://scripts/actions/player_actions/ActionAddConsumable.gd"
 const ACTION_USE_CONSUMABLE: String = "res://scripts/actions/player_actions/ActionUseConsumable.gd"
+const ACTION_VOCAB_REVIEW: String = "res://scripts/actions/player_actions/ActionVocabReview.gd"
 
 # reward actions
 const ACTION_GRANT_REWARDS = "res://scripts/actions/rewards/ActionGrantRewards.gd"

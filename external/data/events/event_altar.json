@@ -1,0 +1,9 @@
+{
+	"patch_data": {},
+	"properties": {
+		"event_dialogue_object_id": "dialogue_altar",
+		"event_pool_validator_data": [],
+		"location_event_pool_validator_failed_strategy": 1,
+		"object_id": "event_altar"
+	}
+}
