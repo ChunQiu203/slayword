@@ -4,7 +4,7 @@
 		"object_id": "artifact_constellation_globe",
 		"artifact_name": "Constellation Globe",
 		"artifact_description": "At combat start, choose which Houses receive the 2 starting Stars.",
-		"artifact_texture_path": "",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_constellation_globe.svg",
 		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 1,

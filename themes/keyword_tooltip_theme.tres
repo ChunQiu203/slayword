@@ -1,20 +1,20 @@
 [gd_resource type="Theme" format=3 uid="uid://2714jm71pkv4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tooltip"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
 bg_color = Color(0.08, 0.09, 0.12, 0.95)
-border_color = Color(0.78, 0.65, 0.34, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
+border_color = Color(0.78, 0.65, 0.34, 0.9)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
-content_margin_left = 12
-content_margin_top = 8
-content_margin_right = 12
-content_margin_bottom = 8
 shadow_color = Color(0, 0, 0, 0.5)
 shadow_size = 4
 shadow_offset = Vector2(0, 2)

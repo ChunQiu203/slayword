@@ -4,7 +4,7 @@
 		"object_id": "artifact_nebula_gem",
 		"artifact_name": "Nebula Gem",
 		"artifact_description": "When you place a Star, 50% chance for a second Star in the same House.",
-		"artifact_texture_path": "",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_nebula_gem.svg",
 		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 1,

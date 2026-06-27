@@ -37,10 +37,23 @@ func _ready():
 
 func populate_codex_menu() -> void:
 	_apply_tab_styles()
-	codex_card_container.columns = 4
 	codex_card_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	codex_card_container.custom_minimum_size.x = 600
+	codex_card_container.custom_minimum_size.x = 0
+	_update_columns()
+	# Recalculate columns when the window is resized
+	var scroll = $ScrollContainer
+	if scroll and not scroll.is_connected("resized", _update_columns):
+		scroll.resized.connect(_update_columns)
 	populate_current_tab()
+
+func _update_columns():
+	var total = $ScrollContainer.size.x
+	# Subtract margins: left 10 + right 50 + scrollbar ~20 + grid spacing ~16
+	var safe = total - 96
+	var new_cols = max(1, int(safe / 160.0))
+	if codex_card_container.columns != new_cols:
+		codex_card_container.columns = new_cols
+	print("CodexCols total=", total, " safe=", safe, " cols=", new_cols)
 
 func populate_current_tab() -> void:
 	clear_codex_card_container()

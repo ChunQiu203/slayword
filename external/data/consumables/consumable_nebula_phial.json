@@ -4,7 +4,7 @@
 		"object_id": "consumable_nebula_phial",
 		"consumable_name": "Nebula Phial",
 		"consumable_description": "Place a Star in EVERY House.",
-		"consumable_texture_path": "",
+		"consumable_texture_path": "external/sprites/consumables/consumable_nebula_phial.svg",
 		"consumable_requires_target": false,
 		"consumable_rarity": 2,
 		"consumable_actions": [
