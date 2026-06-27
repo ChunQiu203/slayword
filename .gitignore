@@ -29,3 +29,15 @@ __pycache__/
 # NETEM 原始下载（可删；用 tools/convert_netem_to_book.py 从 GitHub 重新生成）
 tools/netem_raw.json
 *.zip
+
+# AI 工具目录
+.claude/
+.reasonix/
+.mimocode/
+.serena/
+
+# 参考数据（本地用，不上传）
+canzhao/
+
+# 临时文件
+tmp/

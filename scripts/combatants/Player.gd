@@ -157,7 +157,7 @@ func _on_run_started():
 	
 	# reset animation and state
 	var location_data: LocationData = Global.get_player_location_data()
-	if location_data.location_type == LocationData.LOCATION_TYPES.STARTING:
+	if location_data != null and location_data.location_type == LocationData.LOCATION_TYPES.STARTING:
 		animation_player.play("run_start")
 
 func _on_run_ended():

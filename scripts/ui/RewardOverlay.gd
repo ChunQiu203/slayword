@@ -201,10 +201,17 @@ func _on_reward_clear_requested(reward_group: int):
 
 func _on_combat_started(_event_id: String):
 	visible = false
+	# Skip reward setup in test mode
+	if Global.is_test_mode:
+		return
 	add_location_rewards()
 
 func _on_combat_ended():
 	if not Global.is_end_of_run():
+		# In test mode, end the run immediately instead of showing rewards/map
+		if Global.is_test_mode:
+			Global.end_run(Global.RUN_ENDS.QUIT)
+			return
 		visible = true
 		populate_reward_display()
 

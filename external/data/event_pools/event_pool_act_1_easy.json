@@ -1,14 +1,17 @@
 {
-	"patch_data": {
-
-	},
+	"patch_data": {},
 	"properties": {
 		"event_pool_event_object_ids": [
 			"event_act_1_easy_combat_1",
 			"event_act_1_easy_combat_2",
 			"event_act_1_easy_combat_3",
 			"event_act_1_easy_combat_4",
-			"event_act_1_archivist_scribe"
+			"event_act_1_archivist_scribe",
+			"event_cultist",
+			"event_slime",
+			"event_goblin",
+			"event_louse",
+			"event_slave_owner"
 		],
 		"event_pool_fallback_event_object_id": "",
 		"object_id": "event_pool_act_1_easy"

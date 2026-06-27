@@ -1,0 +1,1 @@
+{"patch_data":{},"properties":{"consumable_actions":[{"res://scripts/actions/ActionAddEnergy.gd":{"energy":2}}],"consumable_description":"Gain 2 Energy","consumable_name":"Energy Potion","consumable_rarity":1,"consumable_requires_target":false,"consumable_texture_path":"external/sprites/consumables/consumable_potion_energy.svg","object_id":"consumable_energy_potion"}}

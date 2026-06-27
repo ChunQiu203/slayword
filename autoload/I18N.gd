@@ -57,3 +57,26 @@ func _normalize_locale(locale: String) -> String:
 func _merge_translations(source: Dictionary) -> void:
 	for key: String in source.keys():
 		_translations[key] = source[key]
+
+## 统一翻译入口：所有游戏数据（卡牌/敌人/遗物/消耗品）必须通过这些方法获取翻译
+
+func get_card_name(card_data: CardData) -> String:
+	return tr_data(card_data.object_id, "card_name", card_data.card_name)
+
+func get_card_description(card_data: CardData) -> String:
+	return tr_data(card_data.object_id, "card_description", card_data.card_description)
+
+func get_enemy_name(enemy_data: EnemyData) -> String:
+	return tr_data(enemy_data.object_id, "enemy_name", enemy_data.enemy_name)
+
+func get_artifact_name(artifact_data: ArtifactData) -> String:
+	return tr_data(artifact_data.object_id, "artifact_name", artifact_data.artifact_name)
+
+func get_artifact_description(artifact_data: ArtifactData) -> String:
+	return tr_data(artifact_data.object_id, "artifact_description", artifact_data.artifact_description)
+
+func get_consumable_name(consumable_data: ConsumableData) -> String:
+	return tr_data(consumable_data.object_id, "consumable_name", consumable_data.consumable_name)
+
+func get_consumable_description(consumable_data: ConsumableData) -> String:
+	return tr_data(consumable_data.object_id, "consumable_description", consumable_data.consumable_description)

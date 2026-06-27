@@ -6,12 +6,16 @@
 extends ActionBasePickCards
 
 func perform_async_action() -> void:
-	var upgrade_parent_card: bool = get_action_value("upgrade_parent_card", false) # This should be false if using CARD_PICK_TYPES.DECK
+	var upgrade_parent_card: bool = get_action_value("upgrade_parent_card", false)
 	for card in picked_cards:
+		# Store localized card info before upgrade for dialogue display
+		Global.event_last_upgraded_card_name = I18N.get_card_name(card)
+		Global.event_last_upgraded_card_description = I18N.get_card_description(card)
 		card.upgrade_card()
-		# potentially upgrade parent if it exists
 		if upgrade_parent_card and card.parent_card != null:
 			card.parent_card.upgrade_card()
+			Global.event_last_upgraded_card_name = I18N.get_card_name(card.parent_card)
+			Global.event_last_upgraded_card_description = I18N.get_card_description(card.parent_card)
 			
 	action_async_finished.emit()
 

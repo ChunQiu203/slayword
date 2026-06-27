@@ -19,8 +19,8 @@ func init(_artifact_data: ArtifactData):
 	texture_normal = FileLoader.load_texture(artifact_data.artifact_texture_path)
 	update_artifact_counter()
 	
-	var artifact_name: String = I18N.tr_data(artifact_data.object_id, "artifact_name", artifact_data.artifact_name)
-	var artifact_description: String = I18N.tr_data(artifact_data.object_id, "artifact_description", artifact_data.artifact_description)
+	var artifact_name: String = I18N.get_artifact_name(artifact_data)
+	var artifact_description: String = I18N.get_artifact_description(artifact_data)
 	tooltip_text = artifact_name
 	if artifact_description != "":
 		if len(artifact_data.ARTIFACT_RARITIES.keys()) > artifact_data.artifact_rarity:

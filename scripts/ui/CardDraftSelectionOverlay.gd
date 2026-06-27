@@ -68,19 +68,10 @@ func _on_card_selected(card: Card):
 		visible = false
 		current_card_pick_action = null
 		clear_cards()
-		_restore_dialogue()
 
 func _on_skip_button_up():
 	Signals.card_pick_confirmed.emit()	# finish card draft
 	visible = false
-	_restore_dialogue()
-
-func _restore_dialogue():
-	var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
-	if scene_tree:
-		var dialogue_overlay: Control = scene_tree.current_scene.get_node_or_null("%DialogueOverlay")
-		if dialogue_overlay != null:
-			dialogue_overlay.visible = true
 	
 func _on_run_started():
 	visible = false

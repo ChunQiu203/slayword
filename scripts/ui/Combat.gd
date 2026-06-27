@@ -368,8 +368,9 @@ func _on_player_turn_started():
 			
 			# perform event initial actions
 			var event_data: EventData = Global.get_player_event_data()
-			var event_initial_combat_actions: Array[BaseAction] = ActionGenerator.create_actions(player, card_play_request, [], event_data.event_initial_combat_actions, null)
-			ActionHandler.add_actions(event_initial_combat_actions)
+			if event_data != null:
+				var event_initial_combat_actions: Array[BaseAction] = ActionGenerator.create_actions(player, card_play_request, [], event_data.event_initial_combat_actions, null)
+				ActionHandler.add_actions(event_initial_combat_actions)
 			
 			# wait for first turn actions
 			if ActionHandler.actions_being_performed:

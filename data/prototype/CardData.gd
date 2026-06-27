@@ -109,7 +109,7 @@ func _to_string():
 	return get_card_name()
 
 func get_card_name() -> String:
-	var localized_card_name: String = I18N.tr_data(object_id, "card_name", card_name)
+	var localized_card_name: String = I18N.get_card_name(self)
 	if card_upgrade_amount > 0:
 		if card_upgrade_amount > 1:
 			return localized_card_name + "+" + str(card_upgrade_amount - 1)

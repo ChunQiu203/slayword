@@ -156,14 +156,6 @@ func perform_action():
 			return
 		else:
 			# prompt the user for card input
-			# hide dialogue overlay if it's visible so card selection can show
-			var dialogue_overlay: Control = null
-			var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
-			if scene_tree:
-				dialogue_overlay = scene_tree.current_scene.get_node_or_null("%DialogueOverlay")
-			if dialogue_overlay != null and dialogue_overlay.visible:
-				dialogue_overlay.visible = false
-			
 			async_awaiting = true 
 			Signals.card_pick_requested.emit(self)
 			await Signals.card_pick_confirmed

@@ -116,7 +116,7 @@ func can_play_card() -> bool:
 
 func get_card_description(selected_target: BaseCombatant = null) -> String:
 	# generates a card description for a card
-	var modified_description_bb_code: String = I18N.tr_data(card_data.object_id, "card_description", card_data.card_description)
+	var modified_description_bb_code: String = I18N.get_card_description(card_data)
 	
 
 	# generate fake card request

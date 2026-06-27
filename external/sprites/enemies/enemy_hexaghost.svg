@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <ellipse cx="64" cy="112" rx="40" ry="9" fill="#111" opacity="0.38"/>
+  <!-- outer flame ring -->
+  <path d="M34 28 C28 36 18 44 18 54 C18 68 24 78 34 82 L30 90 C24 80 16 68 14 58 C10 44 16 30 26 20 Z" fill="#d45a1a" stroke="#5c1f06" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M94 28 C100 36 110 44 110 54 C110 68 104 78 94 82 L98 90 C104 80 112 68 114 58 C118 44 112 30 102 20 Z" fill="#d45a1a" stroke="#5c1f06" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M40 82 C46 98 54 108 64 110 C74 108 82 98 88 82 L84 90 C78 102 70 110 64 112 C58 110 50 102 44 90 Z" fill="#d45a1a" stroke="#5c1f06" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M20 40 L16 50 L24 44 Z" fill="#f07f2e"/>
+  <path d="M108 40 L112 50 L104 44 Z" fill="#f07f2e"/>
+  <path d="M22 72 L16 66 L20 76 Z" fill="#f07f2e"/>
+  <path d="M106 72 L112 66 L108 76 Z" fill="#f07f2e"/>
+  <!-- main body - six faced ring -->
+  <path d="M64 14 C80 14 94 22 104 36 L98 42 C90 30 78 22 64 22 C50 22 38 30 30 42 L24 36 C34 22 48 14 64 14 Z" fill="#8b1a1a" stroke="#3d0808" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M64 114 C48 114 34 106 24 92 L30 86 C38 98 50 106 64 106 C78 106 90 98 98 86 L104 92 C94 106 80 114 64 114 Z" fill="#8b1a1a" stroke="#3d0808" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M14 64 C14 50 20 38 30 30 L36 36 C28 42 22 52 22 64 C22 76 28 86 36 92 L30 98 C20 90 14 78 14 64 Z" fill="#8b1a1a" stroke="#3d0808" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M114 64 C114 50 108 38 98 30 L92 36 C100 42 106 52 106 64 C106 76 100 86 92 92 L98 98 C108 90 114 78 114 64 Z" fill="#8b1a1a" stroke="#3d0808" stroke-width="5" stroke-linejoin="round"/>
+  <!-- inner glowing center -->
+  <circle cx="64" cy="64" r="18" fill="#f07f2e" stroke="#d45a1a" stroke-width="3"/>
+  <circle cx="64" cy="64" r="10" fill="#ffbc4d"/>
+  <!-- face 1 - top -->
+  <circle cx="64" cy="18" r="3" fill="#ff6b6b"/>
+  <circle cx="58" cy="15" r="1.5" fill="#ffdede"/>
+  <circle cx="70" cy="15" r="1.5" fill="#ffdede"/>
+  <path d="M58 22 C62 25 66 25 70 22" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+  <!-- face 2 - top right -->
+  <circle cx="98" cy="30" r="3" fill="#ff6b6b"/>
+  <circle cx="93" cy="27" r="1.5" fill="#ffdede"/>
+  <circle cx="101" cy="28" r="1.5" fill="#ffdede"/>
+  <path d="M93 33 C97 36 101 35 103 33" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+  <!-- face 3 - bottom right -->
+  <circle cx="98" cy="98" r="3" fill="#ff6b6b"/>
+  <circle cx="93" cy="95" r="1.5" fill="#ffdede"/>
+  <circle cx="101" cy="96" r="1.5" fill="#ffdede"/>
+  <path d="M93 101 C97 104 101 103 103 101" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+  <!-- face 4 - bottom -->
+  <circle cx="64" cy="110" r="3" fill="#ff6b6b"/>
+  <circle cx="58" cy="107" r="1.5" fill="#ffdede"/>
+  <circle cx="70" cy="107" r="1.5" fill="#ffdede"/>
+  <path d="M58 113 C62 116 66 116 70 113" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+  <!-- face 5 - bottom left -->
+  <circle cx="30" cy="98" r="3" fill="#ff6b6b"/>
+  <circle cx="25" cy="95" r="1.5" fill="#ffdede"/>
+  <circle cx="33" cy="96" r="1.5" fill="#ffdede"/>
+  <path d="M25 101 C29 104 33 103 35 101" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+  <!-- face 6 - top left -->
+  <circle cx="30" cy="30" r="3" fill="#ff6b6b"/>
+  <circle cx="25" cy="27" r="1.5" fill="#ffdede"/>
+  <circle cx="33" cy="28" r="1.5" fill="#ffdede"/>
+  <path d="M25 33 C29 36 33 35 35 33" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+  <!-- flame wisps -->
+  <path d="M50 48 C48 40 52 34 56 38 C54 34 58 28 62 34 C60 28 66 24 68 32" fill="none" stroke="#ffbc4d" stroke-width="3" stroke-linecap="round"/>
+  <path d="M78 48 C80 40 76 34 72 38 C74 34 70 28 66 34 C68 28 62 24 60 32" fill="none" stroke="#ffbc4d" stroke-width="3" stroke-linecap="round"/>
+  <path d="M48 78 C40 80 34 76 38 72 C34 74 28 70 34 66 C28 68 24 62 32 60" fill="none" stroke="#ffbc4d" stroke-width="3" stroke-linecap="round"/>
+  <path d="M80 78 C88 80 94 76 90 72 C94 74 100 70 94 66 C100 68 104 62 96 60" fill="none" stroke="#ffbc4d" stroke-width="3" stroke-linecap="round"/>
+</svg>

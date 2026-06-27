@@ -66,8 +66,10 @@ func end_dialogue() -> void:
 func populate_dialogue_options() -> void:
 	clear_dialogue_options()
 	
-	# set prompt
-	dialogue_prompt_label.parse_bbcode(I18N.tr_data(current_dialogue_state.object_id, "dialogue_state_prompt_bbcode", current_dialogue_state.dialogue_state_prompt_bbcode))
+	# set prompt with variable substitution
+	var prompt_text: String = I18N.tr_data(current_dialogue_state.object_id, "dialogue_state_prompt_bbcode", current_dialogue_state.dialogue_state_prompt_bbcode)
+	prompt_text = _substitute_variables(prompt_text)
+	dialogue_prompt_label.parse_bbcode(prompt_text)
 	
 	# set prompt image
 	if current_dialogue_state.dialogue_state_dialogue_texture_path != "":
@@ -171,6 +173,47 @@ func reset_dialogue() -> void:
 func clear_dialogue_options() -> void:
 	for child in dialogue_option_container.get_children():
 		child.queue_free()
+
+func _substitute_variables(text: String) -> String:
+	# Replace {card_name} with last upgraded/traded card name
+	text = text.replace("{card_name}", Global.event_last_upgraded_card_name if Global.event_last_upgraded_card_name != "" else Global.event_last_traded_card_name)
+	# Replace {card_description} with last upgraded/traded card description
+	text = text.replace("{card_description}", Global.event_last_upgraded_card_description if Global.event_last_upgraded_card_description != "" else Global.event_last_traded_card_description)
+	# Replace {upgraded_name} specifically for upgrade results
+	text = text.replace("{upgraded_name}", Global.event_last_upgraded_card_name)
+	# Replace {upgraded_desc} specifically for upgrade results
+	text = text.replace("{upgraded_desc}", Global.event_last_upgraded_card_description)
+	# Replace {traded_name} specifically for trade results
+	text = text.replace("{traded_name}", Global.event_last_traded_card_name)
+	# Replace {traded_desc} specifically for trade results
+	text = text.replace("{traded_desc}", Global.event_last_traded_card_description)
+	# Replace {upgraded_desc_raw} with processed upgrade description
+	text = text.replace("{upgraded_desc_raw}", _process_card_description(Global.event_last_upgraded_card_name, Global.event_last_upgraded_card_description))
+	# Replace {traded_desc_raw} with processed trade description
+	text = text.replace("{traded_desc_raw}", _process_card_description(Global.event_last_traded_card_name, Global.event_last_traded_card_description))
+	return text
+
+func _process_card_description(card_name: String, description: String) -> String:
+	# Find the card by its localized name or raw name
+	var card_data: CardData = null
+	for id: String in Global._id_to_card_data.keys():
+		var cd: CardData = Global._id_to_card_data[id]
+		var localized_name: String = I18N.get_card_name(cd)
+		if localized_name == card_name or cd.card_name == card_name:
+			card_data = cd
+			break
+	
+	if card_data == null:
+		return description
+	
+	# Replace placeholders with actual values from card_values
+	var result: String = description
+	for key: String in card_data.card_values.keys():
+		var val: Variant = card_data.card_values[key]
+		if val is float:
+			val = int(val)
+		result = result.replace("[" + key + "]", str(val))
+	return result
 
 func _on_dialogue_ended():
 	reset_dialogue()

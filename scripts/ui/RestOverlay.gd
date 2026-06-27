@@ -306,8 +306,8 @@ func _on_consumable_added(_slot_index: int, consumable_object_id: String) -> voi
 		return
 	_pending_result_handled = true
 	_set_result(I18N.tr_key("rest.result.consumable", [
-		I18N.tr_data(consumable_data.object_id, "consumable_name", consumable_data.consumable_name),
-		I18N.tr_data(consumable_data.object_id, "consumable_description", consumable_data.consumable_description),
+		I18N.get_consumable_name(consumable_data),
+		I18N.get_consumable_description(consumable_data),
 	]))
 
 

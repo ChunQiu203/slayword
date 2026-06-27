@@ -84,6 +84,7 @@ var player_data: PlayerData = PlayerData.new() # the current run. prototype inst
 var user_settings_data: UserSettingsData = UserSettingsData.new() # the user's settings
 var profile_data: ProfileData = ProfileData.new()
 var is_run: bool = false # simple flag to check if a run is currently happening
+var is_test_mode: bool = false # set to true during test combat to skip map/rewards
 
 # cached objects
 ## Stores caches of card filter results, making complicated repeated searches across
@@ -97,6 +98,12 @@ var _id_to_card_filter_cache: Dictionary[String, CardFilter] = {}
 var _id_to_artifact_filter_cache: Dictionary[String, ArtifactFilter] = {}
 
 ## Takes SCHEMA and generates fast lookup tables used for mapping data types
+# Event action results - stores dynamic results for dialogue system
+var event_last_upgraded_card_name: String = ""
+var event_last_upgraded_card_description: String = ""
+var event_last_traded_card_name: String = ""
+var event_last_traded_card_description: String = ""
+
 ## in the framework. This automates and centralizes a lot of extremely tedious
 ## schema maintenance and enables useful behavior like register_rod() for test data generation,
 ## and file/mod loading through data table mapping.
@@ -292,6 +299,8 @@ func end_run(run_end_state: int = RUN_ENDS.QUIT) -> void:
 		Signals.run_ended_by_player.emit(run_end_state)
 
 	is_run = false
+
+	is_test_mode = false
 	Signals.run_ended.emit()
 
 func _record_run_history(run_end_state: int) -> void:
@@ -727,6 +736,13 @@ func add_test_consumables() -> void:
 func get_consumable_data(consumable_object_id: String) -> ConsumableData:
 	return _id_to_consumable_data.get(consumable_object_id, null)
 
+func get_all_consumables() -> Array[ConsumableData]:
+	var result: Array[ConsumableData] = []
+	for cd in _id_to_consumable_data.values():
+		if cd != null:
+			result.append(cd)
+	return result
+
 func get_player_consumable_in_slot_index(consumable_slot_index) -> ConsumableData:
 	return player_data.get_consumable_in_slot(consumable_slot_index)
 
@@ -1105,6 +1121,31 @@ func add_test_events() -> void:
 	
 	register_rod(event_act_1_easy_combat_4)
 	
+	# 新增敌人事件
+	var event_cultist: EventData = EventData.new("event_cultist")
+	event_cultist.event_weighted_enemy_object_ids = [{"enemy_cultist": 1}]
+	register_rod(event_cultist)
+
+	var event_slime: EventData = EventData.new("event_slime")
+	event_slime.event_weighted_enemy_object_ids = [{"enemy_slime": 1}]
+	register_rod(event_slime)
+
+	var event_goblin: EventData = EventData.new("event_goblin")
+	event_goblin.event_weighted_enemy_object_ids = [{"enemy_goblin": 1}]
+	register_rod(event_goblin)
+
+	var event_louse: EventData = EventData.new("event_louse")
+	event_louse.event_weighted_enemy_object_ids = [{"enemy_louse": 1}]
+	register_rod(event_louse)
+
+	var event_slave_owner: EventData = EventData.new("event_slave_owner")
+	event_slave_owner.event_weighted_enemy_object_ids = [{"enemy_slave_owner": 1}]
+	register_rod(event_slave_owner)
+
+	var event_goblin_big: EventData = EventData.new("event_goblin_big")
+	event_goblin_big.event_weighted_enemy_object_ids = [{"enemy_goblin_big": 1}]
+	register_rod(event_goblin_big)
+	
 	var event_act_1_miniboss_1: EventData = EventData.new("event_act_1_miniboss_1")
 	event_act_1_miniboss_1.event_weighted_enemy_object_ids = [
 		{"enemy_act_1_miniboss_1": 1},
@@ -1175,6 +1216,11 @@ func add_test_events() -> void:
 		"event_act_1_easy_combat_2",
 		"event_act_1_easy_combat_3",
 		"event_act_1_easy_combat_4",
+		"event_cultist",
+		"event_slime",
+		"event_goblin",
+		"event_louse",
+		"event_slave_owner",
 		]
 	
 	register_rod(event_pool_act_1_easy)
@@ -1186,6 +1232,7 @@ func add_test_events() -> void:
 		"event_act_1_easy_combat_2",
 		"event_act_1_easy_combat_3",
 		"event_act_1_easy_combat_4",
+		"event_goblin_big",
 		]
 	
 	register_rod(event_pool_act_1_hard)
@@ -1538,7 +1585,7 @@ func add_test_dialogue() -> void:
 
 	# Result states
 	var state_traveler_trade_result: DialogueStateData = DialogueStateData.new("state_traveler_trade_result")
-	state_traveler_trade_result.dialogue_state_prompt_bbcode = "[color=green]你与旅人交换了物品！\n\n选择一张牌加入牌组[/color]"
+	state_traveler_trade_result.dialogue_state_prompt_bbcode = "[color=green]你与旅人交换了物品！\n\n你获得了：{traded_name}\n\n效果：{traded_desc_raw}[/color]"
 	var option_traveler_trade_continue: DialogueOptionData = DialogueOptionData.new("option_traveler_trade_continue")
 	option_traveler_trade_continue.dialogue_option_bbcode = "继续"
 	option_traveler_trade_continue.dialogue_option_next_dialogue_state_id = ""
@@ -1598,7 +1645,7 @@ func add_test_dialogue() -> void:
 			"card_pick_text": "选择要换入的牌",
 		}},
 	]
-	option_traveler_trade.dialogue_option_next_dialogue_state_id = "state_traveler_trade_result"
+	option_traveler_trade.dialogue_option_next_dialogue_state_id = ""
 	dialogue_traveler._assign_option(option_traveler_trade)
 
 	var option_traveler_story: DialogueOptionData = DialogueOptionData.new("option_traveler_story")
@@ -1633,7 +1680,7 @@ func add_test_dialogue() -> void:
 
 	# Result states
 	var state_altar_blood_result: DialogueStateData = DialogueStateData.new("state_altar_blood_result")
-	state_altar_blood_result.dialogue_state_prompt_bbcode = "[color=green]你献祭了生命，祭坛的光芒注入你的武器……\n\n选择一张卡牌升级[/color]"
+	state_altar_blood_result.dialogue_state_prompt_bbcode = "[color=green]你献祭了生命，祭坛的光芒注入你的武器！\n\n已升级：{upgraded_name}\n\n效果：{upgraded_desc_raw}[/color]"
 	var option_altar_blood_continue: DialogueOptionData = DialogueOptionData.new("option_altar_blood_continue")
 	option_altar_blood_continue.dialogue_option_bbcode = "继续"
 	option_altar_blood_continue.dialogue_option_next_dialogue_state_id = ""
@@ -2652,6 +2699,100 @@ func add_test_enemies() -> void:
 	}}
 	
 	register_rod(enemy_minion_2)
+
+	# === 新增第一阶段敌人（参考杀戮尖塔） ===
+
+	# 邪教徒 - 固定6点伤害
+	var enemy_cultist: EnemyData = EnemyData.new("enemy_cultist")
+	enemy_cultist.enemy_name = "Cultist"
+	enemy_cultist.enemy_health_max = 48
+	enemy_cultist.enemy_health = 48
+	enemy_cultist.enemy_texture_path = "external/sprites/enemies/enemy_cultist.png"
+	enemy_cultist.enemy_attack_states = {
+		"initial": {"attack_damage": 0, "number_of_attacks": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1}},
+		"1": {"attack_damage": 6, "number_of_attacks": 1, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1}}
+	}
+	enemy_cultist.enemy_difficulty_to_enemy_modfiers = {"1": {"enemy_health": 54, "enemy_health_max": 54}}
+	register_rod(enemy_cultist)
+
+	# 史莱姆 - 高血量
+	var enemy_slime: EnemyData = EnemyData.new("enemy_slime")
+	enemy_slime.enemy_name = "Slime"
+	enemy_slime.enemy_health_max = 64
+	enemy_slime.enemy_health = 64
+	enemy_slime.enemy_texture_path = "external/sprites/enemies/enemy_slime.png"
+	enemy_slime.enemy_attack_states = {
+		"initial": {"attack_damage": 0, "number_of_attacks": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}},
+		"1": {"attack_damage": 16, "number_of_attacks": 1, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}},
+		"2": {"attack_damage": 8, "number_of_attacks": 1, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}}
+	}
+	enemy_slime.enemy_difficulty_to_enemy_modfiers = {"1": {"enemy_health": 70, "enemy_health_max": 70}}
+	register_rod(enemy_slime)
+
+	# 地精 - 低血但每回合增加力量
+	var enemy_goblin: EnemyData = EnemyData.new("enemy_goblin")
+	enemy_goblin.enemy_name = "Goblin"
+	enemy_goblin.enemy_health_max = 13
+	enemy_goblin.enemy_health = 13
+	enemy_goblin.enemy_texture_path = "external/sprites/enemies/enemy_goblin.png"
+	enemy_goblin.enemy_attack_states = {
+		"initial": {"attack_damage": 0, "number_of_attacks": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1}},
+		"1": {"attack_damage": 4, "number_of_attacks": 1, "block": 0, "custom_actions": [
+			{Scripts.ACTION_APPLY_STATUS: {"status_effect_object_id": "status_effect_damage_increase", "status_charge_amount": 1, "target_override": BaseAction.TARGET_OVERRIDES.PARENT}}
+		], "next_attack_weights": {"1": 1}}
+	}
+	enemy_goblin.enemy_difficulty_to_enemy_modfiers = {"1": {"enemy_health": 17, "enemy_health_max": 17}}
+	register_rod(enemy_goblin)
+
+	# 虱虫 - 极低血持续加力量
+	var enemy_louse: EnemyData = EnemyData.new("enemy_louse")
+	enemy_louse.enemy_name = "Louse"
+	enemy_louse.enemy_health_max = 10
+	enemy_louse.enemy_health = 10
+	enemy_louse.enemy_texture_path = "external/sprites/enemies/enemy_louse.png"
+	enemy_louse.enemy_attack_states = {
+		"initial": {"attack_damage": 0, "number_of_attacks": 0, "block": 0, "custom_actions": [
+			{Scripts.ACTION_APPLY_STATUS: {"status_effect_object_id": "status_effect_damage_increase", "status_charge_amount": 3, "target_override": BaseAction.TARGET_OVERRIDES.PARENT}}
+		], "next_attack_weights": {"1": 1}},
+		"1": {"attack_damage": 0, "number_of_attacks": 0, "block": 0, "custom_actions": [
+			{Scripts.ACTION_APPLY_STATUS: {"status_effect_object_id": "status_effect_damage_increase", "status_charge_amount": 3, "target_override": BaseAction.TARGET_OVERRIDES.PARENT}}
+		], "next_attack_weights": {"1": 1}}
+	}
+	enemy_louse.enemy_difficulty_to_enemy_modfiers = {"1": {"enemy_health": 15, "enemy_health_max": 15}}
+	register_rod(enemy_louse)
+
+	# 奴隶主 - 施加易伤
+	var enemy_slave_owner: EnemyData = EnemyData.new("enemy_slave_owner")
+	enemy_slave_owner.enemy_name = "Slave Owner"
+	enemy_slave_owner.enemy_health_max = 46
+	enemy_slave_owner.enemy_health = 46
+	enemy_slave_owner.enemy_texture_path = "external/sprites/enemies/enemy_slave_owner.png"
+	enemy_slave_owner.enemy_attack_states = {
+		"initial": {"attack_damage": 0, "number_of_attacks": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}},
+		"1": {"attack_damage": 13, "number_of_attacks": 1, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}},
+		"2": {"attack_damage": 8, "number_of_attacks": 1, "block": 0, "custom_actions": [
+			{Scripts.ACTION_APPLY_STATUS: {"status_effect_object_id": "status_effect_vulnerable", "status_charge_amount": 1, "target_override": BaseAction.TARGET_OVERRIDES.PLAYER}}
+		], "next_attack_weights": {"1": 1, "2": 1}}
+	}
+	enemy_slave_owner.enemy_difficulty_to_enemy_modfiers = {"1": {"enemy_health": 50, "enemy_health_max": 50}}
+	register_rod(enemy_slave_owner)
+
+	# 地精大块头 - 精英，高伤害+易伤
+	var enemy_goblin_big: EnemyData = EnemyData.new("enemy_goblin_big")
+	enemy_goblin_big.enemy_name = "Goblin Leader"
+	enemy_goblin_big.enemy_health_max = 82
+	enemy_goblin_big.enemy_health = 82
+	enemy_goblin_big.enemy_type = EnemyData.ENEMY_TYPES.MINIBOSS
+	enemy_goblin_big.enemy_texture_path = "external/sprites/enemies/enemy_goblin_big.png"
+	enemy_goblin_big.enemy_attack_states = {
+		"initial": {"attack_damage": 0, "number_of_attacks": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}},
+		"1": {"attack_damage": 6, "number_of_attacks": 1, "block": 0, "custom_actions": [
+			{Scripts.ACTION_APPLY_STATUS: {"status_effect_object_id": "status_effect_vulnerable", "status_charge_amount": 2, "target_override": BaseAction.TARGET_OVERRIDES.PLAYER}}
+		], "next_attack_weights": {"1": 1, "2": 1}},
+		"2": {"attack_damage": 14, "number_of_attacks": 1, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}}
+	}
+	enemy_goblin_big.enemy_difficulty_to_enemy_modfiers = {"2": {"enemy_health": 90, "enemy_health_max": 90}}
+	register_rod(enemy_goblin_big)
 
 func get_enemy_data(enemy_object_id: String) -> EnemyData:
 	return _id_to_enemy_data.get(enemy_object_id, null)
@@ -5057,6 +5198,95 @@ func cache_artifact_filter(artifact_filter_cache_id: String, artifact_filter: Ar
 
 func get_cached_artifact_filter(artifact_filter_cache_id: String) -> ArtifactFilter:
 	return _id_to_artifact_filter_cache.get(artifact_filter_cache_id, null)
+
+## Starts a quick test combat with a specific enemy.
+## Skips act/world generation and goes straight into battle.
+func start_test_combat(enemy_object_id: String, character_object_id: String, 
+		test_card_ids: Array[String] = [], 
+		test_artifact_ids: Array[String] = [], 
+		test_consumable_ids: Array[String] = []) -> void:
+	is_test_mode = true
+	var character_data: CharacterData = get_character_data(character_object_id)
+	
+	player_data = get_player_data_from_prototype(character_data.character_player_id)
+	is_run = true
+	
+	player_data.player_run_seed = 0
+	player_data.initialize_artifact_pool()
+	
+	for artifact_id in character_data.character_starting_artifact_ids:
+		player_data.add_artifact(artifact_id)
+	
+	for card_object_id in character_data.character_starting_card_object_ids:
+		player_data.player_deck.append(get_card_data_from_prototype(card_object_id))
+	
+	player_data.player_money = character_data.character_starting_money
+	player_data.player_health_max = character_data.character_starting_health
+	player_data.player_health = character_data.character_starting_health
+	
+	player_data.player_location_id = "location_0"
+	player_data.player_act = 1
+	player_data.player_run_difficulty_level = 0
+	player_data.reset_run_statistics()
+	player_data.init()
+	
+	# Create minimal test location to prevent null location crashes
+	var test_location := LocationData.new()
+	test_location.location_id = "location_0"
+	test_location.location_act = 1
+	test_location.location_floor = 1
+	test_location.location_type = LocationData.LOCATION_TYPES.STARTING
+	test_location.location_visited = true
+	test_location.location_event_object_id = "event_" + enemy_object_id
+	player_data.location_id_to_location_data["location_0"] = test_location
+	player_data.player_location_id = "location_0"
+	
+	# Apply test loadout (cards, artifacts, consumables)
+	for card_id in test_card_ids:
+		player_data.player_deck.append(get_card_data_from_prototype(card_id))
+	for artifact_id in test_artifact_ids:
+		player_data.add_artifact(artifact_id)
+	var consumable_slot := 0
+	for consumable_id in test_consumable_ids:
+		player_data.player_consumable_slot_to_consumable_object_id[str(consumable_slot)] = consumable_id
+		consumable_slot += 1
+		if consumable_slot >= 3:
+			break
+	
+	Signals.run_started.emit()
+	
+	# Use the dedicated test event for this enemy
+	var event_id = "event_" + enemy_object_id
+	var combat_event: EventData = _id_to_event_data.get(event_id)
+	if combat_event == null:
+		# Fallback to a known combat event and force-spawn only the selected enemy
+		combat_event = _id_to_event_data.get("event_act_1_easy_combat_1")
+		if combat_event:
+			event_id = "event_act_1_easy_combat_1"
+			for slot in combat_event.event_weighted_enemy_object_ids:
+				slot.clear()
+				slot[enemy_object_id] = 1
+	
+	# Update test location to point to this event
+	var loc = player_data.location_id_to_location_data.get("location_0")
+	if loc:
+		loc.location_event_object_id = event_id
+	
+	Signals.combat_started.emit(event_id)
+
+func get_all_enemy_data() -> Array[EnemyData]:
+	var result: Array[EnemyData] = []
+	for enemy_data in _id_to_enemy_data.values():
+		if enemy_data != null and not enemy_data.enemy_is_minion:
+			result.append(enemy_data)
+	result.sort_custom(func(a, b): return a.enemy_name < b.enemy_name)
+	return result
+
+func get_all_character_ids() -> Array[String]:
+	var result: Array[String] = []
+	for cid in _id_to_character_data:
+		result.append(cid)
+	return result
 
 #endregion
 

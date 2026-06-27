@@ -1,0 +1,21 @@
+{
+	"patch_data": {},
+	"properties": {
+		"enemy_actions_on_death": [],
+		"enemy_attack_states": {
+			"initial": {"attack_damage": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}, "number_of_attacks": 0},
+			"1": {"attack_damage": 7, "block": 0, "custom_actions": [{"res://scripts/actions/status_actions/ActionApplyStatus.gd": {"status_effect_object_id": "status_effect_damage_increase", "status_charge_amount": 2, "target_override": 0}}], "next_attack_weights": {"1": 1, "2": 1}, "number_of_attacks": 2},
+			"2": {"attack_damage": 15, "block": 9, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}, "number_of_attacks": 1}
+		},
+		"enemy_block": 0,
+		"enemy_difficulty_to_enemy_modfiers": {"3": {"enemy_health": 320, "enemy_health_max": 320}},
+		"enemy_health": 300,
+		"enemy_health_max": 300,
+		"enemy_initial_status_effects": {},
+		"enemy_is_minion": false,
+		"enemy_name": "Bronze Automaton",
+		"enemy_texture_path": "external/sprites/enemies/enemy_bronze_automaton.svg",
+		"enemy_type": 2,
+		"object_id": "enemy_bronze_automaton"
+	}
+}

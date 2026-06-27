@@ -1,0 +1,20 @@
+{
+	"patch_data": {},
+	"properties": {
+		"enemy_actions_on_death": [],
+		"enemy_attack_states": {
+			"initial": {"attack_damage": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1}, "number_of_attacks": 0},
+			"1": {"attack_damage": 6, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1}, "number_of_attacks": 1}
+		},
+		"enemy_block": 0,
+		"enemy_difficulty_to_enemy_modfiers": {"1": {"enemy_health": 54, "enemy_health_max": 54}},
+		"enemy_health": 48,
+		"enemy_health_max": 48,
+		"enemy_initial_status_effects": {},
+		"enemy_is_minion": false,
+		"enemy_name": "Cultist",
+		"enemy_texture_path": "external/sprites/enemies/enemy_cultist.svg",
+		"enemy_type": 0,
+		"object_id": "enemy_cultist"
+	}
+}

@@ -49,6 +49,7 @@
 [ext_resource type="Script" uid="uid://c52yhptje7s22" path="res://scripts/ui/RunStatisticsOverlay.gd" id="39_stats"]
 [ext_resource type="Texture2D" uid="uid://if5n5mcvfh3w" path="res://ui-free/sel_bg.png" id="48_selbg"]
 [ext_resource type="Texture2D" uid="uid://c1oyyrmehkbnb" path="res://ui-free/button/press_bg.png" id="57_8b2qk"]
+[ext_resource type="Script" path="res://scripts/ui/menus/TestCombatMenu.gd" id="99_testcom"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_20dtu"]
 texture = ExtResource("25_nownq")
@@ -408,6 +409,12 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
 
+[node name="TestBattleButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=1987654321]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+
 [node name="NewRunMenu" type="Control" parent="TitleScreen" unique_id=1860934140]
 visible = false
 anchors_preset = 0
@@ -703,7 +710,7 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 theme_override_constants/h_separation = 16
 theme_override_constants/v_separation = 16
-columns = 6
+columns = 5
 
 [node name="BackButton" type="Button" parent="TitleScreen/CodexMenu" unique_id=1517144831]
 layout_mode = 0
@@ -780,6 +787,13 @@ offset_right = 1256.0
 offset_bottom = 691.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+
+[node name="TestCombatMenu" type="Control" parent="TitleScreen" unique_id=1876543210]
+visible = false
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+script = ExtResource("99_testcom")
 
 [node name="RunScreen" type="Control" parent="." unique_id=1760638622]
 visible = false
@@ -1524,7 +1538,7 @@ offset_bottom = 130.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
 theme_override_font_sizes/font_size = 52
-text = "🚪 提前退出"
+text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -1537,7 +1551,7 @@ offset_bottom = 200.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.9, 0.87, 0.8, 1)
 theme_override_font_sizes/font_size = 22
-text = "点击下方按钮查看详细统计或返回主菜单"
+text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -1558,7 +1572,7 @@ grow_vertical = 2
 theme_override_colors/font_color = Color(0.95, 0.92, 0.85, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.9, 1)
 theme_override_font_sizes/font_size = 24
-text = "📊 查看详细统计"
+text = ""
 
 [node name="EndRunButton" type="Button" parent="RunScreen/RunSummaryOverlay" unique_id=1305451617]
 custom_minimum_size = Vector2(230, 70)
@@ -1577,7 +1591,7 @@ grow_vertical = 2
 theme_override_colors/font_color = Color(0.95, 0.92, 0.85, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.9, 1)
 theme_override_font_sizes/font_size = 24
-text = "返回主菜单"
+text = ""
 
 [node name="RunStatisticsOverlay" type="Control" parent="RunScreen" unique_id=1059986271]
 unique_name_in_owner = true
@@ -1718,7 +1732,7 @@ text = "Continue"
 unique_name_in_owner = true
 process_mode = 1
 visible = false
-z_index = 10
+z_index = 20
 anchors_preset = 0
 offset_right = 1280.0
 offset_bottom = 720.0
@@ -1792,7 +1806,7 @@ columns = 5
 unique_name_in_owner = true
 process_mode = 1
 visible = false
-z_index = 10
+z_index = 20
 anchors_preset = 0
 offset_right = 1280.0
 offset_bottom = 720.0

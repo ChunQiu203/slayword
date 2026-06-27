@@ -7,13 +7,13 @@
 	"settings_openai_api_key": "",
 	"settings_openai_base_url": "https://api.openai.com/v1",
 	"settings_openai_model": "gpt-4o-mini",
-	"settings_vocab_combat_review_mode": "spell",
+	"settings_vocab_combat_review_mode": "meaning",
 	"settings_vocab_daily_due_cap": 30,
 	"settings_vocab_daily_new_words": 15,
 	"settings_vocab_daily_ordered_example_words": 20,
 	"settings_vocab_enabled_book_ids": [
-		"builtin_default",
-		"ai_artificial_intelligence"
+		"ai_artificial_intelligence",
+		"CET6-顺序"
 	],
 	"settings_vocab_example_domain_custom": "",
 	"settings_vocab_example_domain_tags": [
@@ -22,17 +22,11 @@
 	],
 	"settings_vocab_fetch_examples_on_review": true,
 	"settings_vocab_learn_steps_enabled": [
-		"en2zh",
-		"zh2en",
-		"spell",
-		"dictation"
+		"zh2en"
 	],
 	"settings_vocab_mode": "per_card",
 	"settings_vocab_review_modes_enabled": [
-		"spell",
-		"meaning",
-		"mc4",
-		"recall"
+		"meaning"
 	],
 	"settings_window_size": [
 		1200.0,

@@ -270,19 +270,19 @@ func _refresh_summary_display() -> void:
 	var title_key := "overlay.summary_title_quit"
 	var hint_key := "overlay.summary_hint_quit"
 	var badge_key := "overlay.summary_badge_quit"
-	var mark_text := "离"
+	var mark_text := I18N.tr_key("overlay.summary_mark_quit")
 	var mark_color := SlayMobileStyle.TEXT_MAIN
 	if player_run_end_state == Global.RUN_ENDS.VICTORY:
 		title_key = "overlay.summary_title_victory"
 		hint_key = "overlay.summary_hint_victory"
 		badge_key = "overlay.summary_badge_victory"
-		mark_text = "胜"
+		mark_text = I18N.tr_key("overlay.summary_mark_victory")
 		mark_color = Color(0.76, 0.95, 0.62, 1.0)
 	elif player_run_end_state == Global.RUN_ENDS.LOSS:
 		title_key = "overlay.summary_title_defeat"
 		hint_key = "overlay.summary_hint_defeat"
 		badge_key = "overlay.summary_badge_defeat"
-		mark_text = "败"
+		mark_text = I18N.tr_key("overlay.summary_mark_defeat")
 		mark_color = Color(1.0, 0.52, 0.48, 1.0)
 
 	_result_mark_label.text = mark_text

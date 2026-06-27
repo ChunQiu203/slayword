@@ -22,17 +22,23 @@
 			{
 				"enemy_1": 1,
 				"enemy_2": 1,
-				"enemy_3": 1
+				"enemy_3": 1,
+				"enemy_jaw_worm": 1,
+				"enemy_fungal_beast": 1
 			},
 			{
 				"enemy_1": 1,
 				"enemy_2": 1,
-				"enemy_3": 1
+				"enemy_3": 1,
+				"enemy_jaw_worm": 1,
+				"enemy_fungal_beast": 1
 			},
 			{
 				"enemy_1": 1,
 				"enemy_2": 1,
-				"enemy_3": 1
+				"enemy_3": 1,
+				"enemy_jaw_worm": 1,
+				"enemy_fungal_beast": 1
 			}
 		],
 		"location_event_pool_validator_failed_strategy": 1,

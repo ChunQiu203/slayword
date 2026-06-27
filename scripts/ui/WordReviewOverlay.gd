@@ -173,8 +173,8 @@ func _ready() -> void:
 	_learn_action_row.add_child(_learn_button)
 
 	_learn_show_answer_button = Button.new()
-	_learn_show_answer_button.text = "看答案"
-	_learn_show_answer_button.tooltip_text = "显示正确拼写；本次按默写未通过处理，不标记「已学」，并影响复习间隔。"
+	_learn_show_answer_button.text = I18N.tr_key("vocab.review.peek_answer")
+	_learn_show_answer_button.tooltip_text = I18N.tr_key("vocab.review.peek_answer_tooltip")
 	_learn_show_answer_button.visible = false
 	_learn_show_answer_button.custom_minimum_size = Vector2(140, TOUCH_MIN_BUTTON_H)
 	_learn_show_answer_button.add_theme_font_size_override("font_size", FONT_BUTTON)
@@ -219,7 +219,7 @@ func _ready() -> void:
 		_mc_option_buttons.append(mb)
 
 	_input = LineEdit.new()
-	_input.placeholder_text = "输入英文…"
+	_input.placeholder_text = I18N.tr_key("vocab.review.placeholder_spell")
 	_input.clear_button_enabled = true
 	_input.custom_minimum_size = Vector2(0, TOUCH_LINE_EDIT_H)
 	_input.add_theme_font_size_override("font_size", FONT_INPUT)
@@ -243,7 +243,7 @@ func _ready() -> void:
 	_peek_answer_quiz_button = Button.new()
 	_peek_answer_quiz_button.name = "PeekAnswerQuizButton"
 	_peek_answer_quiz_button.text = I18N.tr_key("vocab.review.peek_answer")
-	_peek_answer_quiz_button.tooltip_text = "显示正确拼写；本次按默写未通过处理，并影响复习间隔。"
+	_peek_answer_quiz_button.tooltip_text = I18N.tr_key("vocab.review.peek_answer_quiz_tooltip")
 	_peek_answer_quiz_button.custom_minimum_size = Vector2(120, TOUCH_MIN_BUTTON_H)
 	_peek_answer_quiz_button.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_peek_answer_quiz_button.pressed.connect(_on_show_answer_quiz_pressed)
@@ -251,7 +251,7 @@ func _ready() -> void:
 
 	_skip = Button.new()
 	_skip.text = I18N.tr_key("vocab.review.skip")
-	_skip.tooltip_text = "跳过学习或默写，本次不出牌"
+	_skip.tooltip_text = I18N.tr_key("vocab.review.skip_tooltip")
 	_skip.custom_minimum_size = Vector2(140, TOUCH_MIN_BUTTON_H)
 	_skip.add_theme_font_size_override("font_size", FONT_BUTTON)
 	_skip.pressed.connect(_on_skip_pressed)
@@ -301,7 +301,7 @@ func _ready() -> void:
 
 	_return_after_peek_button = Button.new()
 	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
-	_return_after_peek_button.tooltip_text = "确认结果后继续。"
+	_return_after_peek_button.tooltip_text = I18N.tr_key("vocab.review.continue_tooltip")
 	_return_after_peek_button.visible = false
 	_return_after_peek_button.custom_minimum_size = Vector2(200, TOUCH_MIN_BUTTON_H)
 	_return_after_peek_button.add_theme_font_size_override("font_size", FONT_BUTTON)
@@ -319,12 +319,16 @@ func _on_locale_changed(_locale: String) -> void:
 func _refresh_i18n() -> void:
 	_learn_button.text = I18N.tr_key("vocab.review.learn_start_pipeline")
 	_learn_show_answer_button.text = I18N.tr_key("vocab.review.peek_answer")
+	_learn_show_answer_button.tooltip_text = I18N.tr_key("vocab.review.peek_answer_tooltip")
 	_submit.text = I18N.tr_key("vocab.review.submit")
 	_peek_answer_quiz_button.text = I18N.tr_key("vocab.review.peek_answer")
+	_peek_answer_quiz_button.tooltip_text = I18N.tr_key("vocab.review.peek_answer_quiz_tooltip")
 	_skip.text = I18N.tr_key("vocab.review.learn_skip") if _in_learn_wait else I18N.tr_key("vocab.review.skip")
+	_skip.tooltip_text = I18N.tr_key("vocab.review.skip_tooltip")
 	_relearn_button.text = I18N.tr_key("vocab.review.relearn")
 	_relearn_button.tooltip_text = I18N.tr_key("vocab.review.relearn_tip")
 	_return_after_peek_button.text = I18N.tr_key("vocab.review.continue")
+	_return_after_peek_button.tooltip_text = I18N.tr_key("vocab.review.continue_tooltip")
 	if _examples_after_spell_btn:
 		_examples_after_spell_btn.text = (
 			I18N.tr_key("vocab.review.hide_examples")
