@@ -3,20 +3,20 @@
 	"properties": {
 		"card_add_to_deck_actions": [],
 		"card_appears_in_card_packs": true,
-		"card_color_id": "color_blue",
-		"card_description": "Whenever you play an attack, draw [draw_count] card.",
+		"card_color_id": "color_purple",
+		"card_description": "Banish a card from deck. Gain 5 HP and 5 Max HP. Exhaust.",
 		"card_description_preview_overrides": [],
 		"card_discard_actions": [],
 		"card_draw_actions": [],
 		"card_end_of_turn_actions": [],
-		"card_energy_cost": 2,
+		"card_energy_cost": 1,
 		"card_energy_cost_is_variable": false,
 		"card_energy_cost_until_combat": -1,
 		"card_energy_cost_until_played": -1,
 		"card_energy_cost_until_turn": -1,
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_exhaust_actions": [],
-		"card_exhausts": false,
+		"card_exhausts": true,
 		"card_first_shuffle_priority": 0,
 		"card_first_upgrade_property_changes": {},
 		"card_glow_validators": [],
@@ -24,10 +24,29 @@
 		"card_is_ethereal": false,
 		"card_is_playable": true,
 		"card_is_retained": false,
-		"card_keyword_object_ids": [],
+		"card_keyword_object_ids": ["keyword_banish"],
 		"card_listeners": [],
-		"card_name": "Constellation",
-		"card_play_actions": [],
+		"card_name": "Sacrifice",
+		"card_play_actions": [
+			{
+				"res://scripts/actions/pick_card_actions/ActionPickCards.gd": {
+					"min_card_amount": 1,
+					"max_card_amount": 1,
+					"min_cards_are_required_for_action": true,
+					"random_selection": false,
+					"card_pick_type": 1,
+					"card_pick_text": "Choose a card to banish forever.",
+					"action_data": [
+						{
+							"res://scripts/actions/cardset_actions/ActionRemoveCardsFromDeck.gd": {}
+						},
+						{
+							"res://scripts/actions/ActionAddHealth.gd": {}
+						}
+					]
+				}
+			}
+		],
 		"card_play_validators": [],
 		"card_rarity": 3,
 		"card_remove_from_deck_actions": [],
@@ -35,18 +54,22 @@
 		"card_retain_actions": [],
 		"card_right_click_actions": [],
 		"card_tags": [],
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_constellation_power.png",
+		"card_texture_path": "external/sprites/cards/generated/card_sacrifice.png",
 		"card_transform_in_deck_actions": [],
-		"card_type": 2,
+		"card_type": 1,
 		"card_unremovable_from_deck": false,
 		"card_untransformable_from_deck": false,
 		"card_upgrade_amount": 0,
 		"card_upgrade_amount_max": 1,
-		"card_upgrade_value_improvements": {},
-		"card_values": {
-			"draw_count": 1
+		"card_upgrade_value_improvements": {
+			"health_amount": 3,
+			"health_max_amount": 3
 		},
-		"object_id": "card_astrology_constellation_power",
+		"card_values": {
+			"health_amount": 5,
+			"health_max_amount": 5
+		},
+		"object_id": "card_sacrifice",
 		"object_uid": ""
 	}
 }

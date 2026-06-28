@@ -50,7 +50,7 @@ func start_dialogue() -> void:
 	
 	current_dialogue_data = Global.get_dialogue_data(event_data.event_dialogue_object_id)
 	if current_dialogue_data == null:
-		DebugLogger.log_error("No DialogueData specified for " + str())
+		DebugLogger.log_error("No DialogueData specified for " + event_data.event_dialogue_object_id)
 		end_dialogue()
 		return
 	

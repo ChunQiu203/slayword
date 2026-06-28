@@ -566,24 +566,6 @@ func add_test_artifacts() -> void:
 	
 	register_rod(artifact_shop_red)
 	
-	var artifact_boss_blue: ArtifactData = ArtifactData.new("artifact_boss_blue")
-	artifact_boss_blue.artifact_name = "Artifact Blue Boss"
-	artifact_boss_blue.artifact_description = "Test Blue Boss Artifact."
-	artifact_boss_blue.artifact_rarity = ArtifactData.ARTIFACT_RARITIES.BOSS
-	artifact_boss_blue.artifact_color_id = "color_blue"
-	artifact_boss_blue.artifact_texture_path = "external/sprites/artifacts/artifact_blue.png"
-	
-	register_rod(artifact_boss_blue)
-	
-	var artifact_shop_blue: ArtifactData = ArtifactData.new("artifact_shop_blue")
-	artifact_shop_blue.artifact_name = "Artifact Blue Shop"
-	artifact_shop_blue.artifact_description = "Test Blue Shop Artifact."
-	artifact_shop_blue.artifact_rarity = ArtifactData.ARTIFACT_RARITIES.SHOP
-	artifact_shop_blue.artifact_color_id = "color_blue"
-	artifact_shop_blue.artifact_texture_path = "external/sprites/artifacts/artifact_blue.png"
-	
-	register_rod(artifact_shop_blue)
-	
 	var artifact_boss_green: ArtifactData = ArtifactData.new("artifact_boss_green")
 	artifact_boss_green.artifact_name = "Artifact Green Boss"
 	artifact_boss_green.artifact_description = "Test Green Boss Artifact."
@@ -663,6 +645,9 @@ func get_all_artifacts() -> Array[ArtifactData]:
 func get_artifact_data_from_prototype(artifact_id: String) -> ArtifactData:
 	# generates a copy of a given ArtifactData
 	var artifact_data: ArtifactData = get_artifact_data(artifact_id)
+	if artifact_data == null:
+		push_error("ArtifactData not found for id: " + artifact_id)
+		return null
 	return artifact_data.get_prototype(true)
 #endregion
 
@@ -4528,358 +4513,6 @@ func add_test_cards() -> void:
 	
 	register_rod(card_debug_log)
 
-	# ============================================================
-	# Phase 1 新增卡牌
-	# ============================================================
-
-	# -- Red: 高风险高回报 --
-
-	# 嗜血打击：扣血换高伤
-	var card_blood_price: CardData = CardData.new("card_blood_price")
-	card_blood_price.card_name = "Blood Price"
-	card_blood_price.card_color_id = "color_red"
-	card_blood_price.card_texture_path = "external/sprites/cards/generated/card_blood_price.png"
-	card_blood_price.card_description = "Lose 3 HP. Deal 20 damage."
-	card_blood_price.card_type = CardData.CARD_TYPES.ATTACK
-	card_blood_price.card_rarity = CardData.CARD_RARITIES.UNCOMMON
-	card_blood_price.card_energy_cost = 1
-	card_blood_price.card_values = {"damage": 20, "number_of_attacks": 1, "health_amount": -3}
-	card_blood_price.card_upgrade_value_improvements = {"damage": 5}
-	card_blood_price.card_play_actions = [
-		{Scripts.ACTION_ADD_HEALTH: {"time_delay": 0.0}},
-		{Scripts.ACTION_ATTACK_GENERATOR: {"time_delay": 0.1}},
-	]
-	register_rod(card_blood_price)
-
-	# 穿甲打击：绕过格挡
-	var card_piercing_strike: CardData = CardData.new("card_piercing_strike")
-	card_piercing_strike.card_name = "Piercing Strike"
-	card_piercing_strike.card_color_id = "color_red"
-	card_piercing_strike.card_texture_path = "external/sprites/cards/generated/card_piercing_strike.png"
-	card_piercing_strike.card_description = "Deal 7 damage. Bypasses Block."
-	card_piercing_strike.card_type = CardData.CARD_TYPES.ATTACK
-	card_piercing_strike.card_rarity = CardData.CARD_RARITIES.COMMON
-	card_piercing_strike.card_energy_cost = 1
-	card_piercing_strike.card_values = {"damage": 7, "number_of_attacks": 1}
-	card_piercing_strike.card_upgrade_value_improvements = {"damage": 3}
-	card_piercing_strike.card_play_actions = [
-		{Scripts.ACTION_DIRECT_DAMAGE: {"time_delay": 0.1, "bypass_block": true, "target_override": BaseAction.TARGET_OVERRIDES.SELECTED_TARGETS}},
-	]
-	register_rod(card_piercing_strike)
-
-	# 狂怒连斩：多次攻击
-	var card_fury_strike: CardData = CardData.new("card_fury_strike")
-	card_fury_strike.card_name = "Fury Strike"
-	card_fury_strike.card_color_id = "color_red"
-	card_fury_strike.card_texture_path = "external/sprites/cards/generated/card_fury_strike.png"
-	card_fury_strike.card_description = "Deal 4 damage 4 times."
-	card_fury_strike.card_type = CardData.CARD_TYPES.ATTACK
-	card_fury_strike.card_rarity = CardData.CARD_RARITIES.COMMON
-	card_fury_strike.card_energy_cost = 2
-	card_fury_strike.card_values = {"damage": 4, "number_of_attacks": 4}
-	card_fury_strike.card_upgrade_value_improvements = {"damage": 1, "number_of_attacks": 1}
-	card_fury_strike.card_play_actions = [
-		{Scripts.ACTION_ATTACK_GENERATOR: {"time_delay": 0.15, "actions_on_lethal": []}},
-	]
-	register_rod(card_fury_strike)
-
-	# -- Blue: 控制/抽牌 --
-
-	# 预见：弃掉抽牌堆顶再抽牌
-	var card_scry: CardData = CardData.new("card_scry")
-	card_scry.card_name = "Scry"
-	card_scry.card_color_id = "color_blue"
-	card_scry.card_texture_path = "external/sprites/cards/generated/card_scry.png"
-	card_scry.card_description = "Discard up to 3 cards from top of draw pile. Draw 2."
-	card_scry.card_type = CardData.CARD_TYPES.SKILL
-	card_scry.card_rarity = CardData.CARD_RARITIES.COMMON
-	card_scry.card_requires_target = false
-	card_scry.card_energy_cost = 0
-	card_scry.card_values = {"draw_count": 2, "max_card_amount": 3}
-	card_scry.card_upgrade_value_improvements = {"draw_count": 1}
-	card_scry.card_play_actions = [
-		{Scripts.ACTION_PICK_CARDS: {
-			"min_card_amount": 0,
-			"max_card_amount": 3,
-			"min_cards_are_required_for_action": false,
-			"random_selection": false,
-			"card_pick_type": ActionBasePickCards.CARD_PICK_TYPES.DRAW,
-			"card_pick_text": "Choose up to {0} card(s) to discard. {1} cards selected",
-			"action_data": [{Scripts.ACTION_DISCARD_CARDS: {}}],
-		}},
-		{Scripts.ACTION_DRAW_GENERATOR: {}},
-	]
-	register_rod(card_scry)
-
-	# 手牌炮：手牌数决定攻击次数
-	var card_hand_cannon: CardData = CardData.new("card_hand_cannon")
-	card_hand_cannon.card_name = "Hand Cannon"
-	card_hand_cannon.card_color_id = "color_blue"
-	card_hand_cannon.card_texture_path = "external/sprites/cards/generated/card_hand_cannon.png"
-	card_hand_cannon.card_description = "Deal 3 damage for each card in hand."
-	card_hand_cannon.card_type = CardData.CARD_TYPES.ATTACK
-	card_hand_cannon.card_rarity = CardData.CARD_RARITIES.UNCOMMON
-	card_hand_cannon.card_energy_cost = 2
-	card_hand_cannon.card_values = {"damage": 3, "number_of_attacks": 1}
-	card_hand_cannon.card_upgrade_value_improvements = {"damage": 1}
-	card_hand_cannon.card_play_actions = [
-		{Scripts.ACTION_ATTACK_GENERATOR: {"time_delay": 0.0, "actions_on_lethal": []}},
-	]
-	card_hand_cannon.card_listeners = [{Scripts.LISTENER_CARD_VALUE_MODIFIER: {
-		"stat_enum": CombatStatsData.STATS.CARDS_IN_HAND,
-		"is_turn_stat": true,
-		"multiplied_values": ["number_of_attacks"],
-		"multiplied_values_bases": {"number_of_attacks": 0},
-		"multiplied_values_per_stat": {"number_of_attacks": 1},
-	}}]
-	register_rod(card_hand_cannon)
-
-	# -- Green: 腐蚀/DoT --
-
-	# 腐蚀爆发：全体腐蚀
-	var card_corrosion_burst: CardData = CardData.new("card_corrosion_burst")
-	card_corrosion_burst.card_name = "Corrosion Burst"
-	card_corrosion_burst.card_color_id = "color_green"
-	card_corrosion_burst.card_texture_path = "external/sprites/cards/generated/card_corrosion_burst.png"
-	card_corrosion_burst.card_description = "Apply 4 Corrosion to ALL enemies."
-	card_corrosion_burst.card_type = CardData.CARD_TYPES.SKILL
-	card_corrosion_burst.card_rarity = CardData.CARD_RARITIES.UNCOMMON
-	card_corrosion_burst.card_requires_target = false
-	card_corrosion_burst.card_energy_cost = 1
-	card_corrosion_burst.card_keyword_object_ids = ["keyword_corrosion"]
-	card_corrosion_burst.card_values = {"status_charge_amount": 4, "status_effect_object_id": "status_effect_corrosion"}
-	card_corrosion_burst.card_upgrade_value_improvements = {"status_charge_amount": 2}
-	card_corrosion_burst.card_play_actions = [
-		{Scripts.ACTION_APPLY_STATUS: {"time_delay": 0.3, "target_override": BaseAction.TARGET_OVERRIDES.ALL_ENEMIES}},
-	]
-	register_rod(card_corrosion_burst)
-
-	# 催化剂：高额单体腐蚀
-	var card_catalyst: CardData = CardData.new("card_catalyst")
-	card_catalyst.card_name = "Catalyst"
-	card_catalyst.card_color_id = "color_green"
-	card_catalyst.card_texture_path = "external/sprites/cards/generated/card_catalyst.png"
-	card_catalyst.card_description = "Apply 8 Corrosion. Exhaust."
-	card_catalyst.card_type = CardData.CARD_TYPES.SKILL
-	card_catalyst.card_rarity = CardData.CARD_RARITIES.RARE
-	card_catalyst.card_requires_target = true
-	card_catalyst.card_exhausts = true
-	card_catalyst.card_energy_cost = 0
-	card_catalyst.card_keyword_object_ids = ["keyword_corrosion"]
-	card_catalyst.card_values = {"status_charge_amount": 8, "status_effect_object_id": "status_effect_corrosion"}
-	card_catalyst.card_upgrade_value_improvements = {"status_charge_amount": 4}
-	card_catalyst.card_play_actions = [
-		{Scripts.ACTION_APPLY_STATUS: {"time_delay": 0.3, "target_override": BaseAction.TARGET_OVERRIDES.SELECTED_TARGETS}},
-	]
-	register_rod(card_catalyst)
-
-	# 荆棘之盾：条件腐蚀
-	var card_thorns: CardData = CardData.new("card_thorns")
-	card_thorns.card_name = "Thorns"
-	card_thorns.card_color_id = "color_green"
-	card_thorns.card_texture_path = "external/sprites/cards/generated/card_thorns.png"
-	card_thorns.card_description = "Gain 5 Block. If enemy attacks, apply 3 Corrosion."
-	card_thorns.card_type = CardData.CARD_TYPES.SKILL
-	card_thorns.card_rarity = CardData.CARD_RARITIES.COMMON
-	card_thorns.card_requires_target = true
-	card_thorns.card_energy_cost = 1
-	card_thorns.card_keyword_object_ids = ["keyword_block", "keyword_corrosion"]
-	card_thorns.card_values = {"block": 5, "status_charge_amount": 3, "status_effect_object_id": "status_effect_corrosion"}
-	card_thorns.card_upgrade_value_improvements = {"block": 3, "status_charge_amount": 2}
-	card_thorns.card_glow_validators = [{Scripts.VALIDATOR_ENEMY_ATTACKING: {}}]
-	card_thorns.card_play_actions = [
-		{Scripts.ACTION_BLOCK: {"target_override": BaseAction.TARGET_OVERRIDES.PARENT, "time_delay": 0.1}},
-		{Scripts.ACTION_VALIDATOR: {
-			"validator_data": [{Scripts.VALIDATOR_CARD_PLAY_ENEMY_ATTACKING: {}}],
-			"passed_action_data": [
-				{Scripts.ACTION_APPLY_STATUS: {"target_override": BaseAction.TARGET_OVERRIDES.SELECTED_TARGETS}}
-			],
-			"time_delay": 0.0,
-		}},
-	]
-	register_rod(card_thorns)
-
-	# -- Orange: 坚守/回复 --
-
-	# 堡垒：保留格挡
-	var card_fortress: CardData = CardData.new("card_fortress")
-	card_fortress.card_name = "Fortress"
-	card_fortress.card_color_id = "color_orange"
-	card_fortress.card_texture_path = "external/sprites/cards/generated/card_fortress.png"
-	card_fortress.card_description = "Retain. Gain 8 Block."
-	card_fortress.card_type = CardData.CARD_TYPES.SKILL
-	card_fortress.card_rarity = CardData.CARD_RARITIES.COMMON
-	card_fortress.card_requires_target = false
-	card_fortress.card_is_retained = true
-	card_fortress.card_energy_cost = 1
-	card_fortress.card_keyword_object_ids = ["keyword_block", "keyword_retain"]
-	card_fortress.card_values = {"block": 8}
-	card_fortress.card_upgrade_value_improvements = {"block": 4}
-	card_fortress.card_play_actions = [
-		{Scripts.ACTION_BLOCK: {"time_delay": 0.3, "target_override": BaseAction.TARGET_OVERRIDES.PARENT}},
-	]
-	register_rod(card_fortress)
-
-	# 复苏之风：洗牌+格挡
-	var card_second_wind: CardData = CardData.new("card_second_wind")
-	card_second_wind.card_name = "Second Wind"
-	card_second_wind.card_color_id = "color_orange"
-	card_second_wind.card_texture_path = "external/sprites/cards/generated/card_second_wind.png"
-	card_second_wind.card_description = "Shuffle discard into draw. Gain 10 Block. Exhaust."
-	card_second_wind.card_type = CardData.CARD_TYPES.SKILL
-	card_second_wind.card_rarity = CardData.CARD_RARITIES.UNCOMMON
-	card_second_wind.card_requires_target = false
-	card_second_wind.card_exhausts = true
-	card_second_wind.card_energy_cost = 1
-	card_second_wind.card_keyword_object_ids = ["keyword_block", "keyword_exhaust"]
-	card_second_wind.card_values = {"block": 10}
-	card_second_wind.card_upgrade_value_improvements = {"block": 5}
-	card_second_wind.card_play_actions = [
-		{Scripts.ACTION_RESHUFFLE: {"shuffle_discard_into_draw": true}},
-		{Scripts.ACTION_BLOCK: {"target_override": BaseAction.TARGET_OVERRIDES.PARENT, "time_delay": 0.1}},
-	]
-	register_rod(card_second_wind)
-
-	# -- Purple: 异色/牺牲 --
-
-	# 献祭：放逐换永久HP
-	var card_sacrifice: CardData = CardData.new("card_sacrifice")
-	card_sacrifice.card_name = "Sacrifice"
-	card_sacrifice.card_color_id = "color_purple"
-	card_sacrifice.card_texture_path = "external/sprites/cards/generated/card_sacrifice.png"
-	card_sacrifice.card_description = "Banish a card from deck. Gain 5 HP and 5 Max HP. Exhaust."
-	card_sacrifice.card_type = CardData.CARD_TYPES.SKILL
-	card_sacrifice.card_rarity = CardData.CARD_RARITIES.RARE
-	card_sacrifice.card_requires_target = false
-	card_sacrifice.card_exhausts = true
-	card_sacrifice.card_energy_cost = 1
-	card_sacrifice.card_keyword_object_ids = ["keyword_banish"]
-	card_sacrifice.card_values = {"health_amount": 5, "health_max_amount": 5}
-	card_sacrifice.card_upgrade_value_improvements = {"health_amount": 3, "health_max_amount": 3}
-	card_sacrifice.card_play_actions = [
-		{Scripts.ACTION_PICK_CARDS: {
-			"min_card_amount": 1,
-			"max_card_amount": 1,
-			"min_cards_are_required_for_action": true,
-			"random_selection": false,
-			"card_pick_type": ActionBasePickCards.CARD_PICK_TYPES.DECK,
-			"card_pick_text": "Choose a card to banish forever.",
-			"action_data": [
-				{Scripts.ACTION_REMOVE_CARDS_FROM_DECK: {}},
-				{Scripts.ACTION_ADD_HEALTH: {}},
-			],
-		}},
-	]
-	register_rod(card_sacrifice)
-
-	# 混沌一击：随机目标
-	var card_chaos_strike: CardData = CardData.new("card_chaos_strike")
-	card_chaos_strike.card_name = "Chaos Strike"
-	card_chaos_strike.card_color_id = "color_purple"
-	card_chaos_strike.card_texture_path = "external/sprites/cards/generated/card_chaos_strike.png"
-	card_chaos_strike.card_description = "Deal 14 damage to a random enemy."
-	card_chaos_strike.card_type = CardData.CARD_TYPES.ATTACK
-	card_chaos_strike.card_rarity = CardData.CARD_RARITIES.COMMON
-	card_chaos_strike.card_requires_target = false
-	card_chaos_strike.card_energy_cost = 1
-	card_chaos_strike.card_values = {"damage": 14, "number_of_attacks": 1}
-	card_chaos_strike.card_upgrade_value_improvements = {"damage": 6}
-	card_chaos_strike.card_play_actions = [
-		{Scripts.ACTION_ATTACK_GENERATOR: {"time_delay": 0.0, "target_override": BaseAction.TARGET_OVERRIDES.RANDOM_ENEMY, "actions_on_lethal": []}},
-	]
-	register_rod(card_chaos_strike)
-
-	# -- White: 通用优质 --
-
-	# 重击：高费高伤
-	var card_heavy_strike: CardData = CardData.new("card_heavy_strike")
-	card_heavy_strike.card_name = "Heavy Strike"
-	card_heavy_strike.card_color_id = "color_white"
-	card_heavy_strike.card_texture_path = "external/sprites/cards/generated/card_heavy_strike.png"
-	card_heavy_strike.card_description = "Deal 18 damage."
-	card_heavy_strike.card_type = CardData.CARD_TYPES.ATTACK
-	card_heavy_strike.card_rarity = CardData.CARD_RARITIES.COMMON
-	card_heavy_strike.card_energy_cost = 2
-	card_heavy_strike.card_values = {"damage": 18, "number_of_attacks": 1}
-	card_heavy_strike.card_upgrade_value_improvements = {"damage": 6}
-	card_heavy_strike.card_play_actions = [
-		{Scripts.ACTION_ATTACK_GENERATOR: {"time_delay": 0.0, "actions_on_lethal": []}},
-	]
-	register_rod(card_heavy_strike)
-
-	# 铁卫：攻击+格挡
-	var card_iron_guard: CardData = CardData.new("card_iron_guard")
-	card_iron_guard.card_name = "Iron Guard"
-	card_iron_guard.card_color_id = "color_white"
-	card_iron_guard.card_texture_path = "external/sprites/cards/generated/card_iron_guard.png"
-	card_iron_guard.card_description = "Deal 7 damage. Gain 5 Block."
-	card_iron_guard.card_type = CardData.CARD_TYPES.ATTACK
-	card_iron_guard.card_rarity = CardData.CARD_RARITIES.COMMON
-	card_iron_guard.card_energy_cost = 1
-	card_iron_guard.card_keyword_object_ids = ["keyword_block"]
-	card_iron_guard.card_values = {"damage": 7, "number_of_attacks": 1, "block": 5}
-	card_iron_guard.card_upgrade_value_improvements = {"damage": 3, "block": 3}
-	card_iron_guard.card_play_actions = [
-		{Scripts.ACTION_BLOCK: {"time_delay": 0.1, "target_override": BaseAction.TARGET_OVERRIDES.PARENT}},
-		{Scripts.ACTION_ATTACK_GENERATOR: {"time_delay": 0.1, "actions_on_lethal": []}},
-	]
-	register_rod(card_iron_guard)
-
-	# 肾上腺素：0费抽牌+能量
-	var card_adrenaline: CardData = CardData.new("card_adrenaline")
-	card_adrenaline.card_name = "Adrenaline"
-	card_adrenaline.card_color_id = "color_white"
-	card_adrenaline.card_texture_path = "external/sprites/cards/generated/card_adrenaline.png"
-	card_adrenaline.card_description = "Draw 2 cards. Gain 1 energy. Exhaust."
-	card_adrenaline.card_type = CardData.CARD_TYPES.SKILL
-	card_adrenaline.card_rarity = CardData.CARD_RARITIES.UNCOMMON
-	card_adrenaline.card_requires_target = false
-	card_adrenaline.card_exhausts = true
-	card_adrenaline.card_energy_cost = 0
-	card_adrenaline.card_values = {"draw_count": 2, "energy_amount": 1}
-	card_adrenaline.card_upgrade_value_improvements = {"draw_count": 1, "energy_amount": 1}
-	card_adrenaline.card_play_actions = [
-		{Scripts.ACTION_ADD_ENERGY: {}},
-		{Scripts.ACTION_DRAW_GENERATOR: {}},
-	]
-	register_rod(card_adrenaline)
-
-	# -- 词汇联动卡 --
-
-	# Word Power：已学单词量增伤
-	var card_word_power: CardData = CardData.new("card_word_power")
-	card_word_power.card_name = "Word Power"
-	card_word_power.card_color_id = "color_blue"
-	card_word_power.card_texture_path = "external/sprites/cards/generated/card_word_power.png"
-	card_word_power.card_description = "Deal 8 damage. +1 damage for each word learned."
-	card_word_power.card_type = CardData.CARD_TYPES.ATTACK
-	card_word_power.card_rarity = CardData.CARD_RARITIES.RARE
-	card_word_power.card_energy_cost = 2
-	card_word_power.card_values = {"damage": 8, "number_of_attacks": 1}
-	card_word_power.card_upgrade_value_improvements = {"damage": 4}
-	card_word_power.card_play_actions = [
-		{Scripts.ACTION_ATTACK_GENERATOR: {"time_delay": 0.0, "actions_on_lethal": []}},
-	]
-	register_rod(card_word_power)
-
-	# 知识壁垒：已学单词量增格挡
-	var card_knowledge_wall: CardData = CardData.new("card_knowledge_wall")
-	card_knowledge_wall.card_name = "Knowledge Wall"
-	card_knowledge_wall.card_color_id = "color_blue"
-	card_knowledge_wall.card_texture_path = "external/sprites/cards/generated/card_knowledge_wall.png"
-	card_knowledge_wall.card_description = "Retain. Gain 6 Block. +1 Block for each word learned."
-	card_knowledge_wall.card_type = CardData.CARD_TYPES.SKILL
-	card_knowledge_wall.card_rarity = CardData.CARD_RARITIES.UNCOMMON
-	card_knowledge_wall.card_requires_target = false
-	card_knowledge_wall.card_is_retained = true
-	card_knowledge_wall.card_energy_cost = 1
-	card_knowledge_wall.card_keyword_object_ids = ["keyword_block", "keyword_retain"]
-	card_knowledge_wall.card_values = {"block": 6}
-	card_knowledge_wall.card_upgrade_value_improvements = {"block": 4}
-	card_knowledge_wall.card_play_actions = [
-		{Scripts.ACTION_BLOCK: {"time_delay": 0.3, "target_override": BaseAction.TARGET_OVERRIDES.PARENT}},
-	]
-	register_rod(card_knowledge_wall)	
 func add_test_cards_to_player_deck() -> void:
 	# Adds copies of cards to the player's deck to populate it
 	player_data.player_deck.append(get_card_data_from_prototype("card_attack_basic"))
@@ -4976,6 +4609,9 @@ func get_all_cards() -> Array[CardData]:
 ## Generates a mutable copy of a given read only CardData
 func get_card_data_from_prototype(card_object_id: String) -> CardData:
 	var card_data: CardData = get_card_data(card_object_id)
+	if card_data == null:
+		push_error("CardData not found for id: " + card_object_id)
+		return null
 	return card_data.get_prototype(true)
 
 ## Gets mutable copies of CardData given read only CardData ids
@@ -5003,21 +4639,9 @@ func add_test_card_packs() -> void:
 	var card_pack_prismatic: CardPackData = CardPackData.new("card_pack_prismatic")
 	register_rod(card_pack_prismatic)
 	
-	var card_pack_red: CardPackData = CardPackData.new("card_pack_red")
-	card_pack_red.card_pack_color_id = "color_red"
-	register_rod(card_pack_red)
-	
 	var card_pack_blue: CardPackData = CardPackData.new("card_pack_blue")
 	card_pack_blue.card_pack_color_id = "color_blue"
 	register_rod(card_pack_blue)
-	
-	var card_pack_green: CardPackData = CardPackData.new("card_pack_green")
-	card_pack_green.card_pack_color_id = "color_green"
-	register_rod(card_pack_green)
-	
-	var card_pack_orange: CardPackData = CardPackData.new("card_pack_orange")
-	card_pack_orange.card_pack_color_id = "color_orange"
-	register_rod(card_pack_orange)
 	
 	var card_pack_white: CardPackData = CardPackData.new("card_pack_white")
 	card_pack_white.card_pack_color_id = "color_white"
@@ -5043,21 +4667,9 @@ func add_test_artifact_packs() -> void:
 	artifact_pack_white.artifact_pack_color_id = "color_white"
 	register_rod(artifact_pack_white)
 	
-	var artifact_pack_red: ArtifactPackData = ArtifactPackData.new("artifact_pack_red")
-	artifact_pack_red.artifact_pack_color_id = "color_red"
-	register_rod(artifact_pack_red)
-	
 	var artifact_pack_blue: ArtifactPackData = ArtifactPackData.new("artifact_pack_blue")
 	artifact_pack_blue.artifact_pack_color_id = "color_blue"
 	register_rod(artifact_pack_blue)
-	
-	var artifact_pack_green: ArtifactPackData = ArtifactPackData.new("artifact_pack_green")
-	artifact_pack_green.artifact_pack_color_id = "color_green"
-	register_rod(artifact_pack_green)
-	
-	var artifact_pack_orange: ArtifactPackData = ArtifactPackData.new("artifact_pack_orange")
-	artifact_pack_orange.artifact_pack_color_id = "color_orange"
-	register_rod(artifact_pack_orange)
 
 
 #endregion

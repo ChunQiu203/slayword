@@ -31,6 +31,24 @@ const ENERGY_ICON_KEYWORD: String = "[energy_icon]"	# tells description to displ
 const KEYWORD_HOVER_DELAY: float = 0.5
 
 signal card_selected(Card)
+
+func _ready() -> void:
+	SlayMobileStyle.load_fonts()
+	var title_font := SlayMobileStyle.get_title_font()
+	var body_font := SlayMobileStyle.get_body_font()
+
+	card_name.add_theme_font_override("normal_font", title_font)
+	card_name.add_theme_font_size_override("normal_font_size", SlayMobileStyle.get_scaled_font_size(11))
+
+	card_type.add_theme_font_override("font", body_font)
+	card_type.add_theme_font_size_override("font_size", SlayMobileStyle.get_scaled_font_size(10))
+
+	card_description.add_theme_font_override("normal_font", body_font)
+	card_description.add_theme_font_size_override("normal_font_size", SlayMobileStyle.get_scaled_font_size(10))
+
+	card_energy_cost.add_theme_font_override("font", title_font)
+	card_energy_cost.add_theme_font_size_override("font_size", SlayMobileStyle.get_scaled_font_size(12))
+
 signal card_right_clicked(Card)
 signal card_hovered(Card)
 signal card_unhovered(Card)

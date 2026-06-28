@@ -9,24 +9,20 @@
 		"artifact_counter_reset_on_combat_end": -1,
 		"artifact_counter_reset_on_turn_start": -1,
 		"artifact_counter_wraparound": true,
-		"artifact_description": "At the start of each turn, look at the top 3 cards of your draw pile. Pick 1 to draw.",
+		"artifact_description": "Test Blue Shop Artifact.",
 		"artifact_end_of_combat_actions": [],
 		"artifact_first_turn_actions": [],
 		"artifact_max_counter_actions": [],
-		"artifact_name": "Cosmic Lens",
+		"artifact_name": "Artifact Blue Shop",
 		"artifact_rarity": 3,
 		"artifact_remove_actions": [],
 		"artifact_right_click_actions": [],
-		"artifact_right_click_validators": [
-			{
-				"res://scripts/validators/ValidatorPlayerTurn.gd": {}
-			}
-		],
+		"artifact_right_click_validators": [],
 		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
-		"artifact_texture_path": "external/sprites/artifacts/artifact_cosmic_lens.svg",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_shop_blue.svg",
 		"artifact_turn_end_actions": [],
 		"artifact_turn_start_actions": [],
-		"object_id": "artifact_cosmic_lens",
+		"object_id": "artifact_shop_blue",
 		"object_uid": ""
 	}
 }

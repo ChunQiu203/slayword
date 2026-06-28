@@ -3,13 +3,13 @@
 	"properties": {
 		"card_add_to_deck_actions": [],
 		"card_appears_in_card_packs": true,
-		"card_color_id": "color_blue",
-		"card_description": "Deal [damage] damage. Draw [draw_count] card.",
+		"card_color_id": "color_red",
+		"card_description": "Deal 7 damage. Bypasses Block.",
 		"card_description_preview_overrides": [],
 		"card_discard_actions": [],
 		"card_draw_actions": [],
 		"card_end_of_turn_actions": [],
-		"card_energy_cost": 0,
+		"card_energy_cost": 1,
 		"card_energy_cost_is_variable": false,
 		"card_energy_cost_until_combat": -1,
 		"card_energy_cost_until_played": -1,
@@ -26,27 +26,24 @@
 		"card_is_retained": false,
 		"card_keyword_object_ids": [],
 		"card_listeners": [],
-		"card_name": "Star Dust",
+		"card_name": "Piercing Strike",
 		"card_play_actions": [
 			{
-				"res://scripts/actions/meta_actions/ActionAttackGenerator.gd": {
-					"actions_on_lethal": [],
-					"time_delay": 0.0
-				},
-				{
-					"res://scripts/actions/meta_actions/ActionDrawGenerator.gd": {
-					"draw_count": 1
+				"res://scripts/actions/ActionDirectDamage.gd": {
+					"bypass_block": true,
+					"target_override": 0,
+					"time_delay": 0.1
 				}
 			}
 		],
 		"card_play_validators": [],
-		"card_rarity": 2,
+		"card_rarity": 1,
 		"card_remove_from_deck_actions": [],
 		"card_requires_target": true,
 		"card_retain_actions": [],
 		"card_right_click_actions": [],
 		"card_tags": [],
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_star_dust_attack.png",
+		"card_texture_path": "external/sprites/cards/generated/card_piercing_strike.png",
 		"card_transform_in_deck_actions": [],
 		"card_type": 0,
 		"card_unremovable_from_deck": false,
@@ -54,14 +51,13 @@
 		"card_upgrade_amount": 0,
 		"card_upgrade_amount_max": 1,
 		"card_upgrade_value_improvements": {
-			"damage": 2
+			"damage": 3
 		},
 		"card_values": {
-			"damage": 2,
-			"number_of_attacks": 1,
-			"draw_count": 1
+			"damage": 7,
+			"number_of_attacks": 1
 		},
-		"object_id": "card_astrology_star_dust_attack",
+		"object_id": "card_piercing_strike",
 		"object_uid": ""
 	}
 }

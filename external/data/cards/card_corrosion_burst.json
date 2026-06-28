@@ -1,12 +1,10 @@
 {
-	"patch_data": {
-
-	},
+	"patch_data": {},
 	"properties": {
 		"card_add_to_deck_actions": [],
-		"card_appears_in_card_packs": false,
-		"card_color_id": "color_blue",
-		"card_description": "Deal [damage] damage.",
+		"card_appears_in_card_packs": true,
+		"card_color_id": "color_green",
+		"card_description": "Apply 4 Corrosion to ALL enemies.",
 		"card_description_preview_overrides": [],
 		"card_discard_actions": [],
 		"card_draw_actions": [],
@@ -20,47 +18,45 @@
 		"card_exhaust_actions": [],
 		"card_exhausts": false,
 		"card_first_shuffle_priority": 0,
-		"card_first_upgrade_property_changes": {
-
-		},
+		"card_first_upgrade_property_changes": {},
 		"card_glow_validators": [],
 		"card_initial_combat_actions": [],
 		"card_is_ethereal": false,
 		"card_is_playable": true,
 		"card_is_retained": false,
-		"card_keyword_object_ids": [],
+		"card_keyword_object_ids": ["keyword_corrosion"],
 		"card_listeners": [],
-		"card_name": "Starlight Strike",
+		"card_name": "Corrosion Burst",
 		"card_play_actions": [
 			{
-				"res://scripts/actions/meta_actions/ActionAttackGenerator.gd": {
-					"actions_on_lethal": [],
-					"time_delay": 0.0
+				"res://scripts/actions/status_actions/ActionApplyStatus.gd": {
+					"time_delay": 0.3,
+					"target_override": 4
 				}
 			}
 		],
 		"card_play_validators": [],
-		"card_rarity": 0,
+		"card_rarity": 2,
 		"card_remove_from_deck_actions": [],
-		"card_requires_target": true,
+		"card_requires_target": false,
 		"card_retain_actions": [],
 		"card_right_click_actions": [],
 		"card_tags": [],
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_basic_attack.png",
+		"card_texture_path": "external/sprites/cards/generated/card_corrosion_burst.png",
 		"card_transform_in_deck_actions": [],
-		"card_type": 0,
+		"card_type": 1,
 		"card_unremovable_from_deck": false,
 		"card_untransformable_from_deck": false,
 		"card_upgrade_amount": 0,
 		"card_upgrade_amount_max": 1,
 		"card_upgrade_value_improvements": {
-			"damage": 3
+			"status_charge_amount": 2
 		},
 		"card_values": {
-			"damage": 6,
-			"number_of_attacks": 1
+			"status_charge_amount": 4,
+			"status_effect_object_id": "status_effect_corrosion"
 		},
-		"object_id": "card_astrology_basic_attack",
+		"object_id": "card_corrosion_burst",
 		"object_uid": ""
 	}
 }

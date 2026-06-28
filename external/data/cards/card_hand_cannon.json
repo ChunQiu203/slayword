@@ -4,7 +4,7 @@
 		"card_add_to_deck_actions": [],
 		"card_appears_in_card_packs": true,
 		"card_color_id": "color_blue",
-		"card_description": "At the start of each turn, draw [draw_count] extra card.",
+		"card_description": "Deal 3 damage for each card in hand.",
 		"card_description_preview_overrides": [],
 		"card_discard_actions": [],
 		"card_draw_actions": [],
@@ -25,28 +25,48 @@
 		"card_is_playable": true,
 		"card_is_retained": false,
 		"card_keyword_object_ids": [],
-		"card_listeners": [],
-		"card_name": "Cosmic Mind",
-		"card_play_actions": [],
+		"card_listeners": [
+			{
+				"res://scripts/card_listeners/ListenerCardValueModifier.gd": {
+					"stat_enum": 19,
+					"is_turn_stat": true,
+					"multiplied_values": ["number_of_attacks"],
+					"multiplied_values_bases": {"number_of_attacks": 0},
+					"multiplied_values_per_stat": {"number_of_attacks": 1}
+				}
+			}
+		],
+		"card_name": "Hand Cannon",
+		"card_play_actions": [
+			{
+				"res://scripts/actions/meta_actions/ActionAttackGenerator.gd": {
+					"actions_on_lethal": [],
+					"time_delay": 0.0
+				}
+			}
+		],
 		"card_play_validators": [],
 		"card_rarity": 2,
 		"card_remove_from_deck_actions": [],
-		"card_requires_target": false,
+		"card_requires_target": true,
 		"card_retain_actions": [],
 		"card_right_click_actions": [],
 		"card_tags": [],
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_cosmic_mind.png",
+		"card_texture_path": "external/sprites/cards/generated/card_hand_cannon.png",
 		"card_transform_in_deck_actions": [],
-		"card_type": 2,
+		"card_type": 0,
 		"card_unremovable_from_deck": false,
 		"card_untransformable_from_deck": false,
 		"card_upgrade_amount": 0,
 		"card_upgrade_amount_max": 1,
-		"card_upgrade_value_improvements": {},
-		"card_values": {
-			"draw_count": 1
+		"card_upgrade_value_improvements": {
+			"damage": 1
 		},
-		"object_id": "card_astrology_cosmic_mind",
+		"card_values": {
+			"damage": 3,
+			"number_of_attacks": 1
+		},
+		"object_id": "card_hand_cannon",
 		"object_uid": ""
 	}
 }

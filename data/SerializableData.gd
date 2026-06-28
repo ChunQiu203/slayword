@@ -237,6 +237,9 @@ func set_serializable_properties(object_data: Dictionary, json_friendly: bool = 
 			if recursive_properties.has(property_name):
 				### figure out if value is Array[SerializeableData], Dictionary[String, SerializeableData], or SerializeableData
 				var recursive_type = recursive_properties[property_name] # get the type of the object to make
+				if recursive_type == null:
+					push_warning("Null recursive type for property: " + property_name)
+					continue
 				if current_value is Array:
 					# Array[SerializableData]
 					# populate the new array from json dictionary payloads

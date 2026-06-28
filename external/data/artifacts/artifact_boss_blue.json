@@ -9,31 +9,20 @@
 		"artifact_counter_reset_on_combat_end": -1,
 		"artifact_counter_reset_on_turn_start": -1,
 		"artifact_counter_wraparound": true,
-		"artifact_description": "Enemies start combat with [status_charge_amount] Vulnerable.",
+		"artifact_description": "Test Blue Boss Artifact.",
 		"artifact_end_of_combat_actions": [],
-		"artifact_first_turn_actions": [
-			{
-				"res://scripts/actions/status_actions/ActionApplyStatus.gd": {
-					"status_charge_amount": 2,
-					"status_effect_object_id": "status_effect_vulnerable"
-				}
-			}
-		],
+		"artifact_first_turn_actions": [],
 		"artifact_max_counter_actions": [],
-		"artifact_name": "Eclipse Mask",
-		"artifact_rarity": 3,
+		"artifact_name": "Artifact Blue Boss",
+		"artifact_rarity": 4,
 		"artifact_remove_actions": [],
 		"artifact_right_click_actions": [],
-		"artifact_right_click_validators": [
-			{
-				"res://scripts/validators/ValidatorPlayerTurn.gd": {}
-			}
-		],
+		"artifact_right_click_validators": [],
 		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
-		"artifact_texture_path": "external/sprites/artifacts/artifact_eclipse_mask.svg",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_boss_blue.svg",
 		"artifact_turn_end_actions": [],
 		"artifact_turn_start_actions": [],
-		"object_id": "artifact_eclipse_mask",
+		"object_id": "artifact_boss_blue",
 		"object_uid": ""
 	}
 }
