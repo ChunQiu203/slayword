@@ -34,6 +34,13 @@ func _ready():
 	btn_consumables.pressed.connect(_on_tab_pressed.bind("consumables"))
 	
 	_apply_tab_styles()
+	
+	# Refresh UI when language changes
+	I18N.locale_changed.connect(_on_locale_changed)
+
+func _on_locale_changed(_locale: String):
+	_apply_tab_styles()
+	populate_current_tab()
 
 func populate_codex_menu() -> void:
 	_apply_tab_styles()
@@ -50,7 +57,7 @@ func _update_columns():
 	var total = $ScrollContainer.size.x
 	# Subtract margins: left 10 + right 50 + scrollbar ~20 + grid spacing ~16
 	var safe = total - 96
-	var new_cols = max(1, int(safe / 160.0))
+	var new_cols = clamp(int(safe / 160.0), 1, 5)
 	if codex_card_container.columns != new_cols:
 		codex_card_container.columns = new_cols
 	print("CodexCols total=", total, " safe=", safe, " cols=", new_cols)

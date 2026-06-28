@@ -20,10 +20,41 @@ const ENERGY_ICON_KEYWORD: String = "[energy_icon]"	# tells description to displ
 @onready var card_type: Label = %CardType
 @onready var card_description: RichLabelAutoSizer = %CardDescription
 @onready var card_energy_cost: Label = %EnergyCost
-@onready var card_color: ColorRect = %ColorBackground
+@onready var frame_background: TextureRect = %FrameBackground
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var card_glow: ColorRect = %CardGlow
+
+var _frame_textures: Dictionary[int, Texture2D] = {}
+
+func _get_frame_texture_for_type(card_type: int) -> Texture2D:
+	if _frame_textures.has(card_type):
+		return _frame_textures[card_type]
+	
+	var path = "res://external/sprites/cards/1.png"
+	match card_type:
+		0: path = "res://external/sprites/cards/2.png"  # ATTACK → Red
+		1: path = "res://external/sprites/cards/3.png"  # SKILL → Green
+		2: path = "res://external/sprites/cards/1.png"  # POWER → Blue
+		3, 4: path = "res://external/sprites/cards/4.png" # STATUS/CURSE → Purple
+	
+	var img = Image.new()
+	var err = img.load(path)
+	if err == OK:
+		_frame_textures[card_type] = ImageTexture.create_from_image(img)
+	else:
+		push_error("Failed to load card frame: ", path, " err=", err)
+		_frame_textures[card_type] = null
+	return _frame_textures[card_type]
+
+const FRAME_TEXTURES = {
+	"color_blue": "res://external/sprites/cards/1.png",
+	"color_red": "res://external/sprites/cards/1.png",
+	"color_green": "res://external/sprites/cards/1.png",
+	"color_orange": "res://external/sprites/cards/1.png",
+	"color_white": "res://external/sprites/cards/1.png",
+	"color_purple": "res://external/sprites/cards/1.png",
+}
 
 @onready var keyword_container = $Pivot/KeywordContainer
 @onready var keyword_timer = $KeywordTimer
@@ -102,10 +133,6 @@ func update_card_display(selected_enemy: Enemy = null) -> void:
 	var type_key: String = CardData.CARD_TYPES.keys()[card_data.card_type]
 	card_type.text = I18N.tr_enum("card_rarity", rarity_key) + " " + I18N.tr_enum("card_type", type_key)
 	
-	var color_data: ColorData = Global.get_color_data(card_data.card_color_id)
-	if color_data != null:
-		card_color.color = color_data.color
-	
 	$Pivot/CardVisual/EnergySprite.visible = card_data.card_is_playable
 	
 	if card_data.card_energy_cost_is_variable:
@@ -114,6 +141,16 @@ func update_card_display(selected_enemy: Enemy = null) -> void:
 			card_energy_cost.text = "X-" + str(card_data.card_energy_cost_variable_upper_bound)
 	else:
 		card_energy_cost.text = str(card_data.get_card_energy_cost())
+
+	_update_frame()
+
+func _update_frame() -> void:
+	if frame_background == null:
+		return
+	var tex = _get_frame_texture_for_type(card_data.card_type)
+	frame_background.texture = tex
+	frame_background.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	frame_background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 
 func set_card_glow(_visible: bool) -> void:
 	card_glow.visible = _visible

@@ -20,7 +20,7 @@ func process_action_interception(action_interceptor_processor: ActionInterceptor
 			if status_effect.status_effect_script.status_secondary_charges > 0:
 				# remove a secondary charge
 				parent_combatant.add_status_effect_charges(DUPLICATE_CARD_PLAYS_STATUS_EFFECT_ID, 0, -1)
-				print("Duplicating: ", action_interceptor_processor.parent_action.card_play_request.card_data.card_name)
+				print("Duplicating: ", I18N.get_card_name(action_interceptor_processor.parent_action.card_play_request.card_data))
 				# duplicate the card play
 				var new_card_play_request: CardPlayRequest = CardPlayRequest.new()
 				new_card_play_request.card_data = card_play_request.card_data

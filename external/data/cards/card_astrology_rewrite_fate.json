@@ -59,7 +59,7 @@
 			"keyword_exhaust"
 		],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
+		"card_texture_path": "external/sprites/cards/generated/card_astrology_rewrite_fate.png",
 		"object_uid": ""
 	}
 }

@@ -362,9 +362,9 @@ texture = ExtResource("6_kw7ld")
 [node name="VBoxContainer" type="VBoxContainer" parent="TitleScreen/MainMenu" unique_id=301720558]
 layout_mode = 0
 offset_left = 474.0
-offset_top = 383.0
+offset_top = 340.0
 offset_right = 655.0
-offset_bottom = 726.0
+offset_bottom = 683.0
 
 [node name="ContinueButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=916626650]
 visible = false
@@ -697,6 +697,7 @@ offset_right = -20.0
 offset_bottom = -56.0
 grow_horizontal = 2
 grow_vertical = 2
+clip_contents = true
 follow_focus = true
 horizontal_scroll_mode = 3
 vertical_scroll_mode = 2

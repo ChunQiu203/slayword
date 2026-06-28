@@ -35,6 +35,27 @@ func _ready():
 	_update_display()
 	if _tab_container:
 		_tab_container.current_tab = 0
+	I18N.locale_changed.connect(_on_locale_changed)
+
+func _on_locale_changed(_locale: String):
+	_refresh_all_labels()
+	_collect_all_data()
+	_refresh_enemies("")
+	_refresh_cards("")
+	_refresh_artifacts("")
+	_refresh_consumables("")
+	_update_display()
+
+func _refresh_all_labels():
+	if _tab_container:
+		_tab_container.set_tab_title(0, I18N.tr_key("test.enemy"))
+		_tab_container.set_tab_title(1, I18N.tr_key("test.cards"))
+		_tab_container.set_tab_title(2, I18N.tr_key("test.artifacts"))
+		_tab_container.set_tab_title(3, I18N.tr_key("test.consumables"))
+	if _back_button:
+		_back_button.text = I18N.tr_key("menu.back")
+	if _fight_button:
+		_fight_button.text = I18N.tr_key("test.fight")
 
 # Called by TitleScreen when the menu is shown
 func populate_test_menu():
@@ -186,13 +207,13 @@ func _collect_all_data():
 	_all_enemies = Global.get_all_enemy_data()
 	
 	_all_cards = Global.get_all_cards()
-	_all_cards.sort_custom(func(a, b): return a.card_name < b.card_name)
+	_all_cards.sort_custom(func(a, b): return I18N.get_card_name(a) < I18N.get_card_name(b))
 	
 	var raw_arts = Global.get_all_artifacts()
 	_all_artifacts = []
 	for a in raw_arts:
 		if a != null: _all_artifacts.append(a)
-	_all_artifacts.sort_custom(func(a, b): return a.artifact_name < b.artifact_name)
+	_all_artifacts.sort_custom(func(a, b): return I18N.get_artifact_name(a) < I18N.get_artifact_name(b))
 	
 	_all_consumables = []
 	if "get_all_consumables" in Global.get_method_list().map(func(m): return m.name):
@@ -201,7 +222,7 @@ func _collect_all_data():
 		for cid in Global._id_to_consumable_data:
 			var cd = Global._id_to_consumable_data[cid]
 			if cd != null: _all_consumables.append(cd)
-	_all_consumables.sort_custom(func(a, b): return a.consumable_name < b.consumable_name)
+	_all_consumables.sort_custom(func(a, b): return I18N.get_consumable_name(a) < I18N.get_consumable_name(b))
 #endregion
 
 #region Search handlers
@@ -255,13 +276,14 @@ func _refresh_cards(filter: String):
 	var lower = filter.to_lower()
 	
 	for cd in _all_cards:
-		if filter != "" and lower not in cd.card_name.to_lower() and lower not in cd.object_id.to_lower():
+		var cn: String = I18N.get_card_name(cd)
+		if filter != "" and lower not in cn.to_lower() and lower not in cd.object_id.to_lower():
 			continue
-			
+
 		var toggled = cd.object_id in selected_card_ids
 		var cost_str = str(cd.card_energy_cost) if not cd.card_energy_cost_is_variable else "X"
 		var btn = Button.new()
-		btn.text = ("☑ " if toggled else "☐ ") + I18N.tr_data(cd.object_id, "card_name", cd.card_name) + "  [" + cost_str + " " + I18N.tr_key("test.energy") + "]"
+		btn.text = ("☑ " if toggled else "☐ ") + cn + "  [" + cost_str + " " + I18N.tr_key("test.energy") + "]"
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.custom_minimum_size.y = 32
@@ -290,12 +312,13 @@ func _refresh_artifacts(filter: String):
 	var lower = filter.to_lower()
 	
 	for ad in _all_artifacts:
-		if filter != "" and lower not in ad.artifact_name.to_lower() and lower not in ad.object_id.to_lower():
+		var an: String = I18N.get_artifact_name(ad)
+		if filter != "" and lower not in an.to_lower() and lower not in ad.object_id.to_lower():
 			continue
-			
+
 		var toggled = ad.object_id in selected_artifact_ids
 		var btn = Button.new()
-		btn.text = ("☑ " if toggled else "☐ ") + I18N.tr_data(ad.object_id, "artifact_name", ad.artifact_name)
+		btn.text = ("☑ " if toggled else "☐ ") + an
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.custom_minimum_size.y = 32
@@ -324,12 +347,13 @@ func _refresh_consumables(filter: String):
 	var lower = filter.to_lower()
 	
 	for cd in _all_consumables:
-		if filter != "" and lower not in cd.consumable_name.to_lower() and lower not in cd.object_id.to_lower():
+		var cn: String = I18N.get_consumable_name(cd)
+		if filter != "" and lower not in cn.to_lower() and lower not in cd.object_id.to_lower():
 			continue
-			
+
 		var toggled = cd.object_id in selected_consumable_ids
 		var btn = Button.new()
-		btn.text = ("☑ " if toggled else "☐ ") + I18N.tr_data(cd.object_id, "consumable_name", cd.consumable_name)
+		btn.text = ("☑ " if toggled else "☐ ") + cn
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.custom_minimum_size.y = 32
@@ -379,7 +403,7 @@ func _update_display():
 	var parts: Array[String] = []
 	if selected_enemy_id != "":
 		var ed = Global.get_enemy_data(selected_enemy_id)
-		if ed: parts.append("Enemy: " + ed.enemy_name)
+		if ed: parts.append("Enemy: " + I18N.get_enemy_name(ed))
 	if selected_card_ids.size() > 0: parts.append("Cards: " + str(selected_card_ids.size()))
 	if selected_artifact_ids.size() > 0: parts.append("Artifacts: " + str(selected_artifact_ids.size()))
 	if selected_consumable_ids.size() > 0: parts.append("Consumables: " + str(selected_consumable_ids.size()))
