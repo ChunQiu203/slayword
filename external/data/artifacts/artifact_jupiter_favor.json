@@ -4,7 +4,7 @@
 		"object_id": "artifact_jupiter_favor",
 		"artifact_name": "Jupiter's Favor",
 		"artifact_description": "When you place a Star in an empty House, gain 1 Energy.",
-		"artifact_texture_path": "",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_jupiter_favor.svg",
 		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 1,
