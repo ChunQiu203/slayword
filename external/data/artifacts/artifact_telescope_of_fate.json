@@ -39,7 +39,7 @@
 			},
 			{
 				"res://scripts/actions/star_chart_actions/ActionPlaceStar.gd": {
-					"star_house": 0,
+					"star_house": -1,
 					"star_count": 1
 				}
 			}

@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_uranus_awakener",
 		"card_name": "Uranus, the Awakener",
 		"card_color_id": "color_blue",
-		"card_description": "Place a Star in the House of Fate. While this Star orbits, a random Star moves an extra House each turn.",
+		"card_description": "在命运放置1颗星辰。只要该位置有星辰，每回合随机1颗星辰额外移动。",
 		"card_energy_cost": 3,
 		"card_type": 2,
 		"card_rarity": 3,
@@ -16,10 +16,18 @@
 		"card_is_retained": false,
 		"card_values": {
 			"star_house": 5,
-			"star_count": 1
+			"star_count": 1,
+			"status_effect_object_id": "status_effect_uranus_awakener",
+			"status_charge_amount": 1
 		},
 		"card_description_preview_overrides": [],
 		"card_play_actions": [
+			{
+				"res://scripts/actions/status_actions/ActionApplyStatus.gd": {
+					"target_override": 1,
+					"time_delay": 0.0
+				}
+			},
 			{
 				"res://scripts/actions/star_chart_actions/ActionPlaceStar.gd": {
 					"star_house": 5,
@@ -44,9 +52,11 @@
 		"card_upgrade_amount": 0,
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
-			"card_description": "Place a Star in the House of Fate. 2 random Stars move an extra House each turn."
+			"card_description": "在命运放置2颗星辰。只要该位置有星辰，每回合随机2颗星辰额外移动。"
 		},
-		"card_upgrade_value_improvements": {},
+		"card_upgrade_value_improvements": {
+			"star_count": 1
+		},
 		"card_energy_cost_until_played": -1,
 		"card_energy_cost_until_turn": -1,
 		"card_energy_cost_until_combat": -1,
@@ -56,7 +66,7 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_uranus_awakener.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

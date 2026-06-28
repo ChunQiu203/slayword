@@ -9,7 +9,7 @@
 		"card_type": 1,
 		"card_rarity": 0,
 		"card_requires_target": false,
-		"card_appears_in_card_packs": false,
+		"card_appears_in_card_packs": true,
 		"card_is_playable": true,
 		"card_exhausts": false,
 		"card_is_ethereal": false,
@@ -19,15 +19,15 @@
 			"max_card_amount": 3
 		},
 		"card_description_preview_overrides": [],
-		"card_play_actions": [
+"card_play_actions": [
 			{
 				"res://scripts/actions/pick_card_actions/ActionPickCards.gd": {
 					"min_card_amount": 0,
 					"max_card_amount": 3,
 					"min_cards_are_required_for_action": false,
 					"random_selection": false,
-					"card_pick_type": 0,
-					"card_pick_text": "Choose up to {0} card(s) to discard. {1} cards selected",
+					"card_pick_type": 3,
+					"card_pick_text": "选择要丢弃的牌（从牌堆顶查看）",
 					"action_data": [
 						{
 							"res://scripts/actions/cardset_actions/ActionDiscardCards.gd": {}
@@ -68,7 +68,7 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_read_heavens.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

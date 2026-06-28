@@ -398,8 +398,12 @@ func _on_player_turn_started():
 	if ActionHandler.actions_being_performed:
 		await ActionHandler.actions_ended
 	
-	# draw cards
-	ActionGenerator.generate_start_of_turn_draw_actions()
+	# draw cards (with Star Chart House of Night bonus)
+	var bonuses_for_draw := StarChartHelper.get_house_passive_bonus()
+	var bonus_draw: int = int(bonuses_for_draw.get("bonus_draw", 0))
+	var draw_count := PlayerData.PLAYER_CARD_DRAW_PER_TURN + bonus_draw
+	print("[Combat] Turn %d: drawing %d cards (base=%d bonus=%d)" % [Global.get_combat_stats().turn_count, draw_count, PlayerData.PLAYER_CARD_DRAW_PER_TURN, bonus_draw])
+	ActionGenerator.generate_start_of_turn_draw_actions(draw_count)
 	if ActionHandler.actions_being_performed:
 		await ActionHandler.actions_ended
 	
@@ -491,6 +495,24 @@ func start_turn():
 	# called from animation player
 	_reset_turn_end_queue()
 	Global.player_data.player_energy = Global.player_data.player_energy_max
+
+	# Star Chart house passives (Dawn energy + Fate random)
+	var bonuses := StarChartHelper.get_house_passive_bonus()
+	# House of Dawn: +1 energy
+	Global.player_data.player_energy += int(bonuses.get("bonus_energy", 0))
+	# Jupiter, the King: +1 energy while any Star exists
+	if player != null and player.get_status_charges("status_effect_jupiter_king") > 0:
+		if StarChartHelper.get_total_stars() > 0:
+			Global.player_data.player_energy += 1
+	# House of Fate: random bonus
+	if bonuses.get("bonus_random", false):
+		var r := randi() % 4
+		match r:
+			0: Global.player_data.player_energy += 1; Signals.energy_added.emit(1)
+			1: pass  # bonus_damage handled by interceptor
+			2: Global.player_data.player_block += 2; Signals.combatant_block_added.emit(Global.get_player())
+			3: pass  # bonus_draw handled in draw phase
+
 	update_combat_display()
 	Signals.player_turn_started.emit()
 

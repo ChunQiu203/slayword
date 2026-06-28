@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_neptune_dreamer",
 		"card_name": "Neptune, the Dreamer",
 		"card_color_id": "color_blue",
-		"card_description": "Place a Star in the House of Night. While this Star orbits, draw [draw_count] extra card at start of turn.",
+		"card_description": "Place a Star in the 夜晚. While this Star orbits, draw [draw_count] extra card at start of turn.",
 		"card_energy_cost": 2,
 		"card_type": 2,
 		"card_rarity": 2,
@@ -17,10 +17,18 @@
 		"card_values": {
 			"star_house": 3,
 			"star_count": 1,
-			"draw_count": 1
+			"draw_count": 1,
+			"status_effect_object_id": "status_effect_neptune_dreamer",
+			"status_charge_amount": 1
 		},
 		"card_description_preview_overrides": [],
 		"card_play_actions": [
+			{
+				"res://scripts/actions/status_actions/ActionApplyStatus.gd": {
+					"target_override": 1,
+					"time_delay": 0.0
+				}
+			},
 			{
 				"res://scripts/actions/star_chart_actions/ActionPlaceStar.gd": {
 					"star_house": 3,
@@ -57,7 +65,8 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_neptune_dreamer.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }
+

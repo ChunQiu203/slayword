@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_dark_matter",
 		"card_name": "Dark Matter",
 		"card_color_id": "color_blue",
-		"card_description": "Gain 1 Intangible. Place a Star in the House of Fate. Exhaust.",
+		"card_description": "获得1层无形。在命运放置1颗星辰。消耗。",
 		"card_energy_cost": 1,
 		"card_type": 1,
 		"card_rarity": 2,
@@ -45,7 +45,7 @@
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
 			"card_exhausts": false,
-			"card_description": "Gain 1 Intangible. Place a Star in the House of Fate."
+			"card_description": "获得1层无形。在命运放置1颗星辰。"
 		},
 		"card_upgrade_value_improvements": {},
 		"card_energy_cost_until_played": -1,
@@ -59,7 +59,7 @@
 			"keyword_exhaust"
 		],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_dark_matter.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

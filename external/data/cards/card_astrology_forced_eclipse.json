@@ -17,7 +17,7 @@
 		"card_values": {
 			"eclipse_energy": 2,
 			"eclipse_draw": 5,
-			"eclipse_damage": 12
+			"eclipse_damage": 15
 		},
 		"card_description_preview_overrides": [],
 		"card_play_actions": [
@@ -25,7 +25,7 @@
 				"res://scripts/actions/star_chart_actions/ActionEclipse.gd": {
 					"eclipse_energy": 2,
 					"eclipse_draw": 5,
-					"eclipse_damage": 12
+					"eclipse_damage": 15
 				}
 			}
 		],
@@ -58,7 +58,7 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_forced_eclipse.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

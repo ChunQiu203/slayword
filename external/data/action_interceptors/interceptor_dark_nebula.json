@@ -1,0 +1,12 @@
+{
+	"patch_data": {},
+	"properties": {
+		"action_intercepted_action_paths": [
+			"res://scripts/actions/star_chart_actions/ActionConsumeStar.gd"
+		],
+		"action_interceptor_modifies_parent": true,
+		"action_interceptor_priority": 10000,
+		"action_interceptor_script_path": "res://scripts/action_interceptors/InterceptorDarkNebula.gd",
+		"object_id": "interceptor_dark_nebula"
+	}
+}

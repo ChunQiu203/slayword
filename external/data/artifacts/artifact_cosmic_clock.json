@@ -3,9 +3,9 @@
 	"properties": {
 		"object_id": "artifact_cosmic_clock",
 		"artifact_name": "Cosmic Clock",
-		"artifact_description": "See which House each Star will be in next turn on the Star Chart.",
+		"artifact_description": "Draw 1 extra card at the start of each turn.",
 		"artifact_texture_path": "external/sprites/artifacts/artifact_cosmic_clock.svg",
-		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
+		"artifact_script_path": "res://scripts/artifacts/ArtifactCosmicClock.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 1,
 		"artifact_counter_reset_on_turn_start": -1,
@@ -21,8 +21,10 @@
 		"artifact_right_click_validators": [],
 		"artifact_first_turn_actions": [],
 		"artifact_end_of_combat_actions": [],
-		"artifact_turn_start_actions": [],
+		"artifact_turn_start_actions": [{"res://scripts/actions/meta_actions/ActionDrawGenerator.gd": {"draw_count": 1}}],
 		"artifact_turn_end_actions": [],
 		"object_uid": ""
 	}
 }
+
+

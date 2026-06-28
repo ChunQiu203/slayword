@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_pluto_judge",
 		"card_name": "Pluto, the Judge",
 		"card_color_id": "color_blue",
-		"card_description": "Place a Star in the House of Fate. While this Star orbits, the first enemy killed each combat drops double gold.",
+		"card_description": "在命运放置1颗星辰。只要该位置有星辰，每场战斗首次击杀敌人掉落双倍金币。",
 		"card_energy_cost": 3,
 		"card_type": 2,
 		"card_rarity": 3,
@@ -16,10 +16,18 @@
 		"card_is_retained": false,
 		"card_values": {
 			"star_house": 5,
-			"star_count": 1
+			"star_count": 1,
+			"status_effect_object_id": "status_effect_pluto_judge",
+			"status_charge_amount": 1
 		},
 		"card_description_preview_overrides": [],
 		"card_play_actions": [
+			{
+				"res://scripts/actions/status_actions/ActionApplyStatus.gd": {
+					"target_override": 1,
+					"time_delay": 0.0
+				}
+			},
 			{
 				"res://scripts/actions/star_chart_actions/ActionPlaceStar.gd": {
 					"star_house": 5,
@@ -54,7 +62,8 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_pluto_judge.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }
+

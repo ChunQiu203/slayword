@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_cosmic_inflation",
 		"card_name": "Cosmic Inflation",
 		"card_color_id": "color_blue",
-		"card_description": "When you play a card costing 2+, place a Star in the House of Dawn.",
+		"card_description": "When you play a card costing 2+, place a Star in the 黎明.",
 		"card_energy_cost": 2,
 		"card_type": 2,
 		"card_rarity": 3,
@@ -54,7 +54,8 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_cosmic_inflation.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }
+

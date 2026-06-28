@@ -41,7 +41,13 @@
 		"card_add_to_deck_actions": [],
 		"card_remove_from_deck_actions": [],
 		"card_transform_in_deck_actions": [],
-		"card_play_validators": [],
+		"card_play_validators": [
+			{
+				"res://scripts/validators/card_plays/ValidatorStarChart.gd": {
+					"star_houses_occupied": 3
+				}
+			}
+		],
 		"card_glow_validators": [],
 		"card_listeners": [],
 		"card_tags": [],
@@ -61,7 +67,7 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_grand_trine.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

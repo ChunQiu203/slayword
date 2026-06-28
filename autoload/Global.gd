@@ -2021,115 +2021,32 @@ func get_player_character_data() -> CharacterData:
 	return character_data
 
 func add_test_characters() -> void:
-	# red character
-	var character_red: CharacterData = CharacterData.new("character_red")
-	character_red.character_player_id = "player_red"
-	character_red.character_name = "赤色战士"
-	character_red.character_description = "高血量近战专家。擅长正面强攻和力量压制。起始遗物「反击格挡」每3次攻击自动生成护盾。"
-	character_red.character_color_id = "color_red"
-	character_red.character_starting_artifact_pack_ids = ["artifact_pack_white", "artifact_pack_red"]
-	
-	character_red.character_starting_health = 80
-
-	character_red.character_texture_path = "external/sprites/characters/character_red/character_red.svg"
-	character_red.character_icon_texture_path = "external/sprites/characters/character_red/character_red_icon.svg"
-
-	character_red.character_text_energy_texture_path = "external/sprites/characters/character_red/character_red_text_energy.png"
-	character_red.character_starting_artifact_ids = ["artifact_block_on_attacks"]
-	character_red.character_starting_card_object_ids = [
-		"card_attack_basic", "card_attack_basic", "card_attack_basic",
-		# "card_law", "card_law", "card_law", "card_law",
-		"card_requires_adjacency",
-		"attack_with_conditional_block_card",
-		#"cards_played_attack_card","cards_played_attack_card","cards_played_attack_card",
-		"card_damage_increase", "ignore_damage_increase_attack_card",
-		"card_block_basic", "card_block_basic", "card_block_basic",
-		"card_block_basic", "card_block_basic", "card_block_basic",
-		# "card_attack_in_center", "card_attack_big", "card_block_without_attacks",
-		"card_weaken_enemies", "card_vulnerable_enemies", "card_grant_energy",
-		#"card_add_consumable", "upgrade_entire_deck_card", "attack_increase_cost_on_damage_taken_card",
-		#"card_right_click_transform_mode_a", "card_banish_attack",
-	]
-	character_red.character_starting_card_draft_card_pack_ids = ["card_pack_red"]
-	
-	register_rod(character_red)
-	
-	# blue character
+	# The Astrologer — the only playable character
 	var character_blue: CharacterData = CharacterData.new("character_blue")
 	character_blue.character_player_id = "player_blue"
-	character_blue.character_name = "纸间行者"
-	character_blue.character_description = "穿梭于词句之间。擅长抽牌控制和词汇联动，起始遗物可预知抽牌堆顶端。"
+	character_blue.character_name = "The Astrologer"
+	character_blue.character_description = "The Astrologer reads the stars and bends fate. Place Stars into the Star Chart, watch them orbit through 6 Houses, and unleash devastating Alignments and Eclipses."
 	character_blue.character_color_id = "color_blue"
-	character_blue.character_starting_health = 70
+	character_blue.character_starting_health = 72
 
 	character_blue.character_texture_path = "external/sprites/characters/character_blue/paperkeeper.png"
 	character_blue.character_icon_texture_path = "external/sprites/characters/character_blue/paperkeepericon.png"
 
 	character_blue.character_text_energy_texture_path = "external/sprites/characters/character_blue/character_blue_text_energy.png"
-	character_blue.character_starting_artifact_ids = ["artifact_see_top_of_draw_pile"]
+	character_blue.character_starting_artifact_ids = ["artifact_brass_astrolabe"]
 	character_blue.character_starting_artifact_pack_ids = ["artifact_pack_white", "artifact_pack_blue"]
 	character_blue.character_starting_card_object_ids = [
-		"card_attack_basic", "card_attack_basic",
-		"card_block_basic", "card_block_basic", "card_block_basic",
-		"card_draw", "card_reshuffle_draw", "card_scry",
-		"card_hand_cannon", "card_adrenaline",
-		"card_word_power", "card_knowledge_wall",
-		"card_duplicate_attacks",
+		"card_astrology_stellar_strike", "card_astrology_stellar_strike",
+		"card_astrology_stellar_strike", "card_astrology_stellar_strike",
+		"card_astrology_stellar_guard", "card_astrology_stellar_guard",
+		"card_astrology_stellar_guard", "card_astrology_stellar_guard",
+		"card_astrology_place_saturn", "card_astrology_place_mercury",
+		"card_astrology_read_heavens", "card_astrology_destined_strike",
 	]
 	character_blue.character_starting_card_draft_card_pack_ids = ["card_pack_blue"]
-	
+	character_blue.character_starting_money = 99
+
 	register_rod(character_blue)
-	
-	# green character
-	var character_green: CharacterData = CharacterData.new("character_green")
-	character_green.character_player_id = "player_green"
-	character_green.character_name = "翠绿腐蚀者"
-	character_green.character_description = "操控腐蚀之力。擅长持续伤害和Debuff叠加，起始遗物每回合多抽2张牌。"
-	character_green.character_color_id = "color_green"
-	character_green.character_starting_health = 75
-
-	character_green.character_texture_path = "external/sprites/characters/character_green/character_green.svg"
-	character_green.character_icon_texture_path = "external/sprites/characters/character_green/character_green_icon.svg"
-
-	character_green.character_text_energy_texture_path = "external/sprites/characters/character_green/character_green_text_energy.png"
-	character_green.character_starting_artifact_ids = ["artifact_draw_on_combat_start"]
-	character_green.character_starting_artifact_pack_ids = ["artifact_pack_white", "artifact_pack_green"]
-	character_green.character_starting_card_object_ids = [
-		"card_attack_basic", "card_attack_basic", "card_attack_basic",
-		#"card_block_basic", "card_block_basic", "card_block_basic",
-		#"variable_cost_attack_card", "card_discard_block", "card_attack_corrosion", "card_energy_on_discard",
-		"custom_block_card", "attack_lower_cost_on_discard_card", "card_preserve_block",
-		"card_duplicate_plays", "card_draft_random_attack",
-	]
-	character_green.character_starting_card_draft_card_pack_ids = ["card_pack_green"]
-	
-	register_rod(character_green)
-	
-	# orange character
-	var character_orange: CharacterData = CharacterData.new("character_orange")
-	character_orange.character_player_id = "player_orange"
-	character_orange.character_name = "橙色守护者"
-	character_orange.character_description = "坚不可摧的堡垒。擅长格挡积累和战后回复，起始遗物可在休息站获得永久攻击提升。"
-	character_orange.character_color_id = "color_orange"
-	character_orange.character_starting_health = 70
-
-	character_orange.character_texture_path = "external/sprites/characters/character_orange/character_orange.svg"
-	character_orange.character_icon_texture_path = "external/sprites/characters/character_orange/character_orange_icon.svg"
-
-	character_orange.character_text_energy_texture_path = "external/sprites/characters/character_orange/character_orange_text_energy.png"
-	character_orange.character_starting_artifact_ids = ["artifact_increase_attack_on_rest", "artifact_see_top_of_draw_pile"]
-	character_orange.character_starting_artifact_pack_ids = ["artifact_pack_white", "artifact_pack_orange"]
-	character_orange.character_starting_card_object_ids = [
-		"card_attack_basic", "card_attack_basic", "card_attack_basic",
-		"card_restart_combat",
-		"card_block_basic", "card_block_basic", "card_block_basic",
-		"retain_hand_card", "card_play_from_discard", "card_draw", "card_energy_on_draw",
-		"card_improving_block", "card_improving_attack", "card_play_random_from_hand", "card_bomb",
-		"add_to_draw_from_discard_card", "add_to_draw_from_discard_card", "card_banish_attack",
-	]
-	character_orange.character_starting_card_draft_card_pack_ids = ["card_pack_orange"]
-	
-	register_rod(character_orange)
 #endregion
 
 #region Run Modifiers (DEPRECATED - all data now in external/data/run_modifiers/)
@@ -2806,29 +2723,10 @@ func get_enemy_data_from_prototype(enemy_object_id: String) -> EnemyData:
 #region Player Data Prototypes (DEPRECATED - all data now in external/data/player/)
 
 func add_test_player_data() -> void:
-	var player_red: PlayerData = PlayerData.new("player_red")
-	player_red.player_character_object_id = "character_red"
-	
-	register_rod(player_red)
-	
 	var player_blue: PlayerData = PlayerData.new("player_blue")
 	player_blue.player_character_object_id = "character_blue"
-	
-	register_rod(player_blue)
-	
-	var player_green: PlayerData = PlayerData.new("player_green")
-	player_green.player_character_object_id = "character_green"
-	
-	register_rod(player_green)
-	
-	var player_orange: PlayerData = PlayerData.new("player_orange")
-	player_orange.player_character_object_id = "character_orange"
-	
-	register_rod(player_orange)
 
-	var player_archivist: PlayerData = PlayerData.new("player_archivist")
-	player_archivist.player_character_object_id = "character_archivist"
-	register_rod(player_archivist)
+	register_rod(player_blue)
 
 func get_player_data_from_prototype(player_id: String) -> PlayerData:
 	var _player_data: PlayerData = _id_to_player_data[player_id]

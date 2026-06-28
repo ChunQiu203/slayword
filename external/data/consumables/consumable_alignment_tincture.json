@@ -3,14 +3,14 @@
 	"properties": {
 		"object_id": "consumable_alignment_tincture",
 		"consumable_name": "Alignment Tincture",
-		"consumable_description": "Trigger the Alignment of any House.",
+		"consumable_description": "Choose a House. Trigger its Alignment effect.",
 		"consumable_texture_path": "external/sprites/consumables/consumable_alignment_tincture.svg",
 		"consumable_requires_target": false,
 		"consumable_rarity": 0,
 		"consumable_actions": [
 			{
-				"res://scripts/actions/star_chart_actions/ActionTriggerAlignment.gd": {
-					"star_house": 0
+				"res://scripts/actions/star_chart_actions/ActionTriggerAlignmentWithChoice.gd": {
+					"time_delay": 0.2
 				}
 			}
 		],

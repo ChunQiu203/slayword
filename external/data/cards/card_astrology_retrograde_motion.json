@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_retrograde_motion",
 		"card_name": "Retrograde Motion",
 		"card_color_id": "color_blue",
-		"card_description": "At start of turn, ALL Stars rotate counter-clockwise instead of clockwise.",
+		"card_description": "能力：每回合开始时，如果你拥有3颗以上星辰，获得1点能量。",
 		"card_energy_cost": 2,
 		"card_type": 2,
 		"card_rarity": 3,
@@ -34,7 +34,7 @@
 		"card_upgrade_amount": 0,
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
-			"card_description": "At start of turn, choose the rotation direction."
+			"card_description": "能力：每回合开始时，若有3颗以上星辰，获得1点能量。"
 		},
 		"card_upgrade_value_improvements": {},
 		"card_energy_cost_until_played": -1,
@@ -46,7 +46,10 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_retrograde_motion.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }
+
+
+

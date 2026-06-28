@@ -43,6 +43,9 @@
 					"star_house": 5,
 					"star_count": 1
 				}
+			},
+			{
+				"res://scripts/actions/consumable_actions/ActionRemoveEtherealFromHand.gd": {}
 			}
 		],
 		"object_uid": ""

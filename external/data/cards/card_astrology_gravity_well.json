@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_gravity_well",
 		"card_name": "Gravity Well",
 		"card_color_id": "color_blue",
-		"card_description": "ALL enemies lose [strength_loss] Strength this turn. Place a Star in the House of Night.",
+		"card_description": "ALL enemies lose [strength_loss] Strength this turn. Place a Star in the 夜晚.",
 		"card_energy_cost": 2,
 		"card_type": 1,
 		"card_rarity": 2,
@@ -64,7 +64,8 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_gravity_well.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }
+

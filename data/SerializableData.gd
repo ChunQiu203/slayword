@@ -471,7 +471,7 @@ static func json_friendly_to_native_dict(type_hint_value: Variant, json_friendly
 	
 	return json_friendly_values # return existing dict
 
-static func json_friendly_to_native_array(type_hint_value: Variant, json_value: Array) -> Array:
+static func json_friendly_to_native_array(_type_hint_value: Variant, json_value: Array) -> Array:
 	return []
 
 ## Converts a json friendly object back to its original state, using the property to determine type.

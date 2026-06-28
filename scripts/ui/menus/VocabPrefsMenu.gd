@@ -628,6 +628,7 @@ func _build_quiz_card(parent: Node) -> void:
 	_vocab_mode_option.custom_minimum_size = Vector2(200, 36)
 	_vocab_mode_option.add_item("每张牌复习（现有模式）", 0)
 	_vocab_mode_option.add_item("每回合一个单词（顺序学习）", 1)
+	_vocab_mode_option.add_item("纯卡牌模式（不背单词）", 2)
 	_vocab_mode_option.item_selected.connect(_on_vocab_mode_selected)
 	_style_option_button(_vocab_mode_option)
 	box.add_child(_vocab_mode_option)
@@ -751,6 +752,7 @@ func _refresh_vocab_study_prefs_i18n() -> void:
 		_vocab_mode_hint.text = I18N.tr_key("menu.vocab_mode_hint")
 	_vocab_mode_option.set_item_text(0, I18N.tr_key("menu.vocab_mode_per_card"))
 	_vocab_mode_option.set_item_text(1, I18N.tr_key("menu.vocab_mode_per_turn"))
+	_vocab_mode_option.set_item_text(2, I18N.tr_key("menu.vocab_mode_none"))
 	for sid: String in _learn_step_id_to_checkbox.keys():
 		var cb_ls: CheckBox = _learn_step_id_to_checkbox[sid]
 		cb_ls.text = I18N.tr_key("menu.vocab_learn_" + sid)
@@ -784,8 +786,11 @@ func _sync_vocab_study_prefs_from_settings() -> void:
 		_vocab_ord_spin.set_value_no_signal(float(Global.user_settings_data.settings_vocab_daily_ordered_example_words))
 	if _vocab_mode_option:
 		_vocab_mode_option.set_block_signals(true)
-		if Global.user_settings_data.settings_vocab_mode == "per_turn":
+		var mode: String = Global.user_settings_data.settings_vocab_mode
+		if mode == "per_turn":
 			_vocab_mode_option.selected = 1
+		elif mode == "none":
+			_vocab_mode_option.selected = 2
 		else:
 			_vocab_mode_option.selected = 0
 		_vocab_mode_option.set_block_signals(false)
@@ -936,8 +941,10 @@ func _on_learn_step_toggled(_pressed: bool, step_id: String) -> void:
 func _on_vocab_mode_selected(index: int) -> void:
 	if index == 0:
 		Global.user_settings_data.settings_vocab_mode = "per_card"
-	else:
+	elif index == 1:
 		Global.user_settings_data.settings_vocab_mode = "per_turn"
+	else:
+		Global.user_settings_data.settings_vocab_mode = "none"
 	FileLoader.save_user_settings()
 	VocabStudy.reload_from_settings()
 	_refresh_dashboard_stats()

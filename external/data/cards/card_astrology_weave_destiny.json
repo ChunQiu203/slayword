@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_weave_destiny",
 		"card_name": "Weave Destiny",
 		"card_color_id": "color_blue",
-		"card_description": "Choose a card in your hand. It gains Retain. Next turn, it costs 0.",
+		"card_description": "Choose a card in your hand. It gains Retain and costs 0 this turn.",
 		"card_energy_cost": 2,
 		"card_type": 1,
 		"card_rarity": 2,
@@ -14,9 +14,23 @@
 		"card_exhausts": false,
 		"card_is_ethereal": false,
 		"card_is_retained": true,
-		"card_values": {},
+		"card_values": {
+			"min_card_amount": 1,
+			"max_card_amount": 1
+		},
 		"card_description_preview_overrides": [],
-		"card_play_actions": [],
+		"card_play_actions": [
+			{
+				"res://scripts/actions/pick_card_actions/ActionWeaveDestiny.gd": {
+					"min_card_amount": 1,
+					"max_card_amount": 1,
+					"min_cards_are_required_for_action": true,
+					"random_selection": false,
+					"card_pick_type": 0,
+					"card_pick_text": "Choose a card to gain Retain — costs 0 next turn"
+				}
+			}
+		],
 		"card_discard_actions": [],
 		"card_end_of_turn_actions": [],
 		"card_exhaust_actions": [],
@@ -44,7 +58,7 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_weave_destiny.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

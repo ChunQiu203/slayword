@@ -2355,6 +2355,11 @@ func sample_distractor_meanings_for_mc(
 
 
 func gate_before_play() -> bool:
+	# 纯卡牌模式：跳过单词复习
+	var current_mode: String = Global.user_settings_data.settings_vocab_mode
+	if current_mode == "none":
+		return false
+
 	if _overlay == null:
 		print("VocabStudy.gate: _overlay is null")
 		return false
@@ -2364,7 +2369,6 @@ func gate_before_play() -> bool:
 	if not Global.is_player_in_combat():
 		return false
 
-	var current_mode: String = Global.user_settings_data.settings_vocab_mode
 	if current_mode == VOCAB_MODE_PER_TURN:
 		return await _gate_before_play_per_turn()
 	else:

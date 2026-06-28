@@ -4,7 +4,7 @@
 	},
 	"properties": {
 		"card_add_to_deck_actions": [],
-		"card_appears_in_card_packs": true,
+		"card_appears_in_card_packs": false,
 		"card_color_id": "color_blue",
 		"card_description": "Attack for [damage] + [damage_random] damage",
 		"card_description_preview_overrides": [],
@@ -65,3 +65,4 @@
 		"object_uid": ""
 	}
 }
+

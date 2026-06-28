@@ -24,7 +24,7 @@ class_name UserSettingsData
 @export var settings_vocab_learn_steps_enabled: Array[String] = ["en2zh", "zh2en", "spell", "dictation"]
 ## 出牌复习时在哪些题型中随机抽一种（至少勾选一个）。
 @export var settings_vocab_review_modes_enabled: Array[String] = ["spell", "meaning", "mc4", "recall"]
-## 背单词模式：per_card（每张牌复习）或 per_turn（每回合一个单词，按顺序）
+## 背单词模式：per_card（每张牌复习）、per_turn（每回合一个单词，按顺序）、none（纯卡牌模式，不背单词）
 @export var settings_vocab_mode: String = "per_card"
 ## 每个自然日从合并词池中按顺序取多少「未 learned」词作为当日优先新词（0=不启用优先队列，行为与旧版一致）。
 @export var settings_vocab_daily_new_words: int = 15

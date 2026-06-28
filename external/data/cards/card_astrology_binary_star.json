@@ -45,7 +45,7 @@
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
 			"card_is_ethereal": false,
-			"card_description": "Place 2 Stars in the same House (triggers Alignment)."
+			"card_description": "在同一宫放置2颗星辰（触发星座）。"
 		},
 		"card_upgrade_value_improvements": {},
 		"card_energy_cost_until_played": -1,
@@ -59,7 +59,7 @@
 			"keyword_ethereal"
 		],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_binary_star.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

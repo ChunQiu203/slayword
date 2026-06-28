@@ -18,7 +18,14 @@
 		"card_description_preview_overrides": [],
 		"card_play_actions": [],
 		"card_discard_actions": [],
-		"card_end_of_turn_actions": [],
+		"card_end_of_turn_actions": [
+		{
+			"res://scripts/actions/star_chart_actions/ActionConsumeStar.gd": {
+				"star_house": -1,
+				"star_count": 1
+			}
+		}
+	],
 		"card_exhaust_actions": [],
 		"card_draw_actions": [],
 		"card_retain_actions": [],
@@ -46,7 +53,7 @@
 			"keyword_ethereal"
 		],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_bad_omen.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

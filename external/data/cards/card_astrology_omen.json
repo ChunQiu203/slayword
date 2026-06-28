@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_omen",
 		"card_name": "Omen",
 		"card_color_id": "color_blue",
-		"card_description": "Place a Star in a random House. Draw [draw_count] card.",
+		"card_description": "Next turn, place a Star in a random House at start of turn. Draw [draw_count] card.",
 		"card_energy_cost": 1,
 		"card_type": 1,
 		"card_rarity": 1,
@@ -16,15 +16,15 @@
 		"card_is_retained": false,
 		"card_values": {
 			"draw_count": 1,
-			"star_count": 1,
-			"star_house": -1
+			"status_charge_amount": 1,
+			"status_effect_object_id": "status_effect_omen"
 		},
 		"card_description_preview_overrides": [],
 		"card_play_actions": [
 			{
-				"res://scripts/actions/star_chart_actions/ActionPlaceStar.gd": {
-					"star_house": -1,
-					"star_count": 1
+				"res://scripts/actions/status_actions/ActionApplyStatus.gd": {
+					"target_override": 1,
+					"time_delay": 0.0
 				}
 			},
 			{
@@ -51,7 +51,7 @@
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {},
 		"card_upgrade_value_improvements": {
-			"star_count": 1
+			"status_charge_amount": 1
 		},
 		"card_energy_cost_until_played": -1,
 		"card_energy_cost_until_turn": -1,
@@ -62,7 +62,7 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_omen.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_event_horizon",
 		"card_name": "Event Horizon",
 		"card_color_id": "color_blue",
-		"card_description": "At start of turn, draw [draw_count] card and place a Star in the House of Night.",
+		"card_description": "At start of turn, draw [draw_count] card and place a Star in the 夜晚.",
 		"card_energy_cost": 3,
 		"card_type": 2,
 		"card_rarity": 3,
@@ -60,7 +60,8 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_event_horizon.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }
+

@@ -1,0 +1,66 @@
+{
+	"patch_data": {},
+	"properties": {
+		"object_id": "card_astrology_dawn_blessing",
+		"card_name": "Dawn's Blessing",
+		"card_color_id": "color_blue",
+		"card_description": "消耗1颗黎明星辰。获得 [energy_amount] 点能量。",
+		"card_energy_cost": 0,
+		"card_type": 1,
+		"card_rarity": 4,
+		"card_requires_target": false,
+		"card_appears_in_card_packs": false,
+		"card_is_playable": true,
+		"card_exhausts": false,
+		"card_is_ethereal": false,
+		"card_is_retained": true,
+		"card_values": {
+			"energy_amount": 2
+		},
+		"card_description_preview_overrides": [],
+		"card_play_actions": [
+			{
+				"res://scripts/actions/star_chart_actions/ActionConsumeStar.gd": {
+					"star_house": 0,
+					"star_count": 1
+				}
+			},
+			{
+				"res://scripts/actions/ActionAddEnergy.gd": {
+					"energy_amount": 2
+				}
+			}
+		],
+		"card_discard_actions": [],
+		"card_end_of_turn_actions": [],
+		"card_exhaust_actions": [],
+		"card_draw_actions": [],
+		"card_retain_actions": [],
+		"card_right_click_actions": [],
+		"card_initial_combat_actions": [],
+		"card_add_to_deck_actions": [],
+		"card_remove_from_deck_actions": [],
+		"card_transform_in_deck_actions": [],
+		"card_play_validators": [],
+		"card_glow_validators": [],
+		"card_listeners": [],
+		"card_tags": [],
+		"card_upgrade_amount": 0,
+		"card_upgrade_amount_max": 1,
+		"card_first_upgrade_property_changes": {},
+		"card_upgrade_value_improvements": {
+			"energy_amount": 1
+		},
+		"card_energy_cost_until_played": -1,
+		"card_energy_cost_until_turn": -1,
+		"card_energy_cost_until_combat": -1,
+		"card_unremovable_from_deck": false,
+		"card_untransformable_from_deck": false,
+		"card_energy_cost_is_variable": false,
+		"card_energy_cost_variable_upper_bound": -1,
+		"card_keyword_object_ids": [],
+		"card_first_shuffle_priority": 0,
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
+		"object_uid": ""
+	}
+}

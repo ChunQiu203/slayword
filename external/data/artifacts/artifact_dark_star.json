@@ -5,7 +5,7 @@
 		"artifact_name": "Dark Star",
 		"artifact_description": "The first time you would die each combat, consume all Stars, heal to 1 HP, and gain 1 Intangible.",
 		"artifact_texture_path": "external/sprites/artifacts/artifact_dark_star.svg",
-		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
+		"artifact_script_path": "res://scripts/artifacts/ArtifactDarkStar.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 1,
 		"artifact_counter_reset_on_turn_start": -1,
@@ -19,10 +19,12 @@
 		"artifact_remove_actions": [],
 		"artifact_right_click_actions": [],
 		"artifact_right_click_validators": [],
-		"artifact_first_turn_actions": [],
+		"artifact_first_turn_actions": [{"res://scripts/actions/ActionAddHealth.gd": {"heal_amount": 10}}],
 		"artifact_end_of_combat_actions": [],
 		"artifact_turn_start_actions": [],
 		"artifact_turn_end_actions": [],
 		"object_uid": ""
 	}
 }
+
+

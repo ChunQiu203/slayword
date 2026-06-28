@@ -1,5 +1,15 @@
 extends BaseAction
 ## Trigger the Alignment effect for a specific House.
+## Instead of applying effects directly, adds a corresponding card to the player's hand.
+
+const ALIGNMENT_CARDS: Array[String] = [
+	"card_astrology_dawn_blessing",    # Dawn - +2 energy
+	"card_astrology_noon_fury",        # Noon - AOE damage
+	"card_astrology_dusk_guard",       # Dusk - block
+	"card_astrology_night_whisper",    # Night - draw cards
+	"card_astrology_wisdom_insight",   # Wisdom - upgrade card
+	"card_astrology_fate_decree",      # Fate - all effects at half
+]
 
 func perform_action():
 	var empty_targets: Array[BaseCombatant] = []
@@ -9,44 +19,41 @@ func perform_action():
 		var stars := StarChartHelper.get_star_count(house)
 		if stars < 2:
 			return
-		Signals.alignment_triggered.emit(house, stars)
-		match house:
-			0:  # Dawn - double energy
-				Global.player_data.player_energy += 2
-				Signals.energy_added.emit(2)
-			1:  # Noon - damage all enemies
-				var dmg := stars * 3
-				var enemies := Global.get_tree().get_nodes_in_group("enemies")
-				for enemy in enemies:
-					if enemy.is_alive():
-						enemy.damage(dmg, false)
-			2:  # Dusk - gain block
-				var blk := stars * 2
-				Global.player_data.player_block += blk
-				Signals.combatant_block_added.emit(Global.get_player())
-			3:  # Night - draw
-				Signals.card_draw_requested.emit(stars, Global.player_data.PLAYER_DEFAULT_HAND_CARD_COUNT_MAX)
-			4:  # Wisdom - upgrade random card
-				var hand := Global.player_data.player_hand.duplicate()
-				if not hand.is_empty():
-					hand.shuffle()
-					for card in hand:
-						if card.card_upgrade_amount < card.card_upgrade_amount_max:
-							card.upgrade_card()
-							break
-			5:  # Fate - random bonus
-				var r := randi() % 4
-				match r:
-					0: Global.player_data.player_energy += 1; Signals.energy_added.emit(1)
-					1:
-						var enemies2 := Global.get_tree().get_nodes_in_group("enemies")
-						for enemy in enemies2:
-							if enemy.is_alive():
-								enemy.damage(stars * 2, false)
-					2:
-						Global.player_data.player_block += stars * 2
-						Signals.combatant_block_added.emit(Global.get_player())
-					3: Signals.card_draw_requested.emit(stars, Global.player_data.PLAYER_DEFAULT_HAND_CARD_COUNT_MAX)
+		_add_alignment_card(house)
+		# Twin Destiny: double trigger for the designated house
+		var player := Global.get_player()
+		if player != null:
+			var twin_house: int = int(Global.player_data.player_values.get("_twin_destiny_house", -1))
+			if twin_house == house:
+				_add_alignment_card(house)
+
+func _add_alignment_card(house: int) -> void:
+	if house < 0 or house >= ALIGNMENT_CARDS.size():
+		return
+	var card_object_id: String = ALIGNMENT_CARDS[house]
+	var card_data: CardData = Global.get_card_data_from_prototype(card_object_id)
+	if card_data == null:
+		return
+	# Create a copy and add to hand
+	var new_card: CardData = card_data.get_prototype(true)
+	new_card.set_card_energy_cost_until_played(0)
+	Global.player_data.player_hand.append(new_card)
+	Signals.card_created.emit(new_card)
+	Signals.alignment_triggered.emit(house, StarChartHelper.get_star_count(house))
+
+static func trigger_house_alignment(house: int, stars: int) -> void:
+	# Static version for direct calls (kept for compatibility)
+	var card_object_id: String = ALIGNMENT_CARDS[house] if house < ALIGNMENT_CARDS.size() else ""
+	if card_object_id.is_empty():
+		return
+	var card_data: CardData = Global.get_card_data_from_prototype(card_object_id)
+	if card_data == null:
+		return
+	var new_card: CardData = card_data.get_prototype(true)
+	new_card.set_card_energy_cost_until_played(0)
+	Global.player_data.player_hand.append(new_card)
+	Signals.card_created.emit(new_card)
+	Signals.alignment_triggered.emit(house, stars)
 
 func is_action_async() -> bool:
 	return false

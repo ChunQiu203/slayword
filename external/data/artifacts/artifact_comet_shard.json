@@ -5,7 +5,7 @@
 		"artifact_name": "Comet Shard",
 		"artifact_description": "Whenever you consume a Star, gain 2 Block.",
 		"artifact_texture_path": "external/sprites/artifacts/artifact_comet_shard.svg",
-		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
+		"artifact_script_path": "res://scripts/artifacts/ArtifactCometShard.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 1,
 		"artifact_counter_reset_on_turn_start": -1,

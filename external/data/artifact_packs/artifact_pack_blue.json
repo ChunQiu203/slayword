@@ -3,7 +3,24 @@
 
 	},
 	"properties": {
-		"artifact_pack_artifact_ids": [],
+		"artifact_pack_artifact_ids": [
+			"artifact_star_map",
+			"artifact_lens_of_clarity",
+			"artifact_mercury_quill",
+			"artifact_comet_shard",
+			"artifact_lunar_calendar",
+			"artifact_jupiter_favor",
+			"artifact_constellation_globe",
+			"artifact_eclipse_prism",
+			"artifact_saturn_ring",
+			"artifact_cosmic_clock",
+			"artifact_nebula_gem",
+			"artifact_dark_star",
+			"artifact_zodiac_codex",
+			"artifact_heliocentric_model",
+			"artifact_telescope_of_fate",
+			"artifact_orrery_of_worlds"
+		],
 		"artifact_pack_color_id": "color_blue",
 		"exclude_non_standard_rarities": false,
 		"object_id": "artifact_pack_blue"

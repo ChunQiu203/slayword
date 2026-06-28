@@ -1,5 +1,5 @@
 ## UI element for an artifact.
-## Supports being right clicked to activate effects
+## Click to show artifact details popup.
 extends TextureButton
 
 var artifact_data: ArtifactData
@@ -11,6 +11,8 @@ var artifact_script: BaseArtifact
 func _ready():
 	Signals.artifact_proc.connect(_on_artifact_proc)
 	Signals.artifact_counter_changed.connect(_on_artifact_counter_changed)
+	# Allow left click (tap on mobile)
+	button_mask = 1
 
 func init(_artifact_data: ArtifactData):
 	artifact_data = _artifact_data
@@ -18,17 +20,12 @@ func init(_artifact_data: ArtifactData):
 	artifact_script = artifact_script_asset.new(artifact_data)
 	texture_normal = FileLoader.load_texture(artifact_data.artifact_texture_path)
 	update_artifact_counter()
-	
-	var artifact_name: String = I18N.get_artifact_name(artifact_data)
-	var artifact_description: String = I18N.get_artifact_description(artifact_data)
-	tooltip_text = artifact_name
-	if artifact_description != "":
-		if len(artifact_data.ARTIFACT_RARITIES.keys()) > artifact_data.artifact_rarity:
-			tooltip_text += "\n" + I18N.tr_enum("artifact_rarity", artifact_data.ARTIFACT_RARITIES.keys()[artifact_data.artifact_rarity])
-		tooltip_text += "\n" + artifact_description
-	
-	# only right clicking allowed
-	button_up.connect(_on_right_button_up)
+
+	# Disable built-in tooltip
+	tooltip_text = ""
+
+	# Connect click
+	pressed.connect(_on_pressed)
 
 func _on_artifact_proc(_artifact_data: ArtifactData):
 	if artifact_data == _artifact_data:
@@ -45,5 +42,18 @@ func update_artifact_counter() -> void:
 		else:
 			counter_label.text = str(artifact_data.artifact_counter)
 
-func _on_right_button_up() -> void:
-	artifact_script.right_click_artifact()
+func _on_pressed() -> void:
+	# Don't show popup during action execution
+	if ActionHandler.actions_being_performed:
+		return
+
+	# Instance popup
+	var popup_script := load("res://scripts/ui/ArtifactPopup.gd")
+	var popup: Control = popup_script.new()
+	popup.artifact_data = artifact_data
+
+	# Add to root viewport for correct centering
+	var viewport := get_viewport()
+	if viewport:
+		viewport.add_child(popup)
+		popup.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
