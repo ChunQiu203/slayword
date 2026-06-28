@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_astral_resonance",
 		"card_name": "Astral Resonance",
 		"card_color_id": "color_blue",
-		"card_description": "When a Star enters the House of Wisdom, add a random card from draw pile to hand.",
+		"card_description": "When a Star enters the 智慧, add a random card from draw pile to hand.",
 		"card_energy_cost": 2,
 		"card_type": 2,
 		"card_rarity": 3,
@@ -42,7 +42,7 @@
 		"card_upgrade_amount": 0,
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
-			"card_description": "When a Star enters the House of Wisdom, draw 2 cards."
+			"card_description": "星辰进入智慧时，抽2张牌。"
 		},
 		"card_upgrade_value_improvements": {},
 		"card_energy_cost_until_played": -1,
@@ -54,7 +54,8 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_astral_resonance.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }
+

@@ -19,7 +19,14 @@
 			"energy_amount": 2
 		},
 		"card_description_preview_overrides": [],
-		"card_play_actions": [],
+		"card_play_actions": [
+			{
+				"res://scripts/actions/player_actions/ActionSetPlayerValue.gd": {
+					"player_value_key": "_has_grand_cross",
+					"player_value_value": 1
+				}
+			}
+		],
 		"card_discard_actions": [],
 		"card_end_of_turn_actions": [],
 		"card_exhaust_actions": [],
@@ -49,7 +56,7 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_grand_cross.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

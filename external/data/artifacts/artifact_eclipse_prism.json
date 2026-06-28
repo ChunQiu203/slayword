@@ -4,8 +4,8 @@
 		"object_id": "artifact_eclipse_prism",
 		"artifact_name": "Eclipse Prism",
 		"artifact_description": "When Eclipse triggers, heal 10 HP.",
-		"artifact_texture_path": "",
-		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_eclipse_prism.png",
+		"artifact_script_path": "res://scripts/artifacts/ArtifactEclipsePrism.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 1,
 		"artifact_counter_reset_on_turn_start": -1,
@@ -19,10 +19,12 @@
 		"artifact_remove_actions": [],
 		"artifact_right_click_actions": [],
 		"artifact_right_click_validators": [],
-		"artifact_first_turn_actions": [],
+		"artifact_first_turn_actions": [{"res://scripts/actions/ActionAddHealth.gd": {"heal_amount": 5}}],
 		"artifact_end_of_combat_actions": [],
 		"artifact_turn_start_actions": [],
 		"artifact_turn_end_actions": [],
 		"object_uid": ""
 	}
 }
+
+

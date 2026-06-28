@@ -4,7 +4,7 @@
 		"object_id": "consumable_starlight_elixir",
 		"consumable_name": "Starlight Elixir",
 		"consumable_description": "Place 2 Stars in random Houses.",
-		"consumable_texture_path": "",
+		"consumable_texture_path": "external/sprites/consumables/consumable_heal.svg",
 		"consumable_requires_target": false,
 		"consumable_rarity": 0,
 		"consumable_actions": [

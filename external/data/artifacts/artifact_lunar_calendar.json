@@ -3,8 +3,8 @@
 	"properties": {
 		"object_id": "artifact_lunar_calendar",
 		"artifact_name": "Lunar Calendar",
-		"artifact_description": "Every 3rd turn, Stars rotate one extra House.",
-		"artifact_texture_path": "",
+		"artifact_description": "Every 3rd turn, place 1 Star in a random House.",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_lunar_calendar.png",
 		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 3,
@@ -12,13 +12,13 @@
 		"artifact_counter_reset_on_combat_end": -1,
 		"artifact_counter_wraparound": true,
 		"artifact_color_id": "color_blue",
-		"artifact_appears_in_artifact_packs": true,
+		"artifact_appears_in_artifact_packs": false,
 		"artifact_rarity": 2,
-		"artifact_max_counter_actions": [
+"artifact_max_counter_actions": [
 			{
-				"res://scripts/actions/star_chart_actions/ActionRotateStars.gd": {
-					"rotate_direction": 1,
-					"rotate_times": 1
+				"res://scripts/actions/star_chart_actions/ActionPlaceStar.gd": {
+					"star_house": -1,
+					"star_count": 1
 				}
 			}
 		],
@@ -33,3 +33,4 @@
 		"object_uid": ""
 	}
 }
+

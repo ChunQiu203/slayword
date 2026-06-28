@@ -4,9 +4,9 @@
 		"object_id": "card_astrology_astral_projection",
 		"card_name": "Astral Projection",
 		"card_color_id": "color_blue",
-		"card_description": "Next turn, your Stars do not rotate. Ethereal.",
+		"card_description": "能力：黎明和夜晚的星辰提供双倍加成。",
 		"card_energy_cost": 2,
-		"card_type": 1,
+		"card_type": 2,
 		"card_rarity": 2,
 		"card_requires_target": false,
 		"card_appears_in_card_packs": true,
@@ -35,7 +35,7 @@
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
 			"card_is_ethereal": false,
-			"card_description": "Next turn, your Stars do not rotate."
+			"card_description": "能力：黎明、夜晚、黄昏的星辰提供双倍加成。"
 		},
 		"card_upgrade_value_improvements": {},
 		"card_energy_cost_until_played": -1,
@@ -49,7 +49,7 @@
 			"keyword_ethereal"
 		],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_astral_projection.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

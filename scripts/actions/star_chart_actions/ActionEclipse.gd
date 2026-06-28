@@ -9,7 +9,7 @@ func perform_action():
 		if total > 0:
 			var energy_gain: int = aip.get_shadowed_action_values("eclipse_energy", 2)
 			var draw_count: int = aip.get_shadowed_action_values("eclipse_draw", 5)
-			var damage: int = aip.get_shadowed_action_values("eclipse_damage", 0)
+			var damage: int = aip.get_shadowed_action_values("eclipse_damage", 15)
 			# Gain energy
 			Global.player_data.player_energy += energy_gain
 			Signals.energy_added.emit(energy_gain)

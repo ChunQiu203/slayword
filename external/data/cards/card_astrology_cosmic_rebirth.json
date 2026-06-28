@@ -55,7 +55,7 @@
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
 			"card_exhausts": false,
-			"card_description": "Consume all Stars. For each Star, gain 1 Energy and place 1 new Star in a random House."
+			"card_description": "消耗所有星辰。每颗星辰获得1点能量并在随机宫放置1颗新星辰。"
 		},
 		"card_upgrade_value_improvements": {},
 		"card_energy_cost_until_played": -1,
@@ -69,7 +69,7 @@
 			"keyword_exhaust"
 		],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_cosmic_rebirth.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

@@ -4,12 +4,12 @@
 		"object_id": "card_astrology_destined_strike",
 		"card_name": "Destined Strike",
 		"card_color_id": "color_blue",
-		"card_description": "Deal [damage] damage. If this kills an enemy, place a Star in the House of Fate.",
+		"card_description": "造成[damage]点伤害。如果击杀敌人，在命运放置1颗星辰。",
 		"card_energy_cost": 2,
 		"card_type": 0,
 		"card_rarity": 0,
 		"card_requires_target": true,
-		"card_appears_in_card_packs": false,
+		"card_appears_in_card_packs": true,
 		"card_is_playable": true,
 		"card_exhausts": false,
 		"card_is_ethereal": false,
@@ -65,7 +65,8 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_destined_strike.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }
+

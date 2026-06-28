@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_venus_lover",
 		"card_name": "Venus, the Lover",
 		"card_color_id": "color_blue",
-		"card_description": "Place a Star in the House of Dusk. While this Star orbits, gain [block] Block at start of turn.",
+		"card_description": "Place a Star in the 黄昏. While this Star orbits, gain [block] Block at start of turn.",
 		"card_energy_cost": 2,
 		"card_type": 2,
 		"card_rarity": 2,
@@ -17,10 +17,18 @@
 		"card_values": {
 			"star_house": 2,
 			"star_count": 1,
-			"block": 3
+			"block": 3,
+			"status_effect_object_id": "status_effect_venus_lover",
+			"status_charge_amount": 1
 		},
 		"card_description_preview_overrides": [],
 		"card_play_actions": [
+			{
+				"res://scripts/actions/status_actions/ActionApplyStatus.gd": {
+					"target_override": 1,
+					"time_delay": 0.0
+				}
+			},
 			{
 				"res://scripts/actions/star_chart_actions/ActionPlaceStar.gd": {
 					"star_house": 2,
@@ -57,7 +65,8 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_venus_lover.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }
+

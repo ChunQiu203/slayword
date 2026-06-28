@@ -331,7 +331,8 @@
   "event.lucky_find.option_relic": "检查隐藏处——发现一个遗物",
   "event.lucky_find.option_leave": "不碰——安全离开",
   "menu.vocab_mode_label": "学习模式",
-  "menu.vocab_mode_hint": "每张牌复习一次（现有模式）或每回合一个单词，按顺序学习/复习",
+  "menu.vocab_mode_hint": "每张牌复习一次、每回合一个单词、或纯卡牌模式（不背单词）",
   "menu.vocab_mode_per_card": "每张牌复习",
-  "menu.vocab_mode_per_turn": "每回合复习"
+  "menu.vocab_mode_per_turn": "每回合复习",
+  "menu.vocab_mode_none": "纯卡牌模式"
 }

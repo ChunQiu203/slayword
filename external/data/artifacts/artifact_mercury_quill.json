@@ -3,9 +3,9 @@
 	"properties": {
 		"object_id": "artifact_mercury_quill",
 		"artifact_name": "Mercury's Quill",
-		"artifact_description": "The first Constellation card you play each combat costs 0.",
-		"artifact_texture_path": "",
-		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
+		"artifact_description": "The first card you play each turn costs 0.",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_mercury_quill.png",
+		"artifact_script_path": "res://scripts/artifacts/ArtifactMercuryQuill.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 1,
 		"artifact_counter_reset_on_turn_start": -1,
@@ -19,10 +19,12 @@
 		"artifact_remove_actions": [],
 		"artifact_right_click_actions": [],
 		"artifact_right_click_validators": [],
-		"artifact_first_turn_actions": [],
+		"artifact_first_turn_actions": [{"res://scripts/actions/meta_actions/ActionDrawGenerator.gd": {"draw_count": 2}}],
 		"artifact_end_of_combat_actions": [],
 		"artifact_turn_start_actions": [],
 		"artifact_turn_end_actions": [],
 		"object_uid": ""
 	}
 }
+
+

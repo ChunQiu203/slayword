@@ -103,9 +103,9 @@ const ACTION_UPGRADE_CARDS: String = "res://scripts/actions/cardset_actions/Acti
 # Star Chart (Astrologer)
 const ACTION_PLACE_STAR: String = "res://scripts/actions/star_chart_actions/ActionPlaceStar.gd"
 const ACTION_CONSUME_STAR: String = "res://scripts/actions/star_chart_actions/ActionConsumeStar.gd"
-const ACTION_ROTATE_STARS: String = "res://scripts/actions/star_chart_actions/ActionRotateStars.gd"
 const ACTION_ECLIPSE: String = "res://scripts/actions/star_chart_actions/ActionEclipse.gd"
 const ACTION_TRIGGER_ALIGNMENT: String = "res://scripts/actions/star_chart_actions/ActionTriggerAlignment.gd"
+const ACTION_ECLIPSE_STRIKE: String = "res://scripts/actions/star_chart_actions/ActionEclipseStrike.gd"
 #endregion
 
 #region Validators

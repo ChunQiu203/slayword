@@ -3,8 +3,8 @@
 	"properties": {
 		"object_id": "artifact_brass_astrolabe",
 		"artifact_name": "Brass Astrolabe",
-		"artifact_description": "At combat start, place 2 Stars in random Houses. At end of turn, rotate Stars and check Eclipse.",
-		"artifact_texture_path": "",
+		"artifact_description": "At combat start, place 2 Stars in random Houses. Check Grand Cross and Eclipse at end of turn.",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_brass_astrolabe.png",
 		"artifact_script_path": "res://scripts/artifacts/ArtifactBrassAstrolabe.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 1,

@@ -27,7 +27,7 @@
 		"spell",
 		"dictation"
 	],
-	"settings_vocab_mode": "per_card",
+	"settings_vocab_mode": "none",
 	"settings_vocab_review_modes_enabled": [
 		"spell",
 		"meaning",

@@ -4,7 +4,7 @@
 		"object_id": "consumable_eclipse_in_bottle",
 		"consumable_name": "Eclipse in a Bottle",
 		"consumable_description": "Trigger Eclipse immediately.",
-		"consumable_texture_path": "",
+		"consumable_texture_path": "external/sprites/consumables/consumable_heal.svg",
 		"consumable_requires_target": false,
 		"consumable_rarity": 1,
 		"consumable_actions": [
@@ -12,7 +12,7 @@
 				"res://scripts/actions/star_chart_actions/ActionEclipse.gd": {
 					"eclipse_energy": 2,
 					"eclipse_draw": 5,
-					"eclipse_damage": 12
+					"eclipse_damage": 15
 				}
 			}
 		],

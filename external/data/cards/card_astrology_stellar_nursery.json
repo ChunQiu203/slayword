@@ -44,7 +44,7 @@
 		"card_upgrade_amount": 0,
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
-			"card_description": "At end of turn, if you have < 3 Stars, place 2 Stars in random Houses."
+			"card_description": "回合结束时若星辰少于3颗，在随机宫放置2颗星辰。"
 		},
 		"card_upgrade_value_improvements": {},
 		"card_energy_cost_until_played": -1,
@@ -56,7 +56,7 @@
 		"card_energy_cost_variable_upper_bound": -1,
 		"card_keyword_object_ids": [],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_stellar_nursery.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

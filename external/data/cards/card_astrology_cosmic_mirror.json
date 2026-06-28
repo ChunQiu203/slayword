@@ -20,8 +20,8 @@
 		"card_description_preview_overrides": [],
 		"card_play_actions": [
 			{
-				"res://scripts/actions/star_chart_actions/ActionTriggerAlignment.gd": {
-					"star_house": 0
+				"res://scripts/actions/star_chart_actions/ActionTriggerAlignmentWithChoice.gd": {
+					"time_delay": 0.2
 				}
 			}
 		],
@@ -43,7 +43,7 @@
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
 			"card_exhausts": false,
-			"card_description": "Choose a House. Trigger its Alignment without consuming Stars."
+			"card_description": "选择一个宫。触发其星座效果，不消耗星辰。"
 		},
 		"card_upgrade_value_improvements": {},
 		"card_energy_cost_until_played": -1,
@@ -57,7 +57,7 @@
 			"keyword_exhaust"
 		],
 		"card_first_shuffle_priority": 0,
-		"card_texture_path": "external/sprites/cards/generated/card_astrology_cosmic_mirror.png",
+		"card_texture_path": "external/sprites/cards/blue/card_blue.png",
 		"object_uid": ""
 	}
 }

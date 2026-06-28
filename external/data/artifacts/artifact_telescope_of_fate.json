@@ -4,7 +4,7 @@
 		"object_id": "artifact_telescope_of_fate",
 		"artifact_name": "Telescope of Fate",
 		"artifact_description": "At start of turn, Scry 3. You may place a Star in any House.",
-		"artifact_texture_path": "",
+		"artifact_texture_path": "external/sprites/artifacts/artifact_telescope_of_fate.png",
 		"artifact_script_path": "res://scripts/artifacts/BaseArtifact.gd",
 		"artifact_counter": 0,
 		"artifact_counter_max": 1,
@@ -39,7 +39,7 @@
 			},
 			{
 				"res://scripts/actions/star_chart_actions/ActionPlaceStar.gd": {
-					"star_house": 0,
+					"star_house": -1,
 					"star_count": 1
 				}
 			}
