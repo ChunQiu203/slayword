@@ -2,7 +2,7 @@
 	"patch_data": {},
 	"properties": {
 		"action_intercepted_action_paths": [
-			"res://scripts/actions/generated_actions/ActionBlock.gd"
+			"res://scripts/actions/ActionBlock.gd"
 		],
 		"action_interceptor_modifies_parent": true,
 		"action_interceptor_priority": 10000,

@@ -38,7 +38,7 @@
 					"card_pick_text": "Choose up to {0} card(s) to discard. {1} cards selected",
 					"action_data": [
 						{
-							"res://scripts/actions/player_actions/ActionDiscardCards.gd": {}
+							"res://scripts/actions/cardset_actions/ActionDiscardCards.gd": {}
 						}
 					]
 				}

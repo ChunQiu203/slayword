@@ -30,30 +30,24 @@ var _frame_textures: Dictionary[int, Texture2D] = {}
 func _get_frame_texture_for_type(card_type: int) -> Texture2D:
 	if _frame_textures.has(card_type):
 		return _frame_textures[card_type]
-	
-	var path = "res://external/sprites/cards/1.png"
+
+	var partial_path := "external/sprites/cards/1.png"
 	match card_type:
-		0: path = "res://external/sprites/cards/2.png"  # ATTACK → Red
-		1: path = "res://external/sprites/cards/3.png"  # SKILL → Green
-		2: path = "res://external/sprites/cards/1.png"  # POWER → Blue
-		3, 4: path = "res://external/sprites/cards/4.png" # STATUS/CURSE → Purple
-	
-	var img = Image.new()
-	var err = img.load(path)
-	if err == OK:
-		_frame_textures[card_type] = ImageTexture.create_from_image(img)
-	else:
-		push_error("Failed to load card frame: ", path, " err=", err)
-		_frame_textures[card_type] = null
+		0: partial_path = "external/sprites/cards/2.png"  # ATTACK → Red
+		1: partial_path = "external/sprites/cards/3.png"  # SKILL → Green
+		2: partial_path = "external/sprites/cards/1.png"  # POWER → Blue
+		3, 4: partial_path = "external/sprites/cards/4.png" # STATUS/CURSE → Purple
+
+	_frame_textures[card_type] = FileLoader.load_texture(partial_path)
 	return _frame_textures[card_type]
 
 const FRAME_TEXTURES = {
-	"color_blue": "res://external/sprites/cards/1.png",
-	"color_red": "res://external/sprites/cards/1.png",
-	"color_green": "res://external/sprites/cards/1.png",
-	"color_orange": "res://external/sprites/cards/1.png",
-	"color_white": "res://external/sprites/cards/1.png",
-	"color_purple": "res://external/sprites/cards/1.png",
+	"color_blue": "external/sprites/cards/1.png",
+	"color_red": "external/sprites/cards/1.png",
+	"color_green": "external/sprites/cards/1.png",
+	"color_orange": "external/sprites/cards/1.png",
+	"color_white": "external/sprites/cards/1.png",
+	"color_purple": "external/sprites/cards/1.png",
 }
 
 @onready var keyword_container = $Pivot/KeywordContainer

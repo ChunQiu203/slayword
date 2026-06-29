@@ -14,10 +14,13 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Slay The Robot"
+config/name="Slay The Word"
 run/main_scene="res://scenes/Root.tscn"
 config/features=PackedStringArray("4.6")
-config/icon="uid://8kopj5luv8dc"
+config/icon="res://icon_512.png"
+config/splash="res://splash_screen.png"
+config/splash_minimum_display_time=1500
+config/splash_show_image=true
 
 [autoload]
 
