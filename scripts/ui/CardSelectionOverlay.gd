@@ -61,7 +61,7 @@ func populate_cards(cards: Array[CardData]) -> void:
 		# bind signals
 		card.card_hovered.connect(_on_card_hovered)
 		card.card_unhovered.connect(_on_card_unhovered)
-		card.card_selected.connect(_on_card_selected)
+		card.card_clicked.connect(_on_card_selected)
 
 func clear_cards():
 	for child in card_container.get_children():

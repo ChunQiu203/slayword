@@ -93,19 +93,38 @@ func _copy_bundled_data_to_user_if_needed() -> void:
 	var marker_path := "user://external/.data_copied"
 	if FileAccess.file_exists(marker_path):
 		return  # Already copied
-	
+
 	DebugLogger.log_line("FileLoader: First run on Android - copying bundled data to user://", Color.LIGHT_BLUE)
 	_copy_directory_recursive("res://external/", "user://external/")
-	
-	# Create marker file
+
+	# Verify the copy actually worked by checking a known file
+	var any_copied := _verify_android_copy()
+
+	# Always create marker so we don't retry on every launch.
+	# Even if the recursive copy failed, load_json / load_texture fallbacks
+	# can still read directly from res:// (APK raw assets).
 	var marker_dir := "user://external/"
 	DirAccess.make_dir_recursive_absolute(marker_dir)
 	var marker_file := FileAccess.open(marker_path, FileAccess.WRITE)
 	if marker_file:
-		marker_file.store_string("Data copied on first run")
+		marker_file.store_string("1" if any_copied else "0 (fallback to res://)")
 		marker_file.close()
 
-## Recursively copies a directory from source to destination
+	if not any_copied:
+		DebugLogger.log_line("FileLoader: recursive copy produced no files — will read directly from res://", Color.YELLOW)
+
+
+## Returns true if at least one known file was successfully copied to user://
+func _verify_android_copy() -> bool:
+	var check_paths := [
+		"user://external/locale/zh_CN.json",
+		"user://external/sprites/cards/1.png",
+		"user://external/mod_info.json",
+	]
+	for p in check_paths:
+		if FileAccess.file_exists(p):
+			return true
+	return false
 func _copy_directory_recursive(source: String, destination: String) -> void:
 	# Ensure destination directory exists
 	DirAccess.make_dir_recursive_absolute(destination)
@@ -191,32 +210,58 @@ func load_texture(image_partial_path, is_absolute: bool = false) -> ImageTexture
 	if self._cached_textures.has(full_path):
 		return self._cached_textures[full_path]
 
-	var load_path := full_path
-	var image := Image.load_from_file(load_path)
+	var texture: ImageTexture = null
 
-	# On Android, fall back to bundled data
-	if image == null and _is_android and not is_absolute and _BUNDLED_DATA_PREFIX != _EXTERNAL_FILE_PREFIX:
-		var bundled_path := _get_bundled_filepath(image_partial_path)
-		image = Image.load_from_file(bundled_path)
-		if image != null:
-			load_path = bundled_path
-
-	# On desktop export, fall back to res:// (packed in PCK)
-	if image == null and OS.has_feature("exported") and not _is_android and not is_absolute:
+	# 1) Try Godot resource loader first -- handles .import -> .ctex
+	#    redirects in exported builds (PNG/SVG become compressed textures).
+	if not is_absolute:
 		var res_path: String = "res://" + image_partial_path
-		image = Image.load_from_file(res_path)
-		if image != null:
-			load_path = res_path
+		if ResourceLoader.exists(res_path):
+			var res: Resource = ResourceLoader.load(res_path)
+			if res is Texture2D:
+				texture = _texture_to_image_texture(res)
 
-	if image == null:
+	# 2) Fall back to Image.load_from_file for raw file access
+	#    (editor with .gdignore, or files that aren't Godot-imported).
+	if texture == null:
+		var load_path := full_path
+		var image := Image.load_from_file(load_path)
+
+		# On Android, fall back to bundled data
+		if image == null and _is_android and not is_absolute and _BUNDLED_DATA_PREFIX != _EXTERNAL_FILE_PREFIX:
+			var bundled_path := _get_bundled_filepath(image_partial_path)
+			image = Image.load_from_file(bundled_path)
+
+		# On desktop export, fall back to res:// (packed in PCK)
+		if image == null and OS.has_feature("exported") and not _is_android and not is_absolute:
+			var res_path: String = "res://" + image_partial_path
+			image = Image.load_from_file(res_path)
+
+		if image != null:
+			texture = ImageTexture.create_from_image(image)
+
+	if texture == null:
 		print("Image failed to load: ", full_path)
 		return ImageTexture.new()
 
-	var texture := ImageTexture.create_from_image(image)
 	texture.take_over_path(full_path)
 	self._cached_textures[full_path] = texture
 	return texture
-		
+
+
+## Converts any Texture2D (CompressedTexture2D, ImageTexture, etc.) to ImageTexture.
+## Needed because exported builds store images as .ctex (CompressedTexture2D).
+func _texture_to_image_texture(tex: Texture2D) -> ImageTexture:
+	if tex is ImageTexture:
+		return tex as ImageTexture
+	# CompressedTexture2D, AtlasTexture, etc. -- extract the image and wrap it
+	var img := tex.get_image()
+	if img != null:
+		var itex := ImageTexture.create_from_image(img)
+		return itex
+	return null
+
+
 func load_animation(animation_id: String, animation_data: Dictionary) -> SpriteFrames:
 	# given an animation id and animation data, will generate and cache a SpriteFrames from external images
 	# animation_data is a dictionary of String animation names each mapped to an array of partial image paths

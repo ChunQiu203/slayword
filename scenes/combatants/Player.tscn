@@ -103,6 +103,7 @@ offset_bottom = 40.0
 
 [node name="Sprite" type="Sprite2D" parent="Visible" unique_id=12827223]
 position = Vector2(64, 48)
+scale = Vector2(1.2, 1.2)
 texture = ExtResource("2_snepv")
 
 [node name="LayeredHealthBar" parent="Visible/Sprite" unique_id=1091445594 instance=ExtResource("3_ef7si")]

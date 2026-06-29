@@ -25,6 +25,7 @@ var current_card_pick_action: ActionBasePickCards = null	# an action currently r
 @onready var background_button: TextureButton = $%BackgroundButton
 @onready var select_target_label: Label = $%SelectTargetLabel
 var current_selected_card: Card = null	# used for cards with targeting
+var current_card_selected_for_play: Card = null
 
 ### Card Play Queue
 var card_play_queue: Array[CardPlayRequest] = []	# array of cards to play
@@ -52,7 +53,7 @@ const HAND_CARD_ROTATION_CURVE_MULTIPLIER: float = 6.0 # multiplies the curve sa
 @export var hand_card_y_offset_curve: Curve = preload("res://misc/curves/hand_y_curve.tres")
 const HAND_CARD_Y_OFFSET_CURVE_MULTIPLIER: float = -20.0 # multiplies the curve sampling
 
-const CARD_WIDTH: float = 144.0 # how big the Card asset is. NOTE: Update this if you update Card's size at all
+const CARD_WIDTH: float = 180.0 # how big the Card asset is. NOTE: Update this if you update Card's size at all
 const CARD_SEPERATION_WIDTH: float = CARD_WIDTH * .75 # how far apart each card should be from one another. Generally between .5 to 1X the card width
 
 const MIDDLE_OFFSET: float = CARD_WIDTH / 2
@@ -183,57 +184,71 @@ func tween_hand():
 func _on_card_hovered(card: Card):
 	for child in get_children():
 		if card == child:
-			child.position.y = CARD_HOVERED_HEIGHT
-			child.z_index = 1
+			if child.is_selected:
+				child.pivot.position.y = -30
+				child.z_index = 2
+			else:
+				child.position.y = CARD_HOVERED_HEIGHT
+				child.z_index = 1
+		else:
+			if not child.is_selected:
+				child.position.y = CARD_UNHOVERED_HEIGHT
+				child.z_index = 0
+
+func _on_card_unhovered(_card: Card):
+	for child in get_children():
+		if child.is_selected:
+			child.pivot.position.y = -30
+			child.z_index = 2
 		else:
 			child.position.y = CARD_UNHOVERED_HEIGHT
 			child.z_index = 0
 
-func _on_card_unhovered(_card: Card):
-	for child in get_children():
-		child.position.y = CARD_UNHOVERED_HEIGHT
-		child.z_index = 0
-
 func _on_card_selected(card: Card):
-	# card clicked, attempt to do something with it
-	# check if playing or picking cards
 	if current_card_pick_action == null:
-		### playing
-		# cannot play cards with a disabled hand
 		if hand_disabled:
 			return
-		# cannot play while right click actions happening
 		if performing_card_right_click:
 			return
-		# check if card is generally playable
+
+		# 第二次点击同一张卡：出牌
+		if current_card_selected_for_play == card:
+			_play_card_with_card(card)
+			return
+
+		# 取消之前选中的卡牌
+		if current_card_selected_for_play != null:
+			current_card_selected_for_play.set_selected(false)
+			current_card_selected_for_play = null
+
+		# 第一次点击：选中卡牌
 		if not card.can_play_card():
 			if Global.player_data.player_energy < card.card_data.get_card_energy_cost():
 				_show_energy_insufficient_feedback()
 			return
-		# cannot play cards already queued
 		for card_play_request in card_play_queue:
 			if card_play_request.card_data == card.card_data:
 				return
-		
-		# check if autoplaying card based on targeting type
-		if card.card_data.card_requires_target:
-			current_selected_card = card
-			_prompt_target(card)
-		else:
-			if await VocabStudy.gate_before_play():
-				return
-			# generate the card play request and enqueue it
-			var card_play_request: CardPlayRequest = CardPlayRequest.new()
-			card_play_request.card_data = card.card_data
-			card_play_request.selected_target = null
-			card_play_request.card_values = card.card_data.card_values.duplicate(true)	# copy the card's values into the card play request
-	
-			add_card_to_play_queue(card_play_request, true, false)
-			current_selected_card = null
-			_unprompt_target()
+
+		card.set_selected(true)
+		current_card_selected_for_play = card
 	else:
-		### picking
 		attempt_pick_card(card)
+
+func _play_card_with_card(card: Card):
+	if card.card_data.card_requires_target:
+		current_selected_card = card
+		_prompt_target(card)
+	else:
+		if await VocabStudy.gate_before_play():
+			return
+		var card_play_request: CardPlayRequest = CardPlayRequest.new()
+		card_play_request.card_data = card.card_data
+		card_play_request.selected_target = null
+		card_play_request.card_values = card.card_data.card_values.duplicate(true)
+		add_card_to_play_queue(card_play_request, true, false)
+		current_selected_card = null
+		_unprompt_target()
 		
 func _show_energy_insufficient_feedback() -> void:
 	var text_fade: TextFade = Scenes.TEXT_FADE.instantiate()
@@ -256,6 +271,9 @@ func _on_card_right_clicked(card: Card):
 func _on_background_button_up():
 	current_selected_card = null
 	_unprompt_target()
+	if current_card_selected_for_play != null:
+		current_card_selected_for_play.set_selected(false)
+		current_card_selected_for_play = null
 
 func _on_enemy_clicked(enemy: Enemy):
 	if current_selected_card != null:
@@ -263,16 +281,17 @@ func _on_enemy_clicked(enemy: Enemy):
 		if await VocabStudy.gate_before_play():
 			_prompt_target(current_selected_card)
 			return
-		
-		# generate the card play request and enqueue it
+
 		var card_play_request: CardPlayRequest = CardPlayRequest.new()
 		card_play_request.card_data = current_selected_card.card_data
 		card_play_request.selected_target = enemy
-		card_play_request.card_values = current_selected_card.card_data.card_values.duplicate(true)	# copy the card's values into the card play request
-	
-		
+		card_play_request.card_values = current_selected_card.card_data.card_values.duplicate(true)
+
 		add_card_to_play_queue(card_play_request, true, false)
 		current_selected_card = null
+		if current_card_selected_for_play != null:
+			current_card_selected_for_play.set_selected(false)
+			current_card_selected_for_play = null
 
 func _on_enemy_hovered(enemy: Enemy):
 	if current_selected_card != null:
@@ -637,7 +656,7 @@ func draw_cards(card_number: int, hand_card_count_max: int = PlayerData.PLAYER_D
 		# bind signals
 		card.card_hovered.connect(_on_card_hovered)
 		card.card_unhovered.connect(_on_card_unhovered)
-		card.card_selected.connect(_on_card_selected)
+		card.card_clicked.connect(_on_card_selected)
 		card.card_right_clicked.connect(_on_card_right_clicked)
 		
 		# generate fake card request
@@ -707,7 +726,7 @@ func add_cards_to_hand(cards: Array[CardData], hand_card_count_max: int = Player
 				# bind signals
 				card.card_hovered.connect(_on_card_hovered)
 				card.card_unhovered.connect(_on_card_unhovered)
-				card.card_selected.connect(_on_card_selected)
+				card.card_clicked.connect(_on_card_selected)
 				card.card_right_clicked.connect(_on_card_right_clicked)
 			else:
 				discarded_cards.append(card_data)
@@ -922,6 +941,9 @@ func _on_combat_started(_event_id: String):
 	cards_retained_this_turn.clear()
 	cards_with_modified_turn_energy.clear()
 	clear_card_queue()
+	if current_card_selected_for_play != null:
+		current_card_selected_for_play.set_selected(false)
+		current_card_selected_for_play = null
 	reset_deck()
 	
 func _on_combat_ended():

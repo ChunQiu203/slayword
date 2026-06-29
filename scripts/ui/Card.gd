@@ -8,6 +8,8 @@ var card_listeners: Array[BaseCardListener] = []
 const CARDS_RERENDER_LAZILY: bool = true # throttles card display generation to next frame
 var _card_is_rerendering: bool = false
 
+var is_selected: bool = false
+
 const CARD_TEXT_IMAGE_SIZE: int = 16	# images in card descriptions will be set to this size
 const ENERGY_ICON_KEYWORD: String = "[energy_icon]"	# tells description to display an energy icon in place
 
@@ -55,7 +57,7 @@ const FRAME_TEXTURES = {
 
 const KEYWORD_HOVER_DELAY: float = 0.5
 
-signal card_selected(Card)
+signal card_clicked(Card)
 
 func _ready() -> void:
 	SlayMobileStyle.load_fonts()
@@ -262,9 +264,18 @@ func _attempt_hand_glow() -> void:
 	if _is_card_in_hand():
 		set_card_glow(_glow_validation())
 
+func set_selected(selected: bool) -> void:
+	is_selected = selected
+	if is_selected:
+		pivot.position.y = -30
+		z_index = 2
+	else:
+		pivot.position.y = 0
+		z_index = 0
+
 func _on_button_gui_input(event: InputEvent):
 	if event.is_action_pressed("left_click"):
-		card_selected.emit(self)
+		card_clicked.emit(self)
 	if event.is_action_pressed("right_click"):
 		card_right_clicked.emit(self)
 

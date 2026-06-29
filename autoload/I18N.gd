@@ -25,6 +25,8 @@ func load_locale(locale: String, persist_setting: bool = true) -> void:
 		data = _load_json_from_res(LOCALE_DIR + current_locale + "_data.json")
 	_merge_translations(main)
 	_merge_translations(data)
+	# Always merge survival translations as a safety net
+	_merge_translations(_get_survival_translations())
 	if persist_setting:
 		Global.user_settings_data.settings_language = current_locale
 		FileLoader.save_user_settings()
@@ -76,6 +78,59 @@ func _normalize_locale(locale: String) -> String:
 func _merge_translations(source: Dictionary) -> void:
 	for key: String in source.keys():
 		_translations[key] = source[key]
+## Returns a hardcoded minimal set of critical UI translations (zh_CN).
+## Used as a last-resort safety net when locale JSON files cannot be
+## loaded (e.g. missing from a corrupted/misconfigured export PCK).
+## Without this, all tr_key() calls would return raw keys like
+## "menu.continue" instead of readable text.
+static func _get_survival_translations() -> Dictionary:
+	return {
+		"app.title": "弑塔",
+		"menu.continue": "继续",
+		"menu.forfeit_run": "放弃本局",
+		"menu.new_game": "新游戏",
+		"menu.codex": "图鉴",
+		"menu.setting": "设置",
+		"menu.exit": "退出",
+		"menu.new_run": "开启新冒险",
+		"menu.back": "返回",
+		"menu.vocab_prefs_button": "学习设置",
+		"menu.vocab_prefs_title": "学习控制台",
+		"menu.cards": "卡牌",
+		"menu.enemies": "敌人",
+		"menu.artifacts": "遗物",
+		"menu.consumables": "消耗品",
+		"menu.character_name": "角色名称",
+		"menu.character_description": "角色描述",
+		"menu.artifact_name": "遗物名称",
+		"menu.artifact_description": "遗物描述",
+		"menu.hp_label": "生命：",
+		"menu.money_label": "金币：",
+		"menu.seed": "种子",
+		"menu.custom_modifiers": "自定义修正",
+		"menu.start_run": "开始冒险",
+		"combat.use": "使用",
+		"combat.discard": "丢弃",
+		"combat.chest": "宝箱",
+		"combat.shop": "商店",
+		"combat.energy": "能量",
+		"combat.draw_pile": "抽牌堆",
+		"combat.discard_pile": "弃牌堆",
+		"combat.exhaust_pile": "消耗堆",
+		"combat.pick_cards": "选择卡牌",
+		"combat.pick_x_cards": "选择指定数量的卡牌",
+		"combat.confirm": "确认",
+		"combat.end_turn": "结束回合",
+		"combat.select_target": "请选择目标",
+		"combat.turn": "第 {0} 回合",
+		"overlay.continue": "继续",
+		"overlay.skip": "跳过",
+		"overlay.resume": "返回游戏",
+		"overlay.return_to_title": "返回标题界面",
+		"overlay.back_to_main_menu": "返回主菜单",
+		"overlay.victory": "胜利",
+		"overlay.defeat": "失败",
+	}
 
 ## 统一翻译入口：所有游戏数据（卡牌/敌人/遗物/消耗品）必须通过这些方法获取翻译
 

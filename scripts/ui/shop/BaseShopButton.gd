@@ -1,16 +1,16 @@
 # provides a general interface for a button like object in a shop
 # given a PurchaseItemAction which it populates data from
-extends Control
+extends PanelContainer
 class_name BaseShopButton
 
-@onready var price_label: Label = $PriceLabel
+@onready var price_label: Label = $VBox/PriceLabel
 
 var action_on_click: BaseAction = null
 
 func init(_action_on_click: BaseAction) -> void:
 	action_on_click = _action_on_click
 	if price_label == null:
-		price_label = get_node_or_null("PriceLabel") as Label
+		price_label = get_node_or_null("VBox/PriceLabel") as Label
 	if price_label == null:
 		return
 

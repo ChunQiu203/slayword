@@ -1,4 +1,5 @@
 extends BaseAction
+class_name ActionTriggerAlignment
 ## Trigger the Alignment effect for a specific House.
 ## Instead of applying effects directly, adds a corresponding card to the player's hand.
 
