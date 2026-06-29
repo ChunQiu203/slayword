@@ -19,14 +19,14 @@ OUTPUT_DIR = PROJECT_ROOT / "external" / "sprites" / "cards" / "generated"
 CARD_THEMES = {
     # === 攻击牌 (ATTACK) ===
     "stellar_strike": "A glowing blue energy sword slashing through space, leaving a trail of stardust",
-    "destined_strike": "A cosmic fist wrapped in fate's golden threads punching forward",
+    "destined_strike": "A burst of golden cosmic energy with threads of fate weaving through stars",
     "solar_flare": "A massive solar eruption with bright orange and yellow flames",
     "cosmic_ray": "A concentrated beam of purple cosmic energy shooting across space",
     "nova": "A brilliant white star explosion radiating outward in all directions",
     "starfall": "Multiple bright blue meteors raining down from a dark sky",
     "star_swarm": "A swarm of tiny glowing blue stars moving together like a school of fish",
     "supernova": "A massive supernova explosion with expanding shockwaves of color",
-    "astral_strike": "A ghostly ethereal hand wielding a translucent astral blade",
+    "astral_strike": "A translucent astral blade floating in cosmic energy",
     "opposition": "Two opposing celestial forces colliding in a burst of energy",
     "orbital_strike": "A planet-sized projectile following an orbital trajectory",
     "heat_death": "The universe fading into cold darkness with dying red embers",
@@ -96,15 +96,17 @@ BASE_STYLE = (
     "Slay the Spire card art style, "
     "saturated vibrant colors, clear contrast between light and dark, "
     "centered composition, single game asset on dark background, "
-    "no text no UI no frame, clean illustration only"
+    "no text no UI no frame, clean illustration only, "
+    "no people no characters no figures no humans no silhouettes, "
+    "pure cosmic abstract celestial art"
 )
 
 # 卡牌类型修饰词
 TYPE_MODIFIERS = {
-    0: "dynamic action pose, energy and impact, offensive power",
-    1: "mystical symbol, magical effect, utility and support",
-    2: "persistent aura, ongoing cosmic energy, passive power",
-    4: "dark ominous cursed energy, corrupt and twisted, status effect",
+    0: "energy burst, impact effect, explosive power",
+    1: "mystical symbol, magical glow, celestial pattern",
+    2: "persistent aura, cosmic resonance, orbital rings",
+    4: "dark ominous energy, corrupted glow, cursed symbol",
 }
 
 CARD_TYPE_NAMES = {0: "ATTACK", 1: "SKILL", 2: "POWER", 4: "STATUS"}
