@@ -14,14 +14,33 @@ func _ready() -> void:
 func load_locale(locale: String, persist_setting: bool = true) -> void:
 	current_locale = _normalize_locale(locale)
 	_translations = {}
-	# Clear JSON cache to force reload of locale files
-	FileLoader._cached_json.clear()
-	_merge_translations(FileLoader.load_json(LOCALE_DIR, current_locale + ".json"))
-	_merge_translations(FileLoader.load_json(LOCALE_DIR, current_locale + "_data.json"))
+	# NOTE: Do NOT clear FileLoader._cached_json here — it would wipe all
+	# game data (cards, enemies, etc.) that has already been loaded.
+	var main = FileLoader.load_json(LOCALE_DIR, current_locale + ".json")
+	var data = FileLoader.load_json(LOCALE_DIR, current_locale + "_data.json")
+	# Fallback: load directly from res:// if FileLoader returned empty
+	if main.is_empty():
+		main = _load_json_from_res(LOCALE_DIR + current_locale + ".json")
+	if data.is_empty():
+		data = _load_json_from_res(LOCALE_DIR + current_locale + "_data.json")
+	_merge_translations(main)
+	_merge_translations(data)
 	if persist_setting:
 		Global.user_settings_data.settings_language = current_locale
 		FileLoader.save_user_settings()
 	locale_changed.emit(current_locale)
+
+func _load_json_from_res(path: String) -> Dictionary:
+	# On Android APK, FileAccess.file_exists() may return false for
+	# res:// files even though they are readable. Just try to open.
+	var full := "res://" + path
+	var f := FileAccess.open(full, FileAccess.READ)
+	if f != null:
+		var text := f.get_as_text()
+		var parsed = JSON.parse_string(text)
+		if parsed != null:
+			return parsed
+	return {}
 
 func toggle_locale() -> void:
 	if current_locale == "zh_CN":

@@ -112,7 +112,7 @@ func _copy_directory_recursive(source: String, destination: String) -> void:
 	
 	var source_dir := DirAccess.open(source)
 	if source_dir == null:
-		push_error("FileLoader: Cannot open source directory: " + source)
+		print("FileLoader: Cannot open source directory: " + source)
 		return
 	
 	source_dir.list_dir_begin()
@@ -145,30 +145,41 @@ func _copy_directory_recursive(source: String, destination: String) -> void:
 
 func get_files_in_directory(partial_dir_path: String) -> PackedStringArray:
 	var full_path: String = _get_modified_filepath(partial_dir_path)
-	
+
 	# Try the primary path first
-	if DirAccess.dir_exists_absolute(full_path):
-		DirAccess.make_dir_absolute(full_path)
-		@warning_ignore("confusable_local_declaration")
-		var dir := DirAccess.open(full_path)
-		if dir:
-			return dir.get_files()
-	
+	@warning_ignore("confusable_local_declaration")
+	var dir := DirAccess.open(full_path)
+	if dir:
+		dir.list_dir_begin()
+		var files := dir.get_files()
+		dir.list_dir_end()
+		if files.size() > 0:
+			return files
+
 	# On Android, fall back to bundled data path if user:// path doesn't exist
 	if _is_android and _BUNDLED_DATA_PREFIX != _EXTERNAL_FILE_PREFIX:
 		var bundled_path := _get_bundled_filepath(partial_dir_path)
-		if DirAccess.dir_exists_absolute(bundled_path):
-			@warning_ignore("confusable_local_declaration")
-			var dir := DirAccess.open(bundled_path)
-			if dir:
-				return dir.get_files()
-	
-	# Create directory and return empty array
-	DirAccess.make_dir_absolute(full_path)
-	DirAccess.make_dir_recursive_absolute(full_path)
-	var dir := DirAccess.open(full_path)
-	if dir:
-		return dir.get_files()
+		@warning_ignore("confusable_local_declaration")
+		var dir2 := DirAccess.open(bundled_path)
+		if dir2:
+			dir2.list_dir_begin()
+			var files := dir2.get_files()
+			dir2.list_dir_end()
+			if files.size() > 0:
+				return files
+
+	# On desktop export, fall back to res:// (packed in PCK)
+	if OS.has_feature("exported") and not _is_android:
+		var res_path := "res://" + partial_dir_path
+		@warning_ignore("confusable_local_declaration")
+		var dir3 := DirAccess.open(res_path)
+		if dir3:
+			dir3.list_dir_begin()
+			var files := dir3.get_files()
+			dir3.list_dir_end()
+			if files.size() > 0:
+				return files
+
 	return PackedStringArray()
 
 func load_texture(image_partial_path, is_absolute: bool = false) -> ImageTexture:
@@ -176,33 +187,35 @@ func load_texture(image_partial_path, is_absolute: bool = false) -> ImageTexture
 	var full_path: String = image_partial_path
 	if not is_absolute:
 		full_path = _get_modified_filepath(image_partial_path)
-	
+
 	if self._cached_textures.has(full_path):
 		return self._cached_textures[full_path]
-	else:
-		var load_path := full_path
-		
-		# Try primary path first
-		if not FileAccess.file_exists(full_path):
-			# On Android, fall back to bundled data
-			if _is_android and not is_absolute and _BUNDLED_DATA_PREFIX != _EXTERNAL_FILE_PREFIX:
-				var bundled_path := _get_bundled_filepath(image_partial_path)
-				if FileAccess.file_exists(bundled_path):
-					load_path = bundled_path
-		
-		if FileAccess.file_exists(load_path):
-			var image := Image.load_from_file(load_path)
-			var texture: ImageTexture
-			if image == null:
-				texture = ImageTexture.new()
-			else:
-				texture = ImageTexture.create_from_image(image)
-			texture.take_over_path(full_path)  # Cache with original path
-			self._cached_textures[full_path] = texture
-			return texture
-		else:
-			push_error("Image failed to load: ", full_path)
-			return ImageTexture.new()	# return an empty image
+
+	var load_path := full_path
+	var image := Image.load_from_file(load_path)
+
+	# On Android, fall back to bundled data
+	if image == null and _is_android and not is_absolute and _BUNDLED_DATA_PREFIX != _EXTERNAL_FILE_PREFIX:
+		var bundled_path := _get_bundled_filepath(image_partial_path)
+		image = Image.load_from_file(bundled_path)
+		if image != null:
+			load_path = bundled_path
+
+	# On desktop export, fall back to res:// (packed in PCK)
+	if image == null and OS.has_feature("exported") and not _is_android and not is_absolute:
+		var res_path: String = "res://" + image_partial_path
+		image = Image.load_from_file(res_path)
+		if image != null:
+			load_path = res_path
+
+	if image == null:
+		print("Image failed to load: ", full_path)
+		return ImageTexture.new()
+
+	var texture := ImageTexture.create_from_image(image)
+	texture.take_over_path(full_path)
+	self._cached_textures[full_path] = texture
+	return texture
 		
 func load_animation(animation_id: String, animation_data: Dictionary) -> SpriteFrames:
 	# given an animation id and animation data, will generate and cache a SpriteFrames from external images
@@ -229,38 +242,37 @@ func load_json(directory_partial_path: String, filename: String) -> Dictionary:
 	# Only cache res:// data (mod content); user:// files mutate at runtime
 	if not full_path.begins_with("user://") and _cached_json.has(full_path):
 		return _cached_json[full_path]
-	if FileAccess.file_exists(full_path):
-		var file := FileAccess.open(full_path, FileAccess.READ)
-		if file == null:
-			push_error("JSON failed to open: ", full_path)
-			return {}
-		var file_text: String = file.get_as_text()
-		var parsed_json = JSON.parse_string(file_text)
 
-		if parsed_json == null:
-			push_error("JSON failed to parse: ", full_path)
-			return {}
-		_cached_json[full_path] = parsed_json
-		return parsed_json
-	
-	# On Android, fall back to bundled data (res://) if user:// file doesn't exist
-	if _is_android and _BUNDLED_DATA_PREFIX != _EXTERNAL_FILE_PREFIX:
-		var bundled_path: String = _get_bundled_filepath(directory_partial_path + filename)
-		if FileAccess.file_exists(bundled_path):
-			var file := FileAccess.open(bundled_path, FileAccess.READ)
-			if file == null:
-				push_error("JSON failed to open bundled: ", bundled_path)
-				return {}
-			var file_text: String = file.get_as_text()
-			var parsed_json = JSON.parse_string(file_text)
-			
-			if parsed_json == null:
-				push_error("JSON failed to parse bundled: ", bundled_path)
-				return {}
-			return parsed_json
-	
-	push_error("JSON failed to load: ", full_path)
-	return {}
+	# Try to open from primary path
+	var file := FileAccess.open(full_path, FileAccess.READ)
+	if file == null:
+		# On Android, fall back to bundled data (res://)
+		if _is_android and _BUNDLED_DATA_PREFIX != _EXTERNAL_FILE_PREFIX:
+			var bundled_path: String = _get_bundled_filepath(directory_partial_path + filename)
+			file = FileAccess.open(bundled_path, FileAccess.READ)
+		# On desktop export, fall back to res:// (packed in PCK)
+		elif OS.has_feature("exported") and not _is_android:
+			var res_path: String = "res://" + directory_partial_path + filename
+			file = FileAccess.open(res_path, FileAccess.READ)
+
+	# Last resort: retry res:// directly (FileAccess.open may succeed
+	# even when FileAccess.file_exists returned false on Android APK)
+	if file == null:
+		var res_path: String = "res://" + directory_partial_path + filename
+		file = FileAccess.open(res_path, FileAccess.READ)
+
+	if file == null:
+		print("JSON failed to load: ", full_path)
+		return {}
+
+	var file_text: String = file.get_as_text()
+	var parsed_json = JSON.parse_string(file_text)
+
+	if parsed_json == null:
+		print("JSON failed to parse: ", full_path)
+		return {}
+	_cached_json[full_path] = parsed_json
+	return parsed_json
 
 func save_json(directory_partial_path: String, filename: String, data_dict: Dictionary) -> void:
 	# saves an external json file

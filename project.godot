@@ -49,7 +49,7 @@ window/size/viewport_height=720
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="viewport"
-window/stretch/aspect="expand"
+window/stretch/aspect="keep"
 "##ææº/å¹³æ¿ï¼éå®æ¨ªå±ï¼ç«å±èåè¯+æ¨ªå±ææå¯èªè¡æ¹sensorï¼window/handheld/orientation"=1
 
 [input]
