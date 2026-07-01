@@ -1387,7 +1387,7 @@ func add_test_dialogue() -> void:
 	var option_ruins_risky_success: DialogueOptionData = DialogueOptionData.new("option_ruins_risky_success")
 	option_ruins_risky_success.dialogue_option_bbcode = "[color=yellow]大胆探索[/color]——冒险深入（50%遗物，50%掉血）"
 	option_ruins_risky_success.dialogue_option_actions = [
-		{Scripts.ACTION_ADD_ARTIFACT: {"artifact_id": "artifact_block_on_attacks"}},
+		{Scripts.ACTION_ADD_RANDOM_ARTIFACT: {"artifact_count": 1}},
 	]
 	option_ruins_risky_success.dialogue_option_validators = [
 		{Scripts.VALIDATOR_RNG: {"chance": 0.5}},
@@ -1516,7 +1516,7 @@ func add_test_dialogue() -> void:
 	var option_chest_open_success: DialogueOptionData = DialogueOptionData.new("option_chest_open_success")
 	option_chest_open_success.dialogue_option_bbcode = "[color=red]打开宝箱[/color]（50%遗物，50%掉20血）"
 	option_chest_open_success.dialogue_option_actions = [
-		{Scripts.ACTION_ADD_ARTIFACT: {"artifact_id": "artifact_retain_hand"}},
+		{Scripts.ACTION_ADD_RANDOM_ARTIFACT: {"artifact_count": 1}},
 	]
 	option_chest_open_success.dialogue_option_validators = [
 		{Scripts.VALIDATOR_RNG: {"chance": 0.5}},
@@ -1717,7 +1717,7 @@ func add_test_dialogue() -> void:
 	option_altar_gold.dialogue_option_failed_validator_bbcode = "[color=grey][Locked]: Insufficient Money[/color]"
 	option_altar_gold.dialogue_option_actions = [
 		{Scripts.ACTION_ADD_MONEY: {"money_amount": -50}},
-		{Scripts.ACTION_ADD_ARTIFACT: {"artifact_id": "artifact_increase_attack_on_rest"}},
+		{Scripts.ACTION_ADD_RANDOM_ARTIFACT: {"artifact_count": 1}},
 	]
 	option_altar_gold.dialogue_option_validators = [
 		{Scripts.VALIDATOR_MONEY: {"money_amount": 50}},
@@ -1809,7 +1809,7 @@ func add_test_dialogue() -> void:
 	var option_lucky_relic: DialogueOptionData = DialogueOptionData.new("option_lucky_relic")
 	option_lucky_relic.dialogue_option_bbcode = I18N.tr_key("event.lucky_find.option_relic")
 	option_lucky_relic.dialogue_option_actions = [
-		{Scripts.ACTION_ADD_ARTIFACT: {"artifact_id": "artifact_see_top_of_draw_pile"}},
+		{Scripts.ACTION_ADD_RANDOM_ARTIFACT: {"artifact_count": 1}},
 	]
 	option_lucky_relic.dialogue_option_next_dialogue_state_id = "state_lucky_relic_result"
 	dialogue_lucky._assign_option(option_lucky_relic)
