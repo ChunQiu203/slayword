@@ -1,82 +1,86 @@
 {
-	"patch_data": {},
-	"properties": {
-		"dialogue_initial_dialogue_state_object_id": "dialogue_state_altar_initial",
-		"dialogue_option_id_to_dialogue_options": {
-			"dialogue_altar_option_1": {
-				"dialogue_option_actions": [
-					{
-						"res://scripts/actions/ActionAddHealth.gd": {
-							"health_amount": -6
-						}
-					},
-					{
-						"res://scripts/actions/player_actions/ActionAddMoney.gd": {
-							"money_amount": 60
-						}
-					}
-				],
-				"dialogue_option_bbcode": "[color=red]Offer blood (lose 6 HP)[/color] — [color=green]receive 60 gold[/color]",
-				"dialogue_option_failed_validator_bbcode": "[color=grey][Locked]: Insufficient Health[/color]",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [
-					{
-						"res://scripts/validators/ValidatorPlayerHealth.gd": {
-							"health_amount": 7
-						}
-					}
-				],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_altar_option_1"
-			},
-			"dialogue_altar_option_2": {
-				"dialogue_option_actions": [
-					{
-						"res://scripts/actions/player_actions/ActionAddMoney.gd": {
-							"money_amount": -40
-						}
-					},
-					{
-						"res://scripts/actions/ActionAddHealth.gd": {
-							"health_amount": 20
-						}
-					}
-				],
-				"dialogue_option_bbcode": "[color=red]Pay 40 gold[/color] — [color=green]fully blessed (heal 20 HP)[/color]",
-				"dialogue_option_failed_validator_bbcode": "[color=grey][Locked]: Insufficient Gold[/color]",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [
-					{
-						"res://scripts/validators/ValidatorMoney.gd": {
-							"money_amount": 40
-						}
-					}
-				],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_altar_option_2"
-			},
-			"dialogue_altar_option_3": {
-				"dialogue_option_actions": [],
-				"dialogue_option_bbcode": "[color=grey]Pray silently and leave[/color]",
-				"dialogue_option_failed_validator_bbcode": "",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_altar_option_3"
-			}
-		},
-		"dialogue_state_id_to_dialogue_states": {
-			"dialogue_state_altar_initial": {
-				"dialogue_state_dialogue_option_object_ids": [
-					"dialogue_altar_option_1",
-					"dialogue_altar_option_2",
-					"dialogue_altar_option_3"
-				],
-				"dialogue_state_dialogue_texture_path": "",
-				"dialogue_state_prompt_bbcode": "An ancient altar glows with otherworldly power. Faint whispers echo from within...",
-				"object_id": "dialogue_state_altar_initial"
-			}
-		},
-		"object_id": "dialogue_altar"
-	}
+  "patch_data": {},
+  "properties": {
+    "dialogue_initial_dialogue_state_object_id": "state_altar_initial",
+    "dialogue_state_id_to_dialogue_states": {
+      "state_altar_initial": {
+        "object_id": "state_altar_initial",
+        "dialogue_state_prompt_bbcode": "一座古老的祭坛散发着超自然的力量。微弱的低语声从内部回荡……",
+        "dialogue_state_dialogue_texture_path": "external/sprites/events/event_altar.png",
+        "dialogue_state_dialogue_option_object_ids": ["option_altar_blood", "option_altar_gold", "option_altar_leave"]
+      },
+      "state_altar_blood_result": {
+        "object_id": "state_altar_blood_result",
+        "dialogue_state_prompt_bbcode": "[color=green]你献祭了生命，祭坛的光芒注入你的武器！\n\n已升级：{upgraded_name}\n\n效果：{upgraded_desc_raw}[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      },
+      "state_altar_gold_result": {
+        "object_id": "state_altar_gold_result",
+        "dialogue_state_prompt_bbcode": "[color=green]你献祭了金币，祭坛赐予你一件宝物！\n\n获得遗物：{artifact_name}（{artifact_desc}）[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      },
+      "state_altar_leave_result": {
+        "object_id": "state_altar_leave_result",
+        "dialogue_state_prompt_bbcode": "你决定不打扰这座古老的祭坛，转身离开了。",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      }
+    },
+    "dialogue_option_id_to_dialogue_options": {
+      "option_altar_blood": {
+        "object_id": "option_altar_blood",
+        "dialogue_option_bbcode": "[color=red]血祭[/color]——献祭生命，升级一张牌",
+        "dialogue_option_failed_validator_bbcode": "[color=grey][Locked]: Insufficient Health[/color]",
+        "dialogue_option_next_dialogue_state_id": "state_altar_blood_result",
+        "dialogue_option_actions": [
+          {"res://scripts/actions/ActionAddHealth.gd": {"health_amount": -15}},
+          {
+            "res://scripts/actions/pick_card_actions/ActionPickUpgradeCards.gd": {
+              "min_card_amount": 1,
+              "max_card_amount": 1,
+              "card_pick_type": 1,
+              "card_pick_text": "选择一张牌升级",
+              "min_cards_are_required_for_action": true,
+              "random_selection": false
+            }
+          }
+        ],
+        "dialogue_option_validators": [{"res://scripts/validators/ValidatorPlayerHealth.gd": {"health_amount": 16}}],
+        "dialogue_option_visible_on_failed_validation": false
+      },
+      "option_altar_gold": {
+        "object_id": "option_altar_gold",
+        "dialogue_option_bbcode": "[color=red]金币祭[/color]——献祭金币，获得一件宝物",
+        "dialogue_option_failed_validator_bbcode": "[color=grey][Locked]: Insufficient Money[/color]",
+        "dialogue_option_next_dialogue_state_id": "state_altar_gold_result",
+        "dialogue_option_actions": [
+          {"res://scripts/actions/player_actions/ActionAddMoney.gd": {"money_amount": -50}},
+          {"res://scripts/actions/player_actions/ActionAddRandomArtifact.gd": {"artifact_count": 1}}
+        ],
+        "dialogue_option_validators": [{"res://scripts/validators/ValidatorMoney.gd": {"money_amount": 50}}],
+        "dialogue_option_visible_on_failed_validation": false
+      },
+      "option_altar_leave": {
+        "object_id": "option_altar_leave",
+        "dialogue_option_bbcode": "[color=grey]默默祈祷后离开[/color]",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "state_altar_leave_result",
+        "dialogue_option_actions": [],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      },
+      "option_continue": {
+        "object_id": "option_continue",
+        "dialogue_option_bbcode": "继续",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "",
+        "dialogue_option_actions": [],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      }
+    },
+    "object_id": "dialogue_altar"
+  }
 }

@@ -1,55 +1,86 @@
 {
-	"patch_data": {},
-	"properties": {
-		"dialogue_initial_dialogue_state_object_id": "dialogue_state_cursed_chest_initial",
-		"dialogue_option_id_to_dialogue_options": {
-			"dialogue_cursed_chest_option_1": {
-				"dialogue_option_actions": [
-					{
-						"res://scripts/actions/ActionAddHealth.gd": {
-							"health_amount": -12
-						}
-					},
-					{
-						"res://scripts/actions/player_actions/ActionAddMoney.gd": {
-							"money_amount": 100
-						}
-					}
-				],
-				"dialogue_option_bbcode": "[color=red]Open the chest (lose 12 HP)[/color] — [color=green]gain 100 gold[/color]",
-				"dialogue_option_failed_validator_bbcode": "[color=grey][Locked]: Insufficient Health[/color]",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [
-					{
-						"res://scripts/validators/ValidatorPlayerHealth.gd": {
-							"health_amount": 13
-						}
-					}
-				],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_cursed_chest_option_1"
-			},
-			"dialogue_cursed_chest_option_2": {
-				"dialogue_option_actions": [],
-				"dialogue_option_bbcode": "[color=grey]Leave the cursed chest alone[/color]",
-				"dialogue_option_failed_validator_bbcode": "",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_cursed_chest_option_2"
-			}
-		},
-		"dialogue_state_id_to_dialogue_states": {
-			"dialogue_state_cursed_chest_initial": {
-				"dialogue_state_dialogue_option_object_ids": [
-					"dialogue_cursed_chest_option_1",
-					"dialogue_cursed_chest_option_2"
-				],
-				"dialogue_state_dialogue_texture_path": "",
-				"dialogue_state_prompt_bbcode": "You find a ornate chest radiating dark energy. An inscription reads: 'Riches await those who dare.'",
-				"object_id": "dialogue_state_cursed_chest_initial"
-			}
-		},
-		"object_id": "dialogue_cursed_chest"
-	}
+  "patch_data": {},
+  "properties": {
+    "dialogue_initial_dialogue_state_object_id": "state_chest_initial",
+    "dialogue_state_id_to_dialogue_states": {
+      "state_chest_initial": {
+        "object_id": "state_chest_initial",
+        "dialogue_state_prompt_bbcode": "你发现了一个散发着诡异光芒的宝箱。它看起来被诅咒了。",
+        "dialogue_state_dialogue_texture_path": "external/sprites/events/event_cursed_chest.png",
+        "dialogue_state_dialogue_option_object_ids": ["option_chest_open_success", "option_chest_open_fail", "option_chest_smash", "option_chest_leave"]
+      },
+      "state_chest_open_success": {
+        "object_id": "state_chest_open_success",
+        "dialogue_state_prompt_bbcode": "[color=green]宝箱中的诅咒力量消散，你获得了一件宝物！\n\n获得遗物：{artifact_name}（{artifact_desc}）[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      },
+      "state_chest_open_fail": {
+        "object_id": "state_chest_open_fail",
+        "dialogue_state_prompt_bbcode": "[color=red]诅咒力量侵蚀了你的身体！\n\n-20 生命[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      },
+      "state_chest_smash_result": {
+        "object_id": "state_chest_smash_result",
+        "dialogue_state_prompt_bbcode": "[color=green]你砸碎了宝箱，从碎片中找到了金币！\n\n+30 金币[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      },
+      "state_chest_leave_result": {
+        "object_id": "state_chest_leave_result",
+        "dialogue_state_prompt_bbcode": "[color=yellow]你谨慎地离开了，但在路边捡到了一些零钱。\n\n+10 金币[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      }
+    },
+    "dialogue_option_id_to_dialogue_options": {
+      "option_chest_open_success": {
+        "object_id": "option_chest_open_success",
+        "dialogue_option_bbcode": "[color=red]打开宝箱[/color]（50%遗物，50%掉20血）",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "state_chest_open_success",
+        "dialogue_option_actions": [{"res://scripts/actions/player_actions/ActionAddRandomArtifact.gd": {"artifact_count": 1}}],
+        "dialogue_option_validators": [{"res://scripts/validators/ValidatorRNG.gd": {"chance": 0.5}}],
+        "dialogue_option_visible_on_failed_validation": false
+      },
+      "option_chest_open_fail": {
+        "object_id": "option_chest_open_fail",
+        "dialogue_option_bbcode": "[color=red]打开宝箱[/color]（50%遗物，50%掉20血）",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "state_chest_open_fail",
+        "dialogue_option_actions": [{"res://scripts/actions/ActionAddHealth.gd": {"health_amount": -20}}],
+        "dialogue_option_validators": [{"res://scripts/validators/ValidatorRNG.gd": {"chance": 0.5}}],
+        "dialogue_option_visible_on_failed_validation": false
+      },
+      "option_chest_smash": {
+        "object_id": "option_chest_smash",
+        "dialogue_option_bbcode": "砸碎宝箱",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "state_chest_smash_result",
+        "dialogue_option_actions": [{"res://scripts/actions/player_actions/ActionAddMoney.gd": {"money_amount": 30}}],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      },
+      "option_chest_leave": {
+        "object_id": "option_chest_leave",
+        "dialogue_option_bbcode": "离开",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "state_chest_leave_result",
+        "dialogue_option_actions": [{"res://scripts/actions/player_actions/ActionAddMoney.gd": {"money_amount": 10}}],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      },
+      "option_continue": {
+        "object_id": "option_continue",
+        "dialogue_option_bbcode": "继续",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "",
+        "dialogue_option_actions": [],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      }
+    },
+    "object_id": "dialogue_cursed_chest"
+  }
 }

@@ -1,64 +1,56 @@
 {
-	"patch_data": {},
-	"properties": {
-		"dialogue_initial_dialogue_state_object_id": "dialogue_state_word_challenge_initial",
-		"dialogue_option_id_to_dialogue_options": {
-			"dialogue_word_challenge_option_1": {
-				"dialogue_option_actions": [
-					{
-						"res://scripts/actions/pick_card_actions/ActionPickCards.gd": {
-							"action_data": [
-								{
-									"res://scripts/actions/cardset_actions/ActionAddCardsToDeck.gd": {}
-								}
-							],
-							"card_pick_type": 8,
-							"draft_from_card_pool": true,
-							"draft_is_weighted": false,
-							"draft_max_card_amount": 1,
-							"draft_use_pity_system": false,
-							"draft_use_player_draft": false,
-							"max_card_amount": 1,
-							"min_card_amount": 1,
-							"pick_draft_cards": false,
-							"random_selection": true,
-							"rng_name": "rng_events",
-							"validator_data": [
-								{
-									"res://scripts/validators/card/ValidatorCardDraftable.gd": {}
-								}
-							]
-						}
-					}
-				],
-				"dialogue_option_bbcode": "[color=green]Accept the challenge[/color] — gain a random card",
-				"dialogue_option_failed_validator_bbcode": "",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_word_challenge_option_1"
-			},
-			"dialogue_word_challenge_option_2": {
-				"dialogue_option_actions": [],
-				"dialogue_option_bbcode": "[color=grey]Decline and walk away[/color]",
-				"dialogue_option_failed_validator_bbcode": "",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_word_challenge_option_2"
-			}
-		},
-		"dialogue_state_id_to_dialogue_states": {
-			"dialogue_state_word_challenge_initial": {
-				"dialogue_state_dialogue_option_object_ids": [
-					"dialogue_word_challenge_option_1",
-					"dialogue_word_challenge_option_2"
-				],
-				"dialogue_state_dialogue_texture_path": "",
-				"dialogue_state_prompt_bbcode": "A mysterious figure challenges you with a word puzzle. Will you take on the challenge?",
-				"object_id": "dialogue_state_word_challenge_initial"
-			}
-		},
-		"object_id": "dialogue_word_challenge"
-	}
+  "patch_data": {},
+  "properties": {
+    "dialogue_initial_dialogue_state_object_id": "state_challenge_initial",
+    "dialogue_state_id_to_dialogue_states": {
+      "state_challenge_initial": {
+        "object_id": "state_challenge_initial",
+        "dialogue_state_prompt_bbcode": "[center]单词挑战[/center]\n\n一个神秘的声音响起：\n「回答一个单词问题，就能获得我的馈赠……」",
+        "dialogue_state_dialogue_texture_path": "external/sprites/events/event_word_challenge.png",
+        "dialogue_state_dialogue_option_object_ids": ["option_challenge_accept", "option_challenge_decline"]
+      },
+      "state_challenge_accept_result": {
+        "object_id": "state_challenge_accept_result",
+        "dialogue_state_prompt_bbcode": "[color=green]你成功回答了挑战！\n\n+30 金币[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      },
+      "state_challenge_decline_result": {
+        "object_id": "state_challenge_decline_result",
+        "dialogue_state_prompt_bbcode": "[color=yellow]你拒绝了挑战。\n\n+20 金币[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      }
+    },
+    "dialogue_option_id_to_dialogue_options": {
+      "option_challenge_accept": {
+        "object_id": "option_challenge_accept",
+        "dialogue_option_bbcode": "[color=green]接受挑战[/color]——回答一个单词问题",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "state_challenge_accept_result",
+        "dialogue_option_actions": [{"res://scripts/actions/player_actions/ActionVocabReview.gd": {"money_amount": 30, "skip_money_amount": 10}}],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      },
+      "option_challenge_decline": {
+        "object_id": "option_challenge_decline",
+        "dialogue_option_bbcode": "[color=grey]跳过挑战[/color]",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "state_challenge_decline_result",
+        "dialogue_option_actions": [{"res://scripts/actions/player_actions/ActionAddMoney.gd": {"money_amount": 20}}],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      },
+      "option_continue": {
+        "object_id": "option_continue",
+        "dialogue_option_bbcode": "继续",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "",
+        "dialogue_option_actions": [],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      }
+    },
+    "object_id": "dialogue_word_challenge"
+  }
 }

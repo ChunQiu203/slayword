@@ -184,6 +184,7 @@ func _substitute_variables(text: String) -> String:
 	# Replace {upgraded_desc} specifically for upgrade results
 	text = text.replace("{upgraded_desc}", Global.event_last_upgraded_card_description)
 	# Replace {traded_name} specifically for trade results
+	print("SUBS: traded_name='", Global.event_last_traded_card_name, "' upgraded_name='", Global.event_last_upgraded_card_name, "'")
 	text = text.replace("{traded_name}", Global.event_last_traded_card_name)
 	# Replace {traded_desc} specifically for trade results
 	text = text.replace("{traded_desc}", Global.event_last_traded_card_description)
@@ -191,6 +192,10 @@ func _substitute_variables(text: String) -> String:
 	text = text.replace("{upgraded_desc_raw}", _process_card_description(Global.event_last_upgraded_card_name, Global.event_last_upgraded_card_description))
 	# Replace {traded_desc_raw} with processed trade description
 	text = text.replace("{traded_desc_raw}", _process_card_description(Global.event_last_traded_card_name, Global.event_last_traded_card_description))
+	# Replace {artifact_name} for artifact results
+	text = text.replace("{artifact_name}", Global.event_last_added_artifact_name)
+	# Replace {artifact_desc} for artifact results
+	text = text.replace("{artifact_desc}", Global.event_last_added_artifact_description)
 	return text
 
 func _process_card_description(card_name: String, description: String) -> String:

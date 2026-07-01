@@ -1,94 +1,154 @@
 {
 	"patch_data": {},
 	"properties": {
-		"dialogue_initial_dialogue_state_object_id": "dialogue_state_ancient_ruins_initial",
-		"dialogue_option_id_to_dialogue_options": {
-			"dialogue_ancient_ruins_option_1": {
-				"dialogue_option_actions": [
-					{
-						"res://scripts/actions/ActionAddHealth.gd": {
-							"health_amount": -8
-						}
-					},
-					{
-						"res://scripts/actions/pick_card_actions/ActionPickCards.gd": {
-							"action_data": [
-								{
-									"res://scripts/actions/cardset_actions/ActionAddCardsToDeck.gd": {}
-								}
-							],
-							"card_pick_type": 8,
-							"draft_from_card_pool": true,
-							"draft_is_weighted": false,
-							"draft_max_card_amount": 1,
-							"draft_use_pity_system": false,
-							"draft_use_player_draft": false,
-							"max_card_amount": 1,
-							"min_card_amount": 1,
-							"pick_draft_cards": false,
-							"random_selection": true,
-							"rng_name": "rng_events",
-							"validator_data": [
-								{
-									"res://scripts/validators/card/ValidatorCardRarity.gd": {
-										"card_rarities": [2, 3]
-									}
-								},
-								{
-									"res://scripts/validators/card/ValidatorCardDraftable.gd": {}
-								}
-							]
-						}
-					}
-				],
-				"dialogue_option_bbcode": "[color=red]Lose 8 HP[/color] and [color=green]Gain Random Rare+ Card[/color]",
-				"dialogue_option_failed_validator_bbcode": "[color=grey][Locked]: Insufficient Health[/color]",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [
-					{
-						"res://scripts/validators/ValidatorPlayerHealth.gd": {
-							"health_amount": 9
-						}
-					}
-				],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_ancient_ruins_option_1"
+		"dialogue_initial_dialogue_state_object_id": "state_ruins_initial",
+		"dialogue_state_id_to_dialogue_states": {
+			"state_ruins_initial": {
+				"object_id": "state_ruins_initial",
+				"dialogue_state_prompt_bbcode": "你发现一处被神秘星图覆盖的古老遗迹，空气中弥漫着星辰之力……",
+				"dialogue_state_dialogue_texture_path": "external/sprites/events/event_ancient_ruins.png",
+				"dialogue_state_dialogue_option_object_ids": [
+					"option_ruins_safe",
+					"option_ruins_risky_success",
+					"option_ruins_risky_fail",
+					"option_ruins_leave"
+				]
 			},
-			"dialogue_ancient_ruins_option_2": {
+			"state_ruins_safe_result": {
+				"object_id": "state_ruins_safe_result",
+				"dialogue_state_prompt_bbcode": "[color=green]你谨慎地搜索了遗迹，找到了一些金币！\n\n+30 金币[/color]",
+				"dialogue_state_dialogue_texture_path": "",
+				"dialogue_state_dialogue_option_object_ids": [
+					"option_ruins_safe_continue"
+				]
+			},
+			"state_ruins_risky_success": {
+				"object_id": "state_ruins_risky_success",
+				"dialogue_state_prompt_bbcode": "[color=green]古老的机关缓缓打开，你发现了一件宝物！\n\n获得遗物：{artifact_name}（{artifact_desc}）[/color]",
+				"dialogue_state_dialogue_texture_path": "",
+				"dialogue_state_dialogue_option_object_ids": [
+					"option_ruins_risky_success_continue"
+				]
+			},
+			"state_ruins_risky_fail": {
+				"object_id": "state_ruins_risky_fail",
+				"dialogue_state_prompt_bbcode": "[color=red]古老的机关射出暗箭，你受了伤！\n\n-15 生命[/color]",
+				"dialogue_state_dialogue_texture_path": "",
+				"dialogue_state_dialogue_option_object_ids": [
+					"option_ruins_risky_fail_continue"
+				]
+			},
+			"state_ruins_leave_result": {
+				"object_id": "state_ruins_leave_result",
+				"dialogue_state_prompt_bbcode": "你决定不冒险，安全离开了遗迹。",
+				"dialogue_state_dialogue_texture_path": "",
+				"dialogue_state_dialogue_option_object_ids": [
+					"option_ruins_leave_continue"
+				]
+			}
+		},
+		"dialogue_option_id_to_dialogue_options": {
+			"option_ruins_safe": {
+				"object_id": "option_ruins_safe",
+				"dialogue_option_bbcode": "[color=green]仔细探索遗迹[/color]——找到一些金币",
+				"dialogue_option_failed_validator_bbcode": "",
+				"dialogue_option_next_dialogue_state_id": "state_ruins_safe_result",
 				"dialogue_option_actions": [
 					{
 						"res://scripts/actions/player_actions/ActionAddMoney.gd": {
-							"money_amount": 50
+							"money_amount": 30
 						}
 					}
 				],
-				"dialogue_option_bbcode": "[color=green]Search the ruins carefully[/color] — find some gold",
-				"dialogue_option_failed_validator_bbcode": "",
-				"dialogue_option_next_dialogue_state_id": "",
 				"dialogue_option_validators": [],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_ancient_ruins_option_2"
+				"dialogue_option_visible_on_failed_validation": true
 			},
-			"dialogue_ancient_ruins_option_3": {
+			"option_ruins_risky_success": {
+				"object_id": "option_ruins_risky_success",
+				"dialogue_option_bbcode": "[color=yellow]大胆探索[/color]——冒险深入（50%遗物，50%掉血）",
+				"dialogue_option_failed_validator_bbcode": "",
+				"dialogue_option_next_dialogue_state_id": "state_ruins_risky_success",
+				"dialogue_option_actions": [
+					{
+						"res://scripts/actions/player_actions/ActionAddRandomArtifact.gd": {
+							"artifact_count": 1
+						}
+					}
+				],
+				"dialogue_option_validators": [
+					{
+						"res://scripts/validators/ValidatorRNG.gd": {
+							"chance": 0.5
+						}
+					}
+				],
+				"dialogue_option_visible_on_failed_validation": false
+			},
+			"option_ruins_risky_fail": {
+				"object_id": "option_ruins_risky_fail",
+				"dialogue_option_bbcode": "[color=yellow]大胆探索[/color]——冒险深入（50%遗物，50%掉血）",
+				"dialogue_option_failed_validator_bbcode": "",
+				"dialogue_option_next_dialogue_state_id": "state_ruins_risky_fail",
+				"dialogue_option_actions": [
+					{
+						"res://scripts/actions/ActionAddHealth.gd": {
+							"health_amount": -15
+						}
+					}
+				],
+				"dialogue_option_validators": [
+					{
+						"res://scripts/validators/ValidatorRNG.gd": {
+							"chance": 0.5
+						}
+					}
+				],
+				"dialogue_option_visible_on_failed_validation": false
+			},
+			"option_ruins_leave": {
+				"object_id": "option_ruins_leave",
+				"dialogue_option_bbcode": "不碰遗迹，安全离开",
+				"dialogue_option_failed_validator_bbcode": "",
+				"dialogue_option_next_dialogue_state_id": "state_ruins_leave_result",
 				"dialogue_option_actions": [],
-				"dialogue_option_bbcode": "[color=grey]Leave the ruins untouched[/color]",
+				"dialogue_option_validators": [],
+				"dialogue_option_visible_on_failed_validation": true
+			},
+			"option_ruins_safe_continue": {
+				"object_id": "option_ruins_safe_continue",
+				"dialogue_option_bbcode": "继续",
 				"dialogue_option_failed_validator_bbcode": "",
 				"dialogue_option_next_dialogue_state_id": "",
+				"dialogue_option_actions": [],
 				"dialogue_option_validators": [],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_ancient_ruins_option_3"
-			}
-		},
-		"dialogue_state_id_to_dialogue_states": {
-			"dialogue_state_ancient_ruins_initial": {
-				"dialogue_state_dialogue_option_object_ids": [
-					"dialogue_ancient_ruins_option_1",
-					"dialogue_ancient_ruins_option_2",
-					"dialogue_ancient_ruins_option_3"
-				],
-				"dialogue_state_dialogue_texture_path": "",
-				"dialogue_state_prompt_bbcode": "You discover ancient ruins covered in mysterious star charts. The air hums with celestial energy...",
-				"object_id": "dialogue_state_ancient_ruins_initial"
+				"dialogue_option_visible_on_failed_validation": true
+			},
+			"option_ruins_risky_success_continue": {
+				"object_id": "option_ruins_risky_success_continue",
+				"dialogue_option_bbcode": "继续",
+				"dialogue_option_failed_validator_bbcode": "",
+				"dialogue_option_next_dialogue_state_id": "",
+				"dialogue_option_actions": [],
+				"dialogue_option_validators": [],
+				"dialogue_option_visible_on_failed_validation": true
+			},
+			"option_ruins_risky_fail_continue": {
+				"object_id": "option_ruins_risky_fail_continue",
+				"dialogue_option_bbcode": "继续",
+				"dialogue_option_failed_validator_bbcode": "",
+				"dialogue_option_next_dialogue_state_id": "",
+				"dialogue_option_actions": [],
+				"dialogue_option_validators": [],
+				"dialogue_option_visible_on_failed_validation": true
+			},
+			"option_ruins_leave_continue": {
+				"object_id": "option_ruins_leave_continue",
+				"dialogue_option_bbcode": "继续",
+				"dialogue_option_failed_validator_bbcode": "",
+				"dialogue_option_next_dialogue_state_id": "",
+				"dialogue_option_actions": [],
+				"dialogue_option_validators": [],
+				"dialogue_option_visible_on_failed_validation": true
 			}
 		},
 		"object_id": "dialogue_ancient_ruins"

@@ -1,91 +1,105 @@
 {
-	"patch_data": {},
-	"properties": {
-		"dialogue_initial_dialogue_state_object_id": "dialogue_state_traveler_initial",
-		"dialogue_option_id_to_dialogue_options": {
-			"dialogue_traveler_option_1": {
-				"dialogue_option_actions": [
-					{
-						"res://scripts/actions/player_actions/ActionAddMoney.gd": {
-							"money_amount": -30
-						}
-					},
-					{
-						"res://scripts/actions/ActionAddHealth.gd": {
-							"health_amount": 15
-						}
-					}
-				],
-				"dialogue_option_bbcode": "[color=red]Pay 30 gold[/color] for [color=green]healing (15 HP)[/color]",
-				"dialogue_option_failed_validator_bbcode": "[color=grey][Locked]: Insufficient Gold[/color]",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [
-					{
-						"res://scripts/validators/ValidatorMoney.gd": {
-							"money_amount": 30
-						}
-					}
-				],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_traveler_option_1"
-			},
-			"dialogue_traveler_option_2": {
-				"dialogue_option_actions": [
-					{
-						"res://scripts/actions/pick_card_actions/ActionPickCards.gd": {
-							"action_data": [
-								{
-									"res://scripts/actions/cardset_actions/ActionAddCardsToDeck.gd": {}
-								}
-							],
-							"card_pick_type": 8,
-							"draft_from_card_pool": true,
-							"draft_is_weighted": false,
-							"draft_max_card_amount": 1,
-							"draft_use_pity_system": false,
-							"draft_use_player_draft": false,
-							"max_card_amount": 1,
-							"min_card_amount": 1,
-							"pick_draft_cards": false,
-							"random_selection": true,
-							"rng_name": "rng_events",
-							"validator_data": [
-								{
-									"res://scripts/validators/card/ValidatorCardDraftable.gd": {}
-								}
-							]
-						}
-					}
-				],
-				"dialogue_option_bbcode": "[color=green]Trade stories[/color] — gain a random card",
-				"dialogue_option_failed_validator_bbcode": "",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_traveler_option_2"
-			},
-			"dialogue_traveler_option_3": {
-				"dialogue_option_actions": [],
-				"dialogue_option_bbcode": "[color=grey]Continue on your way[/color]",
-				"dialogue_option_failed_validator_bbcode": "",
-				"dialogue_option_next_dialogue_state_id": "",
-				"dialogue_option_validators": [],
-				"dialogue_option_visible_on_failed_validation": true,
-				"object_id": "dialogue_traveler_option_3"
-			}
-		},
-		"dialogue_state_id_to_dialogue_states": {
-			"dialogue_state_traveler_initial": {
-				"dialogue_state_dialogue_option_object_ids": [
-					"dialogue_traveler_option_1",
-					"dialogue_traveler_option_2",
-					"dialogue_traveler_option_3"
-				],
-				"dialogue_state_dialogue_texture_path": "",
-				"dialogue_state_prompt_bbcode": "A weary traveler approaches you on the road. They seem willing to trade or share stories.",
-				"object_id": "dialogue_state_traveler_initial"
-			}
-		},
-		"object_id": "dialogue_traveler"
-	}
+  "patch_data": {},
+  "properties": {
+    "dialogue_initial_dialogue_state_object_id": "state_traveler_initial",
+    "dialogue_state_id_to_dialogue_states": {
+      "state_traveler_initial": {
+        "object_id": "state_traveler_initial",
+        "dialogue_state_prompt_bbcode": "你遇到了一位神秘的旅人，他看起来对交易很感兴趣。",
+        "dialogue_state_dialogue_texture_path": "external/sprites/events/event_traveler.png",
+        "dialogue_state_dialogue_option_object_ids": ["option_traveler_trade", "option_traveler_story", "option_traveler_gold"]
+      },
+      "state_traveler_trade_result": {
+        "object_id": "state_traveler_trade_result",
+        "dialogue_state_prompt_bbcode": "[color=green]你与旅人交换了物品！\n\n你获得了：{traded_name}\n\n效果：{traded_desc_raw}[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      },
+      "state_traveler_story_result": {
+        "object_id": "state_traveler_story_result",
+        "dialogue_state_prompt_bbcode": "[color=green]旅人的故事让你感到温暖，伤口也愈合了。\n\n+15 生命[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      },
+      "state_traveler_gold_result": {
+        "object_id": "state_traveler_gold_result",
+        "dialogue_state_prompt_bbcode": "[color=green]旅人分享了他在路上发现的金币。\n\n+40 金币[/color]",
+        "dialogue_state_dialogue_texture_path": "",
+        "dialogue_state_dialogue_option_object_ids": ["option_continue"]
+      }
+    },
+    "dialogue_option_id_to_dialogue_options": {
+      "option_traveler_trade": {
+        "object_id": "option_traveler_trade",
+        "dialogue_option_bbcode": "交换物品",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "state_traveler_trade_result",
+        "dialogue_option_actions": [
+          {
+            "res://scripts/actions/pick_card_actions/ActionPickCards.gd": {
+              "card_pick_type": 1,
+              "min_card_amount": 1,
+              "max_card_amount": 1,
+              "min_cards_are_required_for_action": true,
+              "random_selection": false,
+              "card_pick_text": "选择要换掉的牌",
+              "action_data": [{"res://scripts/actions/cardset_actions/ActionRemoveCardsFromDeck.gd": {}}]
+            }
+          },
+          {
+            "res://scripts/actions/pick_card_actions/ActionPickCards.gd": {
+              "card_pick_type": 8,
+              "pick_draft_cards": false,
+              "draft_from_card_pool": true,
+              "action_data": [{"res://scripts/actions/cardset_actions/ActionAddCardsToDeck.gd": {}}],
+              "validator_data": [
+                {"res://scripts/validators/card/ValidatorCardRarity.gd": {"card_rarities": [2, 3]}},
+                {"res://scripts/validators/card/ValidatorCardDraftable.gd": {}}
+              ],
+              "rng_name": "rng_events",
+              "draft_use_player_draft": false,
+              "draft_is_weighted": false,
+              "draft_use_pity_system": false,
+              "random_selection": false,
+              "draft_max_card_amount": 1,
+              "min_card_amount": 1,
+              "max_card_amount": 1,
+              "min_cards_are_required_for_action": true,
+              "card_pick_text": "选择要换入的牌"
+            }
+          }
+        ],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      },
+      "option_traveler_story": {
+        "object_id": "option_traveler_story",
+        "dialogue_option_bbcode": "听旅人讲故事",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "state_traveler_story_result",
+        "dialogue_option_actions": [{"res://scripts/actions/ActionAddHealth.gd": {"health_amount": 15}}],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      },
+      "option_traveler_gold": {
+        "object_id": "option_traveler_gold",
+        "dialogue_option_bbcode": "索要金币",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "state_traveler_gold_result",
+        "dialogue_option_actions": [{"res://scripts/actions/player_actions/ActionAddMoney.gd": {"money_amount": 40}}],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      },
+      "option_continue": {
+        "object_id": "option_continue",
+        "dialogue_option_bbcode": "继续",
+        "dialogue_option_failed_validator_bbcode": "",
+        "dialogue_option_next_dialogue_state_id": "",
+        "dialogue_option_actions": [],
+        "dialogue_option_validators": [],
+        "dialogue_option_visible_on_failed_validation": true
+      }
+    },
+    "object_id": "dialogue_traveler"
+  }
 }
