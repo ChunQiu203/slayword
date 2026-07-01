@@ -3,14 +3,17 @@
 	"properties": {
 		"enemy_actions_on_death": [],
 		"enemy_attack_states": {
-			"initial": {"attack_damage": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}, "number_of_attacks": 0},
-			"1": {"attack_damage": 7, "block": 0, "custom_actions": [{"res://scripts/actions/status_actions/ActionApplyStatus.gd": {"status_effect_object_id": "status_effect_damage_increase", "status_charge_amount": 2, "target_override": 0}}], "next_attack_weights": {"1": 1, "2": 1}, "number_of_attacks": 2},
-			"2": {"attack_damage": 15, "block": 9, "custom_actions": [], "next_attack_weights": {"1": 1, "2": 1}, "number_of_attacks": 1}
+			"initial": {"attack_damage": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1}, "number_of_attacks": 0},
+			"1": {"attack_damage": 7, "block": 0, "custom_actions": [{"res://scripts/actions/status_actions/ActionApplyStatus.gd": {"status_effect_object_id": "status_effect_damage_increase", "status_charge_amount": 2, "target_override": 0}}], "next_attack_weights": {"2": 1, "5": 1}, "number_of_attacks": 2},
+			"2": {"attack_damage": 15, "block": 9, "custom_actions": [], "next_attack_weights": {"1": 1, "3": 1}, "number_of_attacks": 1},
+			"3": {"attack_damage": 0, "block": 15, "custom_actions": [{"res://scripts/actions/status_actions/ActionApplyStatus.gd": {"status_effect_object_id": "status_effect_vulnerable", "status_charge_amount": 2, "target_override": 1}}], "next_attack_weights": {"4": 1, "1": 1}, "number_of_attacks": 0},
+			"4": {"attack_damage": 20, "block": 0, "custom_actions": [{"res://scripts/actions/status_actions/ActionApplyStatus.gd": {"status_effect_object_id": "status_effect_weaken", "status_charge_amount": 2, "target_override": 1}}], "next_attack_weights": {"1": 1, "5": 1}, "number_of_attacks": 1},
+			"5": {"attack_damage": 4, "block": 5, "custom_actions": [{"res://scripts/actions/ActionSummonEnemies.gd": {"number_of_spawns": 1, "random_enemy_object_ids": ["enemy_minion_1"], "spawn_slots": [2], "target_override": 1, "time_delay": 0.5}}], "next_attack_weights": {"1": 1, "2": 1}, "number_of_attacks": 3}
 		},
 		"enemy_block": 0,
 		"enemy_difficulty_to_enemy_modfiers": {"3": {"enemy_health": 320, "enemy_health_max": 320}},
-		"enemy_health": 300,
-		"enemy_health_max": 300,
+		"enemy_health": 310,
+		"enemy_health_max": 310,
 		"enemy_initial_status_effects": {},
 		"enemy_is_minion": false,
 		"enemy_name": "Bronze Automaton",

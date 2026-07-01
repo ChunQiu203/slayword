@@ -1,5 +1,6 @@
 extends BaseAction
 ## Consume Stars from a specific House or from the most populous House.
+## Stores consumed count in player_values["_star_consumed_count"] for scaling by ActionApplyConsumedBonus.
 
 func perform_action():
 	var empty_targets: Array[BaseCombatant] = []
@@ -19,7 +20,7 @@ func perform_action():
 			consumed = StarChartHelper.consume_stars(best_house, count)
 		else:
 			consumed = StarChartHelper.consume_stars(house, count)
-		Global.player_data.player_values["_last_consumed"] = consumed
+		Global.player_data.player_values["_star_consumed_count"] = consumed
 
 func is_action_async() -> bool:
 	return false

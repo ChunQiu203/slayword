@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_retrograde",
 		"card_name": "Retrograde",
 		"card_color_id": "color_blue",
-		"card_description": "Move 1 Star from any House to an adjacent House. Draw [draw_count] card.",
+		"card_description": "Move 1 Star from any star slot to an adjacent slot. Draw [draw_count] card.",
 		"card_energy_cost": 0,
 		"card_type": 1,
 		"card_rarity": 1,

@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_starburst",
 		"card_name": "Starburst",
 		"card_color_id": "color_blue",
-		"card_description": "Consume 1 Star. Gain [block] Block and draw [draw_count] cards.",
+		"card_description": "Consume 1 Star. Gain [block] Block (+2 per Star consumed) and draw [draw_count] cards.",
 		"card_energy_cost": 1,
 		"card_type": 1,
 		"card_rarity": 1,
@@ -25,6 +25,11 @@
 				"res://scripts/actions/star_chart_actions/ActionConsumeStar.gd": {
 					"star_house": -1,
 					"star_count": 1
+				}
+			},
+			{
+				"res://scripts/actions/star_chart_actions/ActionApplyConsumedBonus.gd": {
+					"bonus_block_per_star": 2
 				}
 			},
 			{

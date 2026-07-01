@@ -35,11 +35,10 @@ func _add_alignment_card(house: int) -> void:
 	var card_data: CardData = Global.get_card_data_from_prototype(card_object_id)
 	if card_data == null:
 		return
-	# Create a copy and add to hand
+	# Create a copy and add to hand via signal so Hand UI creates a Card node
 	var new_card: CardData = card_data.get_prototype(true)
 	new_card.set_card_energy_cost_until_played(0)
-	Global.player_data.player_hand.append(new_card)
-	Signals.card_created.emit(new_card)
+	Signals.card_add_to_hand_requested.emit([new_card], PlayerData.PLAYER_DEFAULT_HAND_CARD_COUNT_MAX)
 	Signals.alignment_triggered.emit(house, StarChartHelper.get_star_count(house))
 
 static func trigger_house_alignment(house: int, stars: int) -> void:
@@ -52,8 +51,7 @@ static func trigger_house_alignment(house: int, stars: int) -> void:
 		return
 	var new_card: CardData = card_data.get_prototype(true)
 	new_card.set_card_energy_cost_until_played(0)
-	Global.player_data.player_hand.append(new_card)
-	Signals.card_created.emit(new_card)
+	Signals.card_add_to_hand_requested.emit([new_card], PlayerData.PLAYER_DEFAULT_HAND_CARD_COUNT_MAX)
 	Signals.alignment_triggered.emit(house, stars)
 
 func is_action_async() -> bool:

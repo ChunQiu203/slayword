@@ -7,6 +7,7 @@ extends Control
 @onready var new_run_menu = $NewRunMenu
 @onready var codex_menu = $CodexMenu
 @onready var vocab_prefs_menu = $VocabPrefsMenu
+@onready var game_guide_menu = $GameGuideMenu
 @onready var test_combat_menu = $TestCombatMenu
 
 func _ready():
@@ -18,6 +19,7 @@ func hide_menus():
 	new_run_menu.visible = false
 	codex_menu.visible = false
 	vocab_prefs_menu.visible = false
+	game_guide_menu.visible = false
 	test_combat_menu.visible = false
 
 func show_main_menu():
@@ -38,6 +40,10 @@ func show_vocab_prefs_menu():
 	hide_menus()
 	vocab_prefs_menu.visible = true
 	vocab_prefs_menu.populate_vocab_prefs_menu()
+
+func show_game_guide_menu():
+	hide_menus()
+	game_guide_menu.visible = true
 
 func show_test_combat_menu():
 	hide_menus()

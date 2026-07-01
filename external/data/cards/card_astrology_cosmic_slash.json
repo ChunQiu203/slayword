@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_cosmic_slash",
 		"card_name": "Cosmic Slash",
 		"card_color_id": "color_blue",
-		"card_description": "Deal 7 damage. Draw 1 card if Star in House of Dawn.",
+		"card_description": "Deal 7 damage. Draw 1 card if Dawn star slot has a Star.",
 		"card_energy_cost": 1,
 		"card_type": 0,
 		"card_rarity": 1,

@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_opposition",
 		"card_name": "Opposition",
 		"card_color_id": "color_blue",
-		"card_description": "If two Stars are 3 Houses apart, deal [damage] damage.",
+		"card_description": "If two Stars are 3 slots apart, deal [damage] damage.",
 		"card_energy_cost": 1,
 		"card_type": 0,
 		"card_rarity": 2,

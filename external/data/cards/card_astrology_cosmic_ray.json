@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_cosmic_ray",
 		"card_name": "Cosmic Ray",
 		"card_color_id": "color_blue",
-		"card_description": "Deal [damage] damage. Gain bonuses equal to the Houses where Stars currently sit.",
+		"card_description": "Deal [damage] damage. Gain bonuses equal to the star slots where Stars currently sit.",
 		"card_energy_cost": 1,
 		"card_type": 0,
 		"card_rarity": 1,

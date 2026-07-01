@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_singularity",
 		"card_name": "Singularity",
 		"card_color_id": "color_blue",
-		"card_description": "If you have exactly 1 Star, triple all its House bonuses this turn. Exhaust.",
+		"card_description": "If you have exactly 1 Star, triple all its star slot bonuses this turn. Exhaust.",
 		"card_energy_cost": 2,
 		"card_type": 1,
 		"card_rarity": 2,

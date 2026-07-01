@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_stellar_nursery",
 		"card_name": "Stellar Nursery",
 		"card_color_id": "color_blue",
-		"card_description": "At end of turn, if you have < 3 Stars, place a Star in a random House.",
+		"card_description": "At end of turn, if you have < 3 Stars, place a Star in a random star slot.",
 		"card_energy_cost": 2,
 		"card_type": 2,
 		"card_rarity": 3,
@@ -44,7 +44,7 @@
 		"card_upgrade_amount": 0,
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
-			"card_description": "回合结束时若星辰少于3颗，在随机宫放置2颗星辰。"
+			"card_description": "回合结束时若星辰少于3颗，在随机星位放置2颗星辰。"
 		},
 		"card_upgrade_value_improvements": {},
 		"card_energy_cost_until_played": -1,

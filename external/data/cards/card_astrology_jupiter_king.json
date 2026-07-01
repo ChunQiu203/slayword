@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_jupiter_king",
 		"card_name": "Jupiter, the King",
 		"card_color_id": "color_blue",
-		"card_description": "在你选择的宫位放置1颗星辰。只要该宫位有星辰，每回合获得1点能量。",
+		"card_description": "在你选择的星位放置1颗星辰。只要该星位有星辰，每回合获得1点能量。",
 		"card_energy_cost": 2,
 		"card_type": 2,
 		"card_rarity": 3,

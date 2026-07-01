@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_supernova",
 		"card_name": "Supernova",
 		"card_color_id": "color_blue",
-		"card_description": "Choose a House. Consume all Stars in it. Deal [damage] damage per Star to ALL enemies.",
+		"card_description": "Choose a star slot. Consume all Stars in it. Deal [damage] damage per Star to ALL enemies.",
 		"card_energy_cost": 2,
 		"card_type": 0,
 		"card_rarity": 3,
