@@ -8,6 +8,7 @@ extends Control
 @onready var codex_menu = $CodexMenu
 @onready var vocab_prefs_menu = $VocabPrefsMenu
 @onready var test_combat_menu = $TestCombatMenu
+@onready var test_event_menu = $TestEventMenu
 
 func _ready():
 	Signals.run_started.connect(_on_run_started)
@@ -19,6 +20,7 @@ func hide_menus():
 	codex_menu.visible = false
 	vocab_prefs_menu.visible = false
 	test_combat_menu.visible = false
+	test_event_menu.visible = false
 
 func show_main_menu():
 	hide_menus()
@@ -43,6 +45,11 @@ func show_test_combat_menu():
 	hide_menus()
 	test_combat_menu.visible = true
 	test_combat_menu.populate_test_menu()
+
+func show_test_event_menu():
+	hide_menus()
+	test_event_menu.visible = true
+	test_event_menu.populate_test_menu()
 
 func _on_run_started():
 	visible = false

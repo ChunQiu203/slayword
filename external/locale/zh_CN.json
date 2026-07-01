@@ -347,6 +347,7 @@
   "vocab.review.continue_tooltip": "确认结果后继续。",
   "vocab.review.placeholder_spell": "输入英文…",
   "menu.test_battle": "测试战斗",
+  "menu.test_event": "测试事件",
   "test.title": "⚔ 测试战斗",
   "test.search_placeholder": "搜索敌人...",
   "test.no_match": "没有匹配的敌人 \"{0}\"",
@@ -361,5 +362,9 @@
   "test.cards": "卡牌",
   "test.artifacts": "遗物",
   "test.consumables": "消耗品",
-  "test.enemy": "敌人"
+  "test.enemy": "敌人",
+  "test_event.title": "🎭 测试事件",
+  "test_event.event": "事件",
+  "test_event.start": "🎭 开始事件",
+  "test_event.no_event": "⚠ 请先选择一个事件！"
 }

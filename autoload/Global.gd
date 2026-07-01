@@ -4788,6 +4788,54 @@ func start_test_combat(enemy_object_id: String, character_object_id: String,
 	
 	Signals.combat_started.emit(event_id)
 
+func start_test_event(event_object_id: String,
+		test_card_ids: Array[String] = [],
+		test_artifact_ids: Array[String] = []) -> void:
+	is_test_mode = true
+	var character_data: CharacterData = get_character_data(get_all_character_ids()[0])
+
+	player_data = get_player_data_from_prototype(character_data.character_player_id)
+	is_run = true
+
+	player_data.player_run_seed = 0
+	player_data.initialize_artifact_pool()
+
+	for artifact_id in character_data.character_starting_artifact_ids:
+		player_data.add_artifact(artifact_id)
+
+	for card_object_id in character_data.character_starting_card_object_ids:
+		player_data.player_deck.append(get_card_data_from_prototype(card_object_id))
+
+	player_data.player_money = character_data.character_starting_money
+	player_data.player_health_max = character_data.character_starting_health
+	player_data.player_health = character_data.character_starting_health
+
+	player_data.player_location_id = "location_0"
+	player_data.player_act = 1
+	player_data.player_run_difficulty_level = 0
+	player_data.reset_run_statistics()
+	player_data.init()
+
+	# Create test location with EVENT type
+	var test_location := LocationData.new()
+	test_location.location_id = "location_0"
+	test_location.location_act = 1
+	test_location.location_floor = 1
+	test_location.location_type = LocationData.LOCATION_TYPES.EVENT
+	test_location.location_visited = true
+	test_location.location_event_object_id = event_object_id
+	player_data.location_id_to_location_data["location_0"] = test_location
+	player_data.player_location_id = "location_0"
+
+	# Apply test loadout (cards, artifacts)
+	for card_id in test_card_ids:
+		player_data.player_deck.append(get_card_data_from_prototype(card_id))
+	for artifact_id in test_artifact_ids:
+		player_data.add_artifact(artifact_id)
+
+	Signals.run_started.emit()
+	Signals.map_location_selected.emit(test_location)
+
 func get_all_enemy_data() -> Array[EnemyData]:
 	var result: Array[EnemyData] = []
 	for enemy_data in _id_to_enemy_data.values():

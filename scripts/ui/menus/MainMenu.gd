@@ -13,6 +13,7 @@ extends Control
 
 # Test battle button
 @onready var test_battle_button: Button = $VBoxContainer/TestBattleButton
+@onready var test_event_button: Button = $VBoxContainer/TestEventButton
 
 func _ready():
 	for b in [
@@ -24,6 +25,7 @@ func _ready():
 		language_button,
 		exit_button,
 		test_battle_button,
+		test_event_button,
 	]:
 		for legacy in b.get_children():
 			if legacy.name == "LocalizedTextLabel":
@@ -36,6 +38,7 @@ func _ready():
 	
 	# Set test battle button text directly
 	test_battle_button.text = I18N.tr_key("menu.test_battle")
+	test_event_button.text = I18N.tr_key("menu.test_event")
 
 	continue_button.pressed.connect(_on_continue_button_up)
 	forfeit_run_button.pressed.connect(_on_forfeit_run_button_up)
@@ -45,6 +48,7 @@ func _ready():
 	language_button.pressed.connect(_on_language_button_up)
 	exit_button.pressed.connect(_on_exit_button_up)
 	test_battle_button.pressed.connect(_on_test_battle_button_up)
+	test_event_button.pressed.connect(_on_test_event_button_up)
 
 	Signals.run_ended.connect(_on_run_ended)
 	I18N.locale_changed.connect(_on_locale_changed)
@@ -77,6 +81,9 @@ func _on_exit_button_up():
 
 func _on_test_battle_button_up():
 	title_screen.show_test_combat_menu()
+
+func _on_test_event_button_up():
+	title_screen.show_test_event_menu()
 
 func update_continue_button_visibility() -> void:
 	var has_save_file: bool = FileLoader.has_save_file()

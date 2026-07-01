@@ -348,6 +348,7 @@
   "vocab.review.continue_tooltip": "Confirm and continue.",
   "vocab.review.placeholder_spell": "Type English…",
   "menu.test_battle": "[Test Battle]",
+  "menu.test_event": "[Test Event]",
   "test.title": "⚔ Test Combat",
   "test.search_placeholder": "Search enemies...",
   "test.no_match": "No enemies match \"{0}\"",
@@ -362,5 +363,9 @@
   "test.cards": "Cards",
   "test.artifacts": "Artifacts",
   "test.consumables": "Consumables",
-  "test.enemy": "Enemy"
+  "test.enemy": "Enemy",
+  "test_event.title": "🎭 Test Event",
+  "test_event.event": "Event",
+  "test_event.start": "🎭 START EVENT",
+  "test_event.no_event": "⚠ Select an event first!"
 }
