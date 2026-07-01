@@ -56,6 +56,7 @@ const ACTION_ADD_HEALTH: String = "res://scripts/actions/ActionAddHealth.gd"
 const ACTION_HEAL_PERCENT: String =  "res://scripts/actions/ActionHealPercent.gd"
 
 const ACTION_ADD_ARTIFACT: String = "res://scripts/actions/player_actions/ActionAddArtifact.gd"
+const ACTION_ADD_RANDOM_ARTIFACT: String = "res://scripts/actions/player_actions/ActionAddRandomArtifact.gd"
 const ACTION_SWAP_BOSS_ARTIFACT: String = "res://scripts/actions/player_actions/ActionSwapBossArtifact.gd"
 const ACTION_ADD_MONEY: String = "res://scripts/actions/player_actions/ActionAddMoney.gd"
 const ACTION_UPDATE_DRAFT_CARDS = "res://scripts/actions/player_actions/ActionUpdateCardDrafts.gd"

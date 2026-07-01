@@ -112,7 +112,9 @@ func get_adjusted_action_targets() -> Array[BaseCombatant]:
 					if target.is_alive():
 						returned_targets.append(target)
 		TARGET_OVERRIDES.PARENT:
-			return [parent_combatant]
+			if is_instance_valid(parent_combatant):
+				return [parent_combatant]
+			return []
 		TARGET_OVERRIDES.PLAYER:
 			for player in Global.get_tree().get_nodes_in_group("players"):
 				if player.is_alive():

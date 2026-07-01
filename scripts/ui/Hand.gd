@@ -703,7 +703,9 @@ func add_cards_to_draw(cards: Array[CardData], card_destination: int = CardPlayR
 	update_hand_card_display()
 
 func _on_card_add_to_hand_requested(cards: Array[CardData], hand_card_count_max: int) -> void:
+	print("[Hand] _on_card_add_to_hand_requested cards=%d" % len(cards))
 	add_cards_to_hand(cards, hand_card_count_max)
+	print("[Hand] after add_cards_to_hand, hand size=%d card_nodes=%d" % [len(Global.player_data.player_hand), len(card_data_to_hand_card)])
 	
 ## Adds cards directly to hand, discarding any additional ones if it's too full.
 ## Does not count as a draw.
@@ -736,6 +738,7 @@ func add_cards_to_hand(cards: Array[CardData], hand_card_count_max: int = Player
 		discard_cards(discarded_cards, false)
 			
 	tween_hand()
+	update_hand_card_display()
 
 func _on_card_discard_requested(cards: Array[CardData], is_manual_discard: bool = false) -> void:
 	discard_cards(cards, is_manual_discard)

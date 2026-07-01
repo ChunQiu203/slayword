@@ -13,7 +13,7 @@
 		"card_is_playable": false,
 		"card_exhausts": false,
 		"card_is_ethereal": true,
-		"card_is_retained": false,
+		"card_is_retained": true,
 		"card_values": {},
 		"card_description_preview_overrides": [],
 		"card_play_actions": [],
