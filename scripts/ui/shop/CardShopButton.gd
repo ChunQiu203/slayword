@@ -1,6 +1,6 @@
 extends BaseShopButton
 
-@onready var card: Card = $Card
+@onready var card: Card = $VBox/Card
 
 func _ready():
 	card.card_clicked.connect(_on_card_selected)

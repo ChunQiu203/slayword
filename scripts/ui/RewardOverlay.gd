@@ -112,9 +112,6 @@ func populate_reward_display() -> void:
 			# make reward group mutually exclusive
 			artifact_reward_button.button_up.connect(_on_reward_group_selected.bind(reward_group))
 	
-	# clear reward data
-	clear_rewards()
-	
 func clear_reward_display() -> void:
 	for child in reward_container.get_children():
 		child.queue_free()
