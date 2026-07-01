@@ -103,6 +103,8 @@ var event_last_upgraded_card_name: String = ""
 var event_last_upgraded_card_description: String = ""
 var event_last_traded_card_name: String = ""
 var event_last_traded_card_description: String = ""
+var event_last_added_artifact_name: String = ""
+var event_last_added_artifact_description: String = ""
 
 ## in the framework. This automates and centralizes a lot of extremely tedious
 ## schema maintenance and enables useful behavior like register_rod() for test data generation,
@@ -4768,7 +4770,8 @@ func start_test_combat(enemy_object_id: String, character_object_id: String,
 			break
 	
 	Signals.run_started.emit()
-	
+	ActionHandler.clear_all_actions()
+
 	# Use the dedicated test event for this enemy
 	var event_id = "event_" + enemy_object_id
 	var combat_event: EventData = _id_to_event_data.get(event_id)
@@ -4815,6 +4818,9 @@ func start_test_event(event_object_id: String,
 	player_data.player_run_difficulty_level = 0
 	player_data.reset_run_statistics()
 	player_data.init()
+	# Populate artifact cache for test mode
+	for aid: String in _id_to_artifact_data.keys():
+		player_data.player_artifact_available_artifact_id_cache[aid] = null
 
 	# Create test location with EVENT type
 	var test_location := LocationData.new()
@@ -4834,6 +4840,7 @@ func start_test_event(event_object_id: String,
 		player_data.add_artifact(artifact_id)
 
 	Signals.run_started.emit()
+	ActionHandler.clear_all_actions()
 	Signals.map_location_selected.emit(test_location)
 
 func get_all_enemy_data() -> Array[EnemyData]:
