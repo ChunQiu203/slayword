@@ -20,7 +20,7 @@
 			{
 				"res://scripts/actions/star_chart_actions/ActionConsumeStar.gd": {
 					"star_house": 4,
-					"star_count": 1
+					"star_count": 2
 				}
 			},
 			{
@@ -43,7 +43,14 @@
 		"card_add_to_deck_actions": [],
 		"card_remove_from_deck_actions": [],
 		"card_transform_in_deck_actions": [],
-		"card_play_validators": [],
+		"card_play_validators": [
+			{
+				"res://scripts/validators/card_plays/ValidatorStarChart.gd": {
+					"star_house": 4,
+					"star_house_count": 2
+				}
+			}
+		],
 		"card_glow_validators": [],
 		"card_listeners": [],
 		"card_tags": [],

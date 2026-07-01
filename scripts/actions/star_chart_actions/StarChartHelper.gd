@@ -4,7 +4,18 @@ class_name StarChartHelper
 # Star Chart helpers — star chart state lives in Global.player_data.player_values["star_chart"]
 # star_chart is an Array[int] of length 6, one per House (0=Dawn, 1=Noon, 2=Dusk, 3=Night, 4=Wisdom, 5=Fate)
 
+static var _reset_connected: bool = false
+
+static func reset_star_chart() -> void:
+	Global.player_data.player_values["star_chart"] = [0, 0, 0, 0, 0, 0]
+	print("[StarChart] reset_star_chart")
+
 static func get_star_chart() -> Array:
+	# One-time connection to combat_started for auto-reset
+	if not _reset_connected:
+		_reset_connected = true
+		if not Signals.combat_started.is_connected(_on_combat_started_reset):
+			Signals.combat_started.connect(_on_combat_started_reset)
 	var arr: Variant = Global.player_data.player_values.get("star_chart", null)
 	if arr == null or typeof(arr) != TYPE_ARRAY or (arr as Array).size() != 6:
 		arr = [0, 0, 0, 0, 0, 0]
@@ -12,6 +23,9 @@ static func get_star_chart() -> Array:
 		print("[StarChart] get_star_chart: initialized new chart")
 	Global.player_data.player_values["star_chart"] = arr
 	return arr as Array
+
+static func _on_combat_started_reset(_event_id: String) -> void:
+	reset_star_chart()
 
 static func get_star_count(house: int) -> int:
 	var chart: Array = get_star_chart()
@@ -62,7 +76,8 @@ static func trigger_eclipse() -> int:
 		if card_data != null:
 			var new_card: CardData = card_data.get_prototype(true)
 			new_card.set_card_energy_cost_until_played(0)
-			Signals.card_add_to_hand_requested.emit([new_card], PlayerData.PLAYER_DEFAULT_HAND_CARD_COUNT_MAX)
+			var cards = [new_card]
+			Signals.card_add_to_hand_requested.emit(cards, PlayerData.PLAYER_DEFAULT_HAND_CARD_COUNT_MAX)
 	return total
 
 static func get_house_passive_bonus() -> Dictionary:

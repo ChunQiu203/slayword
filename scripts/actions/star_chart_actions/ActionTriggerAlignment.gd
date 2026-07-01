@@ -44,15 +44,22 @@ func _add_alignment_card(house: int) -> void:
 static func trigger_house_alignment(house: int, stars: int) -> void:
 	# Static version for direct calls (kept for compatibility)
 	var card_object_id: String = ALIGNMENT_CARDS[house] if house < ALIGNMENT_CARDS.size() else ""
+	print("[Alignment] trigger_house_alignment house=%d stars=%d object_id=%s" % [house, stars, card_object_id])
 	if card_object_id.is_empty():
 		return
 	var card_data: CardData = Global.get_card_data_from_prototype(card_object_id)
+	print("[Alignment] card_data=%s" % [card_data])
 	if card_data == null:
 		return
 	var new_card: CardData = card_data.get_prototype(true)
+	print("[Alignment] new_card=%s" % [new_card])
+	if new_card == null:
+		return
 	new_card.set_card_energy_cost_until_played(0)
+	print("[Alignment] emitting card_add_to_hand_requested")
 	Signals.card_add_to_hand_requested.emit([new_card], PlayerData.PLAYER_DEFAULT_HAND_CARD_COUNT_MAX)
 	Signals.alignment_triggered.emit(house, stars)
+	print("[Alignment] done")
 
 func is_action_async() -> bool:
 	return false
