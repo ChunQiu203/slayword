@@ -1,5 +1,5 @@
 extends BaseAction
-## Trigger Eclipse: consume all Stars, gain energy + draw + damage based on total stars consumed.
+## Trigger Eclipse: gain energy + draw + damage based on total stars (Stars NOT consumed).
 
 func perform_action():
 	var empty_targets: Array[BaseCombatant] = []

@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_grand_trine",
 		"card_name": "Grand Trine",
 		"card_color_id": "color_blue",
-		"card_description": "If Stars occupy 3 equally spaced Houses, gain [energy_amount] Energy and draw [draw_count] cards.",
+		"card_description": "If Stars occupy 3 equally spaced star slots, gain [energy_amount] Energy and draw [draw_count] cards.",
 		"card_energy_cost": 2,
 		"card_type": 1,
 		"card_rarity": 3,

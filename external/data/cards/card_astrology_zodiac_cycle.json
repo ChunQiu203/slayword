@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_zodiac_cycle",
 		"card_name": "Zodiac Cycle",
 		"card_color_id": "color_blue",
-		"card_description": "能力：每回合开始时，在随机宫位放置1颗星辰。",
+		"card_description": "能力：每回合开始时，在随机星位放置1颗星辰。",
 		"card_energy_cost": 2,
 		"card_type": 2,
 		"card_rarity": 3,

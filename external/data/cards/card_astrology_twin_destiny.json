@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_twin_destiny",
 		"card_name": "Twin Destiny",
 		"card_color_id": "color_blue",
-		"card_description": "Choose a House. ALL Alignment effects in that House trigger twice.",
+		"card_description": "Choose a star slot. ALL Alignment effects in that slot trigger twice.",
 		"card_energy_cost": 3,
 		"card_type": 2,
 		"card_rarity": 3,

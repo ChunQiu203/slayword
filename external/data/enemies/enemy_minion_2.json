@@ -1,56 +1,21 @@
 {
-	"patch_data": {
-
-	},
+	"patch_data": {},
 	"properties": {
 		"enemy_actions_on_death": [],
 		"enemy_attack_states": {
-			"1": {
-				"attack_damage": 5,
-				"block": 5,
-				"custom_actions": [],
-				"next_attack_weights": {
-					"1": 1,
-					"2": 1
-				},
-				"number_of_attacks": 1
-			},
-			"2": {
-				"attack_damage": 3,
-				"block": 7,
-				"custom_actions": [],
-				"next_attack_weights": {
-					"1": 1,
-					"2": 1
-				},
-				"number_of_attacks": 2
-			},
-			"initial": {
-				"attack_damage": 0,
-				"block": 0,
-				"custom_actions": [],
-				"next_attack_weights": {
-					"1": 1,
-					"2": 1
-				},
-				"number_of_attacks": 0
-			}
+			"initial": {"attack_damage": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1}, "number_of_attacks": 0},
+			"1": {"attack_damage": 5, "block": 5, "custom_actions": [], "next_attack_weights": {"2": 1, "3": 1}, "number_of_attacks": 1},
+			"2": {"attack_damage": 3, "block": 7, "custom_actions": [], "next_attack_weights": {"1": 1, "4": 1}, "number_of_attacks": 2},
+			"3": {"attack_damage": 7, "block": 0, "custom_actions": [{"res://scripts/actions/status_actions/ActionApplyStatus.gd": {"status_effect_object_id": "status_effect_weaken", "status_charge_amount": 1, "target_override": 1}}], "next_attack_weights": {"1": 1, "2": 1}, "number_of_attacks": 1},
+			"4": {"attack_damage": 10, "block": 0, "custom_actions": [], "next_attack_weights": {"2": 1, "3": 1}, "number_of_attacks": 1}
 		},
 		"enemy_block": 0,
-		"enemy_difficulty_to_enemy_modfiers": {
-			"1": {
-				"enemy_health": 3,
-				"enemy_health_max": 33
-			}
-		},
-		"enemy_health": 3,
-		"enemy_health_max": 3,
-		"enemy_initial_status_effects": {
-
-		},
+		"enemy_difficulty_to_enemy_modfiers": {"1": {"enemy_health": 6, "enemy_health_max": 6}},
+		"enemy_health": 5,
+		"enemy_health_max": 5,
+		"enemy_initial_status_effects": {},
 		"enemy_is_minion": true,
 		"enemy_name": "Minion 2",
-		"enemy_object_id": "",
 		"enemy_texture_path": "external/sprites/enemies/enemy_green_small.svg",
 		"enemy_type": 0,
 		"object_id": "enemy_minion_2",

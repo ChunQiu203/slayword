@@ -2,11 +2,11 @@ extends BaseValidator
 ## Validates star chart conditions for card play.
 ## Checks: star_count (total), star_house_count (specific house), star_houses_occupied (how many houses have stars)
 
-func validate() -> bool:
-	var required_total: int = get_validator_value("star_count", -1)
-	var required_house: int = get_validator_value("star_house", -1)
-	var required_house_count: int = get_validator_value("star_house_count", -1)
-	var required_houses_occupied: int = get_validator_value("star_houses_occupied", -1)
+func _validation(_card_data: CardData, _action: BaseAction, values: Dictionary[String, Variant]) -> bool:
+	var required_total: int = values.get("star_count", -1)
+	var required_house: int = values.get("star_house", -1)
+	var required_house_count: int = values.get("star_house_count", -1)
+	var required_houses_occupied: int = values.get("star_houses_occupied", -1)
 	
 	var chart := StarChartHelper.get_star_chart()
 	var total_stars := StarChartHelper.get_total_stars()

@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_star_dagger",
 		"card_name": "Star Dagger",
 		"card_color_id": "color_blue",
-		"card_description": "Deal 3 damage. Place 1 Star in a random House.",
+		"card_description": "Deal 3 damage. Place 1 Star in a random star slot.",
 		"card_energy_cost": 0,
 		"card_type": 0,
 		"card_rarity": 1,

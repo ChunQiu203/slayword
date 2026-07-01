@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_void_slash",
 		"card_name": "Void Slash",
 		"card_color_id": "color_blue",
-		"card_description": "Consume 1 Star. Deal 16 damage.",
+		"card_description": "Consume 1 Star. Deal 16 damage (+3 per Star consumed).",
 		"card_energy_cost": 2,
 		"card_type": 0,
 		"card_rarity": 2,
@@ -22,6 +22,11 @@
 				"res://scripts/actions/star_chart_actions/ActionConsumeStar.gd": {
 					"star_house": -1,
 					"star_count": 1
+				}
+			},
+			{
+				"res://scripts/actions/star_chart_actions/ActionApplyConsumedBonus.gd": {
+					"bonus_damage_per_star": 3
 				}
 			},
 			{

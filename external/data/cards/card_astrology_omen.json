@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_omen",
 		"card_name": "Omen",
 		"card_color_id": "color_blue",
-		"card_description": "Next turn, place a Star in a random House at start of turn. Draw [draw_count] card.",
+		"card_description": "Next turn, place a Star in a random star slot at start of turn. Draw [draw_count] card.",
 		"card_energy_cost": 1,
 		"card_type": 1,
 		"card_rarity": 1,

@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_astral_lance",
 		"card_name": "Astral Lance",
 		"card_color_id": "color_blue",
-		"card_description": "Deal 10 damage. Place 1 Star in chosen House.",
+		"card_description": "Deal 10 damage. Place 1 Star in chosen star slot.",
 		"card_energy_cost": 2,
 		"card_type": 0,
 		"card_rarity": 2,

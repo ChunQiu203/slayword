@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_constellation_shift",
 		"card_name": "Constellation Shift",
 		"card_color_id": "color_blue",
-		"card_description": "Consume 1 Star. Place [star_count] Stars in different Houses.",
+		"card_description": "Consume 1 Star. Place [star_count] Stars in different star slots.",
 		"card_energy_cost": 0,
 		"card_type": 1,
 		"card_rarity": 1,

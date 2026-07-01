@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_constellation_slash",
 		"card_name": "Constellation Slash",
 		"card_color_id": "color_blue",
-		"card_description": "Deal 8 damage. If Star in House of Wisdom, duplicate this attack.",
+		"card_description": "Deal 8 damage. If Wisdom star slot has a Star, duplicate this attack.",
 		"card_energy_cost": 2,
 		"card_type": 0,
 		"card_rarity": 2,

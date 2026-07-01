@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_binary_star",
 		"card_name": "Binary Star",
 		"card_color_id": "color_blue",
-		"card_description": "Place 2 Stars in the same House (triggers Alignment). Ethereal.",
+		"card_description": "Place 2 Stars in the same star slot (triggers Alignment). Ethereal.",
 		"card_energy_cost": 1,
 		"card_type": 2,
 		"card_rarity": 2,
@@ -45,7 +45,7 @@
 		"card_upgrade_amount_max": 1,
 		"card_first_upgrade_property_changes": {
 			"card_is_ethereal": false,
-			"card_description": "在同一宫放置2颗星辰（触发星座）。"
+			"card_description": "在同一星位放置2颗星辰（触发星座）。"
 		},
 		"card_upgrade_value_improvements": {},
 		"card_energy_cost_until_played": -1,

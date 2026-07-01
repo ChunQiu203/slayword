@@ -1,56 +1,21 @@
 {
-	"patch_data": {
-
-	},
+	"patch_data": {},
 	"properties": {
 		"enemy_actions_on_death": [],
 		"enemy_attack_states": {
-			"1": {
-				"attack_damage": 5,
-				"block": 5,
-				"custom_actions": [],
-				"next_attack_weights": {
-					"1": 1,
-					"2": 1
-				},
-				"number_of_attacks": 1
-			},
-			"2": {
-				"attack_damage": 3,
-				"block": 7,
-				"custom_actions": [],
-				"next_attack_weights": {
-					"1": 1,
-					"2": 1
-				},
-				"number_of_attacks": 2
-			},
-			"initial": {
-				"attack_damage": 0,
-				"block": 0,
-				"custom_actions": [],
-				"next_attack_weights": {
-					"1": 1,
-					"2": 1
-				},
-				"number_of_attacks": 0
-			}
+			"initial": {"attack_damage": 0, "block": 0, "custom_actions": [], "next_attack_weights": {"1": 1}, "number_of_attacks": 0},
+			"1": {"attack_damage": 5, "block": 5, "custom_actions": [], "next_attack_weights": {"2": 1, "3": 1}, "number_of_attacks": 1},
+			"2": {"attack_damage": 3, "block": 7, "custom_actions": [], "next_attack_weights": {"1": 1, "4": 1}, "number_of_attacks": 2},
+			"3": {"attack_damage": 9, "block": 0, "custom_actions": [{"res://scripts/actions/status_actions/ActionApplyStatus.gd": {"status_effect_object_id": "status_effect_burn", "status_charge_amount": 4, "target_override": 1}}], "next_attack_weights": {"1": 1, "2": 1}, "number_of_attacks": 1},
+			"4": {"attack_damage": 14, "block": 0, "custom_actions": [{"res://scripts/actions/status_actions/ActionApplyStatus.gd": {"status_effect_object_id": "status_effect_vulnerable", "status_charge_amount": 2, "target_override": 1}}], "next_attack_weights": {"2": 1, "3": 1}, "number_of_attacks": 1}
 		},
 		"enemy_block": 0,
-		"enemy_difficulty_to_enemy_modfiers": {
-			"2": {
-				"enemy_health": 55,
-				"enemy_health_max": 55
-			}
-		},
-		"enemy_health": 45,
-		"enemy_health_max": 45,
-		"enemy_initial_status_effects": {
-
-		},
+		"enemy_difficulty_to_enemy_modfiers": {"2": {"enemy_health": 55, "enemy_health_max": 55}},
+		"enemy_health": 48,
+		"enemy_health_max": 48,
+		"enemy_initial_status_effects": {},
 		"enemy_is_minion": false,
 		"enemy_name": "Act 1 Miniboss",
-		"enemy_object_id": "",
 		"enemy_texture_path": "external/sprites/enemies/enemy_red_medium.svg",
 		"enemy_type": 1,
 		"object_id": "enemy_act_1_miniboss_2",

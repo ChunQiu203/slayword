@@ -25,6 +25,8 @@ const ACTION_RESHUFFLE: String = "res://scripts/actions/ActionReshuffle.gd"
 
 # status actions, created by StatusEffect scripts
 const ACTION_CORROSION: String = "res://scripts/actions/status_actions/ActionCorrosion.gd"
+const ACTION_METALLICIZE: String = "res://scripts/actions/status_actions/ActionMetallicize.gd"
+const ACTION_RITUAL: String = "res://scripts/actions/status_actions/ActionRitual.gd"
 
 # custom ui
 const ACTION_CUSTOM_UI: String = "res://scripts/actions/custom_ui_actions/ActionCustomUI.gd"
@@ -107,6 +109,7 @@ const ACTION_CONSUME_STAR: String = "res://scripts/actions/star_chart_actions/Ac
 const ACTION_ECLIPSE: String = "res://scripts/actions/star_chart_actions/ActionEclipse.gd"
 const ACTION_TRIGGER_ALIGNMENT: String = "res://scripts/actions/star_chart_actions/ActionTriggerAlignment.gd"
 const ACTION_ECLIPSE_STRIKE: String = "res://scripts/actions/star_chart_actions/ActionEclipseStrike.gd"
+const ACTION_APPLY_CONSUMED_BONUS: String = "res://scripts/actions/star_chart_actions/ActionApplyConsumedBonus.gd"
 #endregion
 
 #region Validators
@@ -173,4 +176,6 @@ const INTERCEPTOR_NEGATE_DEBUFF: String = "res://scripts/action_interceptors/Int
 # duplicating
 const INTERCEPTOR_DUPLICATE_CARD_PLAYS: String = "res://scripts/action_interceptors/InterceptorDuplicateCardPlays.gd"
 const INTERCEPTOR_DUPLICATE_ATTACKS: String = "res://scripts/action_interceptors/InterceptorDuplicateAttacks.gd"
+# new interceptors
+const INTERCEPTOR_THORNS: String = "res://scripts/action_interceptors/InterceptorThorns.gd"
 #endregion

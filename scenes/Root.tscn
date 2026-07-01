@@ -51,6 +51,7 @@
 [ext_resource type="Texture2D" uid="uid://c1oyyrmehkbnb" path="res://ui-free/button/press_bg.png" id="57_8b2qk"]
 [ext_resource type="Script" uid="uid://cxvndoqoue218" path="res://scripts/ui/menus/TestCombatMenu.gd" id="99_testcom"]
 [ext_resource type="Script" path="res://scripts/ui/menus/TestEventMenu.gd" id="99_testevt"]
+[ext_resource type="Script" uid="uid://gguid00000001" path="res://scripts/ui/menus/GameGuideMenu.gd" id="gguid01"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_20dtu"]
 texture = ExtResource("25_nownq")
@@ -363,7 +364,7 @@ texture = ExtResource("6_kw7ld")
 [node name="VBoxContainer" type="VBoxContainer" parent="TitleScreen/MainMenu" unique_id=301720558]
 layout_mode = 0
 offset_left = 474.0
-offset_top = 340.0
+offset_top = 290.0
 offset_right = 655.0
 offset_bottom = 683.0
 
@@ -394,6 +395,12 @@ theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
 
 [node name="VocabPrefsButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=1990000005]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+
+[node name="GameGuideButton" type="Button" parent="TitleScreen/MainMenu/VBoxContainer" unique_id=2025070101]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
@@ -802,6 +809,42 @@ offset_right = 1256.0
 offset_bottom = 691.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+
+[node name="GameGuideMenu" type="Control" parent="TitleScreen" unique_id=2025070102]
+visible = false
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+script = ExtResource("gguid01")
+
+[node name="BackButton" type="Button" parent="TitleScreen/GameGuideMenu" unique_id=2025070103]
+layout_mode = 0
+offset_left = 1068.0
+offset_top = 643.0
+offset_right = 1256.0
+offset_bottom = 691.0
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="TitleScreen/GameGuideMenu" unique_id=2025070104]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 20.0
+offset_right = 1240.0
+offset_bottom = 630.0
+
+[node name="MarginContainer" type="MarginContainer" parent="TitleScreen/GameGuideMenu/ScrollContainer" unique_id=2025070105]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TitleScreen/GameGuideMenu/ScrollContainer/MarginContainer" unique_id=2025070106]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
 
 [node name="TestCombatMenu" type="Control" parent="TitleScreen" unique_id=1876543210]
 visible = false

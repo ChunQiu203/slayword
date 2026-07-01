@@ -53,20 +53,16 @@ static func check_eclipse() -> bool:
 
 static func trigger_eclipse() -> int:
 	var chart: Array = get_star_chart()
-	var total: int = 0
-	for i in range(6):
-		total += int(chart[i])
-		chart[i] = 0
-	print("[StarChart] ECLIPSE triggered! total_stars=%d -> chart=%s" % [total, chart])
+	var total: int = get_total_stars()
+	print("[StarChart] ECLIPSE triggered! total_stars=%d chart=%s" % [total, chart])
 	Signals.eclipse_triggered.emit(total)
 	if total > 0:
-		# Add Eclipse Burst card to hand instead of applying effects directly
+		# Add Eclipse Burst card to hand via signal so Hand UI creates a Card node
 		var card_data: CardData = Global.get_card_data_from_prototype("card_astrology_eclipse_burst")
 		if card_data != null:
 			var new_card: CardData = card_data.get_prototype(true)
 			new_card.set_card_energy_cost_until_played(0)
-			Global.player_data.player_hand.append(new_card)
-			Signals.card_created.emit(new_card)
+			Signals.card_add_to_hand_requested.emit([new_card], PlayerData.PLAYER_DEFAULT_HAND_CARD_COUNT_MAX)
 	return total
 
 static func get_house_passive_bonus() -> Dictionary:

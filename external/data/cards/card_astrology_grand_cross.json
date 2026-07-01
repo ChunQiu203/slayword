@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_grand_cross",
 		"card_name": "Grand Cross",
 		"card_color_id": "color_blue",
-		"card_description": "If 4 Stars are in opposite Houses at turn start, deal [damage] to ALL enemies and gain [energy_amount] Energy.",
+		"card_description": "If 4 Stars are in opposite star slots at turn start, deal [damage] to ALL enemies and gain [energy_amount] Energy.",
 		"card_energy_cost": 3,
 		"card_type": 2,
 		"card_rarity": 3,

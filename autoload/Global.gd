@@ -2014,7 +2014,7 @@ func add_test_characters() -> void:
 	var character_blue: CharacterData = CharacterData.new("character_blue")
 	character_blue.character_player_id = "player_blue"
 	character_blue.character_name = "The Astrologer"
-	character_blue.character_description = "The Astrologer reads the stars and bends fate. Place Stars into the Star Chart, watch them orbit through 6 Houses, and unleash devastating Alignments and Eclipses."
+	character_blue.character_description = "The Astrologer reads the stars and bends fate. Place Stars into the Star Chart, watch them orbit through 6 star slots, and unleash devastating Alignments and Eclipses."
 	character_blue.character_color_id = "color_blue"
 	character_blue.character_starting_health = 72
 

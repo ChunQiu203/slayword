@@ -1,5 +1,5 @@
 extends BaseAction
-## Eclipse Strike: Deal base damage. If 4+ Stars, consume all Stars for bonus damage.
+## Eclipse Strike: Deal base damage. If 4+ Stars, trigger Eclipse for bonus damage (Stars NOT consumed).
 
 func perform_action():
 	var empty_targets: Array[BaseCombatant] = []

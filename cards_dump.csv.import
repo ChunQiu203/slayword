@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b1uy6i8qpdxn0"
+
+[deps]
+
+files=["res://cards_dump.name.translation", "res://cards_dump.color.translation", "res://cards_dump.type.translation", "res://cards_dump.rarity.translation", "res://cards_dump.cost.translation", "res://cards_dump.dmg.translation", "res://cards_dump.blk.translation", "res://cards_dump.desc.translation", "res://cards_dump.exhausts.translation", "res://cards_dump.actionCount.translation", "res://cards_dump.actionTypes.translation"]
+
+source_file="res://cards_dump.csv"
+dest_files=["res://cards_dump.name.translation", "res://cards_dump.color.translation", "res://cards_dump.type.translation", "res://cards_dump.rarity.translation", "res://cards_dump.cost.translation", "res://cards_dump.dmg.translation", "res://cards_dump.blk.translation", "res://cards_dump.desc.translation", "res://cards_dump.exhausts.translation", "res://cards_dump.actionCount.translation", "res://cards_dump.actionTypes.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

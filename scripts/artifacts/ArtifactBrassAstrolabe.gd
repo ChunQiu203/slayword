@@ -63,8 +63,7 @@ func _check_grand_cross() -> void:
 		if card_data != null:
 			var new_card: CardData = card_data.get_prototype(true)
 			new_card.set_card_energy_cost_until_played(0)
-			Global.player_data.player_hand.append(new_card)
-			Signals.card_created.emit(new_card)
+			Signals.card_add_to_hand_requested.emit([new_card], PlayerData.PLAYER_DEFAULT_HAND_CARD_COUNT_MAX)
 		# Consume 1 star from each paired house
 		for i in range(3):
 			if int(chart[i]) > 0 and int(chart[i + 3]) > 0:

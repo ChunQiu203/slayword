@@ -4,7 +4,7 @@
 		"object_id": "card_astrology_astral_forecast",
 		"card_name": "Astral Forecast",
 		"card_color_id": "color_blue",
-		"card_description": "Gain [block] Block. Place a Star in a random House.",
+		"card_description": "Gain [block] Block. Place a Star in a random star slot.",
 		"card_energy_cost": 1,
 		"card_type": 1,
 		"card_rarity": 1,
