@@ -3,7 +3,7 @@ extends ActionPickCards
 ## It gains Retain. Next turn, it costs 0.
 
 # Override to exclude the card being played from pickable cards
-func _get_pickable_cards() -> Array:
+func get_pickable_cards() -> Array:
 	var cards := super()
 	# Remove the card being played (this Weave Destiny card)
 	var self_card: CardData = null

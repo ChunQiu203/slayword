@@ -718,7 +718,7 @@ theme_override_constants/margin_bottom = 100
 layout_mode = 2
 theme_override_constants/h_separation = 20
 theme_override_constants/v_separation = 20
-columns = 5
+columns = 4
 
 [node name="BackButton" type="Button" parent="TitleScreen/CodexMenu" unique_id=1517144831]
 layout_mode = 1
@@ -972,10 +972,10 @@ script = ExtResource("5_a7j3r")
 
 [node name="PlayerContainer" type="VBoxContainer" parent="RunScreen/Combat" unique_id=1388654291]
 layout_mode = 0
-offset_left = 179.0
-offset_top = 202.0
-offset_right = 417.0
-offset_bottom = 538.0
+offset_left = 160.0
+offset_top = 160.0
+offset_right = 440.0
+offset_bottom = 440.0
 alignment = 2
 
 [node name="Player" parent="RunScreen/Combat/PlayerContainer" unique_id=49233617 instance=ExtResource("5_7crh0")]
@@ -984,10 +984,10 @@ layout_mode = 2
 
 [node name="EnemyContainer" type="Control" parent="RunScreen/Combat" unique_id=890969971]
 anchors_preset = 0
-offset_left = 699.0
-offset_top = 337.0
-offset_right = 1207.0
-offset_bottom = 519.0
+offset_left = 670.0
+offset_top = 260.0
+offset_right = 1230.0
+offset_bottom = 480.0
 mouse_filter = 2
 script = ExtResource("4_kvn7e")
 metadata/_edit_group_ = true
@@ -995,8 +995,8 @@ metadata/_edit_group_ = true
 [node name="AutomaticEnemyContainer" type="HBoxContainer" parent="RunScreen/Combat/EnemyContainer" unique_id=1103423603]
 layout_mode = 0
 offset_left = 11.0
-offset_top = -75.0
-offset_right = 457.0
+offset_top = -50.0
+offset_right = 500.0
 offset_bottom = 187.0
 mouse_filter = 2
 alignment = 2
@@ -1004,8 +1004,8 @@ alignment = 2
 [node name="PositionalEnemyContainer" type="Control" parent="RunScreen/Combat/EnemyContainer" unique_id=265058126]
 anchors_preset = 0
 offset_left = -28.0
-offset_top = -94.0
-offset_right = 441.0
+offset_top = -70.0
+offset_right = 480.0
 offset_bottom = 200.0
 mouse_filter = 2
 
@@ -1343,20 +1343,22 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("30_51fbl")
 
-[node name="CardContainer" type="HBoxContainer" parent="RunScreen/ShopOverlay" unique_id=1428730409]
+[node name="CardContainer" type="GridContainer" parent="RunScreen/ShopOverlay" unique_id=1428730409]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -528.0
+offset_left = -420.0
 offset_top = -278.0
-offset_right = 536.0
+offset_right = 420.0
 offset_bottom = 18.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
+columns = 4
 
 [node name="ArtifactContainer" type="VBoxContainer" parent="RunScreen/ShopOverlay" unique_id=381468019]
 layout_mode = 1
@@ -1647,10 +1649,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -302.0
-offset_top = -210.0
-offset_right = 302.0
-offset_bottom = 214.0
+offset_left = -400.0
+offset_top = -280.0
+offset_right = 400.0
+offset_bottom = 280.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_reward_panel")
@@ -1750,10 +1752,10 @@ color = Color(0.203922, 0.188235, 0.215686, 0.631373)
 
 [node name="BackButton" type="Button" parent="RunScreen/CardSelectionOverlay" unique_id=89067690]
 layout_mode = 0
-offset_left = 720.0
-offset_top = 567.0
-offset_right = 864.0
-offset_bottom = 599.0
+offset_left = 568.0
+offset_top = 668.0
+offset_right = 712.0
+offset_bottom = 712.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_gdi3b")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
 text = "back"
@@ -1761,9 +1763,9 @@ text = "back"
 [node name="ConfirmButton" type="Button" parent="RunScreen/CardSelectionOverlay" unique_id=416322846]
 layout_mode = 0
 offset_left = 449.0
-offset_top = 567.0
+offset_top = 668.0
 offset_right = 593.0
-offset_bottom = 598.0
+offset_bottom = 712.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_4m3bv")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_gndye")
 text = "Confirm"
@@ -1780,10 +1782,10 @@ vertical_alignment = 1
 
 [node name="ScrollContainer" type="ScrollContainer" parent="RunScreen/CardSelectionOverlay" unique_id=1445931955]
 layout_mode = 0
-offset_left = 192.0
-offset_top = 112.0
-offset_right = 1050.0
-offset_bottom = 502.0
+offset_left = 80.0
+offset_top = 60.0
+offset_right = 1200.0
+offset_bottom = 660.0
 follow_focus = true
 horizontal_scroll_mode = 3
 vertical_scroll_mode = 3
@@ -1804,7 +1806,7 @@ theme_override_constants/margin_bottom = 96
 layout_mode = 2
 theme_override_constants/h_separation = 20
 theme_override_constants/v_separation = 20
-columns = 5
+columns = 4
 
 [node name="CardDraftSelectionOverlay" type="Control" parent="RunScreen" unique_id=894647594]
 unique_name_in_owner = true
@@ -1829,10 +1831,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -400.0
-offset_top = -120.0
-offset_right = 400.0
-offset_bottom = 74.0
+offset_left = -500.0
+offset_top = -150.0
+offset_right = 500.0
+offset_bottom = 92.5
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
@@ -1840,10 +1842,12 @@ alignment = 1
 
 [node name="SkipButton" type="Button" parent="RunScreen/CardDraftSelectionOverlay" unique_id=59158799]
 layout_mode = 0
-offset_left = 520.0
-offset_top = 588.0
-offset_right = 664.0
-offset_bottom = 619.0
+offset_left = 568.0
+offset_top = 540.0
+offset_right = 712.0
+offset_bottom = 588.0
+theme_override_styles/normal = SubResource("StyleBoxTexture_20dtu")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tpu2r")
 text = "Skip"
 
 [node name="Map" type="Control" parent="RunScreen" unique_id=1412868086]
@@ -1881,9 +1885,9 @@ texture = ExtResource("36_20dtu")
 [node name="BackButton" type="TextureButton" parent="RunScreen/Map" unique_id=1917353835]
 layout_mode = 0
 offset_left = 1140.0
-offset_top = 610.0
+offset_top = 642.0
 offset_right = 1204.0
-offset_bottom = 674.0
+offset_bottom = 706.0
 texture_normal = ExtResource("22_0bxc5")
 ignore_texture_size = true
 stretch_mode = 0

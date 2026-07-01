@@ -3,7 +3,7 @@ extends Control
 
 const SHOP_FOREGROUND_DECOR := preload("res://scripts/ui/shop/ShopForegroundDecor.gd")
 
-@onready var card_container: HBoxContainer = $CardContainer
+@onready var card_container: GridContainer = $CardContainer
 @onready var artifact_container: VBoxContainer = $ArtifactContainer
 @onready var consumable_container: VBoxContainer = $ConsumableContainer
 
@@ -152,9 +152,9 @@ func _build_mobile_layout() -> void:
 	board.add_child(content)
 
 	_shop_panels["cards"] = _make_card_shop_section(content, "shop.tab.cards", card_container)
-	card_container.add_theme_constant_override("separation", 18)
+	card_container.add_theme_constant_override("h_separation", 20)
+	card_container.add_theme_constant_override("v_separation", 20)
 	card_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card_container.custom_minimum_size.y = 330
 	_card_item_parent = card_container
 	_shop_panels["artifacts"] = _make_grid_shop_section(content, "shop.tab.artifacts", artifact_container, "artifacts")
 	_shop_panels["consumables"] = _make_grid_shop_section(content, "shop.tab.consumables", consumable_container, "consumables")
@@ -198,11 +198,10 @@ func _make_card_shop_section(parent: Node, title_key: String, content_node: Cont
 	_shop_section_titles["cards"] = label
 
 	var scroll := ScrollContainer.new()
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.custom_minimum_size.y = 354
 	box.add_child(scroll)
 	content_node.reparent(scroll)
 	content_node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -243,7 +242,7 @@ func _make_grid_shop_section(parent: Node, title_key: String, content_node: VBox
 	content_node.add_theme_constant_override("separation", 8)
 
 	var grid := GridContainer.new()
-	grid.columns = 3
+	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 14)
 	grid.add_theme_constant_override("v_separation", 12)

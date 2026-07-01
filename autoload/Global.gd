@@ -210,6 +210,10 @@ func _maybe_export_external_data_templates() -> bool:
 ## Starts a new run under a given seed with a given character
 func start_run(character_object_id: String, run_seed: int, difficulty_level: int = 0, custom_run_modifier_object_ids: Array[String] = []) -> void:
 	var character_data: CharacterData = get_character_data(character_object_id)
+	if character_data == null:
+		push_error("start_run: character_data is null for id: " + character_object_id)
+		return
+
 	
 	# initialize player data from a prototype
 	player_data = get_player_data_from_prototype(character_data.character_player_id)

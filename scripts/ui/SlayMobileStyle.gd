@@ -93,7 +93,7 @@ static func get_title_font() -> Font:
 		return _title_font
 	# Fallback: system serif for editor / dev builds
 	var sf := SystemFont.new()
-	sf.font_names = PackedStringArray(["Georgia", "Times New Roman", "serif"])
+	sf.font_names = PackedStringArray(["Georgia", "Times New Roman", "Droid Serif", "serif"])
 	sf.font_italic = false
 	return sf
 
@@ -104,7 +104,7 @@ static func get_body_font() -> Font:
 	if _body_font != null:
 		return _body_font
 	var sf := SystemFont.new()
-	sf.font_names = PackedStringArray(["Segoe UI", "Microsoft YaHei", "Noto Sans SC", "Arial", "sans-serif"])
+	sf.font_names = PackedStringArray(["Segoe UI", "Microsoft YaHei", "Roboto", "Droid Sans Fallback", "Noto Sans CJK SC", "Noto Sans SC", "sans-serif"])
 	sf.font_italic = false
 	return sf
 

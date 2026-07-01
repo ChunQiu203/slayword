@@ -1,0 +1,55 @@
+{
+	"patch_data": {},
+	"properties": {
+		"dialogue_initial_dialogue_state_object_id": "dialogue_state_cursed_chest_initial",
+		"dialogue_option_id_to_dialogue_options": {
+			"dialogue_cursed_chest_option_1": {
+				"dialogue_option_actions": [
+					{
+						"res://scripts/actions/ActionAddHealth.gd": {
+							"health_amount": -12
+						}
+					},
+					{
+						"res://scripts/actions/player_actions/ActionAddMoney.gd": {
+							"money_amount": 100
+						}
+					}
+				],
+				"dialogue_option_bbcode": "[color=red]Open the chest (lose 12 HP)[/color] — [color=green]gain 100 gold[/color]",
+				"dialogue_option_failed_validator_bbcode": "[color=grey][Locked]: Insufficient Health[/color]",
+				"dialogue_option_next_dialogue_state_id": "",
+				"dialogue_option_validators": [
+					{
+						"res://scripts/validators/ValidatorPlayerHealth.gd": {
+							"health_amount": 13
+						}
+					}
+				],
+				"dialogue_option_visible_on_failed_validation": true,
+				"object_id": "dialogue_cursed_chest_option_1"
+			},
+			"dialogue_cursed_chest_option_2": {
+				"dialogue_option_actions": [],
+				"dialogue_option_bbcode": "[color=grey]Leave the cursed chest alone[/color]",
+				"dialogue_option_failed_validator_bbcode": "",
+				"dialogue_option_next_dialogue_state_id": "",
+				"dialogue_option_validators": [],
+				"dialogue_option_visible_on_failed_validation": true,
+				"object_id": "dialogue_cursed_chest_option_2"
+			}
+		},
+		"dialogue_state_id_to_dialogue_states": {
+			"dialogue_state_cursed_chest_initial": {
+				"dialogue_state_dialogue_option_object_ids": [
+					"dialogue_cursed_chest_option_1",
+					"dialogue_cursed_chest_option_2"
+				],
+				"dialogue_state_dialogue_texture_path": "",
+				"dialogue_state_prompt_bbcode": "You find a ornate chest radiating dark energy. An inscription reads: 'Riches await those who dare.'",
+				"object_id": "dialogue_state_cursed_chest_initial"
+			}
+		},
+		"object_id": "dialogue_cursed_chest"
+	}
+}

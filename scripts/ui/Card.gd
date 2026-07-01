@@ -8,6 +8,8 @@ var card_listeners: Array[BaseCardListener] = []
 const CARDS_RERENDER_LAZILY: bool = true # throttles card display generation to next frame
 var _card_is_rerendering: bool = false
 
+var is_selected: bool = false
+
 const CARD_TEXT_IMAGE_SIZE: int = 16	# images in card descriptions will be set to this size
 const ENERGY_ICON_KEYWORD: String = "[energy_icon]"	# tells description to display an energy icon in place
 
@@ -30,30 +32,24 @@ var _frame_textures: Dictionary[int, Texture2D] = {}
 func _get_frame_texture_for_type(card_type: int) -> Texture2D:
 	if _frame_textures.has(card_type):
 		return _frame_textures[card_type]
-	
-	var path = "res://external/sprites/cards/1.png"
+
+	var partial_path := "external/sprites/cards/1.png"
 	match card_type:
-		0: path = "res://external/sprites/cards/2.png"  # ATTACK → Red
-		1: path = "res://external/sprites/cards/3.png"  # SKILL → Green
-		2: path = "res://external/sprites/cards/1.png"  # POWER → Blue
-		3, 4: path = "res://external/sprites/cards/4.png" # STATUS/CURSE → Purple
-	
-	var img = Image.new()
-	var err = img.load(path)
-	if err == OK:
-		_frame_textures[card_type] = ImageTexture.create_from_image(img)
-	else:
-		push_error("Failed to load card frame: ", path, " err=", err)
-		_frame_textures[card_type] = null
+		0: partial_path = "external/sprites/cards/2.png"  # ATTACK → Red
+		1: partial_path = "external/sprites/cards/3.png"  # SKILL → Green
+		2: partial_path = "external/sprites/cards/1.png"  # POWER → Blue
+		3, 4: partial_path = "external/sprites/cards/4.png" # STATUS/CURSE → Purple
+
+	_frame_textures[card_type] = FileLoader.load_texture(partial_path)
 	return _frame_textures[card_type]
 
 const FRAME_TEXTURES = {
-	"color_blue": "res://external/sprites/cards/1.png",
-	"color_red": "res://external/sprites/cards/1.png",
-	"color_green": "res://external/sprites/cards/1.png",
-	"color_orange": "res://external/sprites/cards/1.png",
-	"color_white": "res://external/sprites/cards/1.png",
-	"color_purple": "res://external/sprites/cards/1.png",
+	"color_blue": "external/sprites/cards/1.png",
+	"color_red": "external/sprites/cards/1.png",
+	"color_green": "external/sprites/cards/1.png",
+	"color_orange": "external/sprites/cards/1.png",
+	"color_white": "external/sprites/cards/1.png",
+	"color_purple": "external/sprites/cards/1.png",
 }
 
 @onready var keyword_container = $Pivot/KeywordContainer
@@ -61,7 +57,7 @@ const FRAME_TEXTURES = {
 
 const KEYWORD_HOVER_DELAY: float = 0.5
 
-signal card_selected(Card)
+signal card_clicked(Card)
 
 func _ready() -> void:
 	SlayMobileStyle.load_fonts()
@@ -268,9 +264,18 @@ func _attempt_hand_glow() -> void:
 	if _is_card_in_hand():
 		set_card_glow(_glow_validation())
 
+func set_selected(selected: bool) -> void:
+	is_selected = selected
+	if is_selected:
+		pivot.position.y = -30
+		z_index = 2
+	else:
+		pivot.position.y = 0
+		z_index = 0
+
 func _on_button_gui_input(event: InputEvent):
 	if event.is_action_pressed("left_click"):
-		card_selected.emit(self)
+		card_clicked.emit(self)
 	if event.is_action_pressed("right_click"):
 		card_right_clicked.emit(self)
 

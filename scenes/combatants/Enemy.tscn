@@ -112,6 +112,7 @@ mouse_filter = 2
 
 [node name="Sprite" type="Sprite2D" parent="Visible" unique_id=1332221560]
 position = Vector2(99, 128)
+scale = Vector2(1.2, 1.2)
 texture = ExtResource("2_x4bdi")
 
 [node name="NameLabel" type="Label" parent="Visible/Sprite" unique_id=877227460]

@@ -1,30 +1,58 @@
-[gd_scene load_steps=3 format=3 uid="uid://5nql2bvlw7u3"]
+[gd_scene load_steps=4 format=3 uid="uid://5nql2bvlw7u3"]
 
 [ext_resource type="Texture2D" uid="uid://nh32y87hcke5" path="res://icon.svg" id="1_ifaph"]
 [ext_resource type="Script" uid="uid://c3fsbs4llckwx" path="res://scripts/ui/shop/ConsumableShopButton.gd" id="2_ldcee"]
 
-[node name="ConsumableShopButton" type="Control"]
-custom_minimum_size = Vector2(256, 56)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.04, 0.05, 0.04, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.45, 0.25, 0.78)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+
+[node name="ConsumableShopButton" type="PanelContainer"]
+custom_minimum_size = Vector2(280, 132)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 256.0
-offset_bottom = 56.0
+offset_right = 280.0
+offset_bottom = 132.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
 script = ExtResource("2_ldcee")
 
-[node name="Button" type="Button" parent="."]
-layout_mode = 0
-offset_right = 256.0
-offset_bottom = 31.0
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Button" type="Button" parent="VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 38)
 text = "Consumable Name"
 icon = ExtResource("1_ifaph")
 text_overrun_behavior = 4
 clip_text = true
 expand_icon = true
 
-[node name="PriceLabel" type="Label" parent="."]
-layout_mode = 0
-offset_top = 32.0
-offset_right = 256.0
-offset_bottom = 55.0
+[node name="Description" type="RichTextLabel" parent="VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 38)
+size_flags_vertical = 0
+bbcode_enabled = true
+theme_override_font_sizes/normal_font_size = 12
+text = ""
+scroll_active = false
+clip_contents = true
+
+[node name="PriceLabel" type="Label" parent="VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 24)
 text = "999"
 horizontal_alignment = 1

@@ -3,7 +3,7 @@ extends BaseShopButton
 @onready var card: Card = $Card
 
 func _ready():
-	card.card_selected.connect(_on_card_selected)
+	card.card_clicked.connect(_on_card_selected)
 
 func init(_action_on_click: BaseAction) -> void:
 	super(_action_on_click)

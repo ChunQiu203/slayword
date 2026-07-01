@@ -14,10 +14,13 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Slay The Robot"
+config/name="Slay The Word"
 run/main_scene="res://scenes/Root.tscn"
 config/features=PackedStringArray("4.6")
-config/icon="uid://8kopj5luv8dc"
+config/icon="res://icon_512.png"
+config/splash="res://splash_screen.png"
+config/splash_minimum_display_time=1500
+config/splash_show_image=true
 
 [autoload]
 
@@ -46,7 +49,6 @@ window/size/viewport_height=720
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="viewport"
-window/stretch/aspect="expand"
 "##ææº/å¹³æ¿ï¼éå®æ¨ªå±ï¼ç«å±èåè¯+æ¨ªå±ææå¯èªè¡æ¹sensorï¼window/handheld/orientation"=1
 
 [input]

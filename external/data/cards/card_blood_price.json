@@ -29,7 +29,7 @@
 		"card_name": "Blood Price",
 		"card_play_actions": [
 			{
-				"res://scripts/actions/player_actions/ActionAddHealth.gd": {
+				"res://scripts/actions/ActionAddHealth.gd": {
 					"time_delay": 0.0
 				}
 			},

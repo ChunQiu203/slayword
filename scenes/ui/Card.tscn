@@ -17,7 +17,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(72, 90)]
+"values": [Vector2(90, 115)]
 }
 
 [sub_resource type="Animation" id="Animation_utg8m"]
@@ -33,7 +33,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.2),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(72, 90), Vector2(72, 70)]
+"values": [Vector2(90, 115), Vector2(90, 90)]
 }
 
 [sub_resource type="Animation" id="Animation_obl53"]
@@ -49,7 +49,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.2),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(72, 60), Vector2(72, 98)]
+"values": [Vector2(90, 75), Vector2(90, 122.5)]
 }
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_border"]
@@ -72,89 +72,89 @@ _data = {
 }
 
 [node name="Card" type="Control" groups=["cards"]]
-custom_minimum_size = Vector2(144, 184)
+custom_minimum_size = Vector2(180, 230)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 144.0
-offset_bottom = 184.0
+offset_right = 180.0
+offset_bottom = 230.0
 script = ExtResource("1_u8ksl")
 
 [node name="Pivot" type="Node2D" parent="."]
-position = Vector2(72, 90)
+position = Vector2(90, 115)
 
 [node name="KeywordContainer" parent="Pivot" instance=ExtResource("3_6p3td")]
-offset_left = 80.0
-offset_top = -90.0
-offset_right = 320.0
-offset_bottom = -53.0
+offset_left = 100.0
+offset_top = -115.0
+offset_right = 340.0
+offset_bottom = -66.25
 
 [node name="CardVisual" type="Control" parent="Pivot"]
-custom_minimum_size = Vector2(144, 180)
+custom_minimum_size = Vector2(180, 225)
 layout_mode = 3
 anchors_preset = 0
-offset_left = -72.0
-offset_top = -90.0
-offset_right = 72.0
-offset_bottom = 94.0
+offset_left = -90.0
+offset_top = -115.0
+offset_right = 90.0
+offset_bottom = 115.0
 
 [node name="CardGlow" type="ColorRect" parent="Pivot/CardVisual"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-offset_left = -8.0
-offset_top = -8.0
-offset_right = 152.0
-offset_bottom = 192.0
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 190.0
+offset_bottom = 240.0
 color = Color(0.909804, 0.901961, 0.992157, 0.392157)
 
 [node name="FrameBackground" type="TextureRect" parent="Pivot/CardVisual"]
 unique_name_in_owner = true
 layout_mode = 2
-offset_right = 144.0
-offset_bottom = 184.0
+offset_right = 180.0
+offset_bottom = 230.0
 
 [node name="CardTexture" type="TextureRect" parent="Pivot/CardVisual"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 20.0
-offset_top = 30.0
-offset_right = 124.0
-offset_bottom = 108.0
+offset_left = 25.0
+offset_top = 37.5
+offset_right = 155.0
+offset_bottom = 135.0
 texture = ExtResource("1_7f6u3")
 expand_mode = 1
 
 [node name="CardName" type="RichTextLabel" parent="Pivot/CardVisual/CardTexture"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = -8.0
-offset_top = -22.0
-offset_right = 118.0
-offset_bottom = -8.0
-theme_override_font_sizes/normal_font_size = 11
+offset_left = -10.0
+offset_top = -27.5
+offset_right = 147.5
+offset_bottom = -10.0
+theme_override_font_sizes/normal_font_size = 14
 bbcode_enabled = true
 text = "Card Name"
 scroll_active = false
 script = ExtResource("3_8gkbw")
-_max_size = 12
-_current_font_size = 11
+_max_size = 15
+_current_font_size = 14
 _editor_defaults_set = true
 
 [node name="EnergySprite" type="ColorRect" parent="Pivot/CardVisual"]
 layout_mode = 0
-offset_left = 18.0
-offset_top = 6.0
-offset_right = 40.0
-offset_bottom = 28.0
+offset_left = 22.5
+offset_top = 7.5
+offset_right = 50.0
+offset_bottom = 35.0
 color = Color(0.0784314, 0.0784314, 0.0784314, 1)
 metadata/_edit_group_ = true
 
 [node name="EnergyCost" type="Label" parent="Pivot/CardVisual/EnergySprite"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_right = 22.0
-offset_bottom = 22.0
+offset_right = 27.5
+offset_bottom = 27.5
 theme_override_constants/line_spacing = -3
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 15
 text = "3"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -162,40 +162,40 @@ vertical_alignment = 1
 [node name="CardType" type="Label" parent="Pivot/CardVisual"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 8.0
-offset_top = 104.0
-offset_right = 136.0
-offset_bottom = 114.0
+offset_left = 10.0
+offset_top = 130.0
+offset_right = 170.0
+offset_bottom = 142.5
 theme_override_constants/line_spacing = -3
-theme_override_font_sizes/font_size = 5
+theme_override_font_sizes/font_size = 6
 text = "Hit and Run"
 horizontal_alignment = 1
 
 [node name="CardDescription" type="RichTextLabel" parent="Pivot/CardVisual"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 22.0
-offset_top = 120.0
-offset_right = 122.0
-offset_bottom = 178.0
-theme_override_font_sizes/normal_font_size = 9
+offset_left = 27.5
+offset_top = 150.0
+offset_right = 152.5
+offset_bottom = 222.5
+theme_override_font_sizes/normal_font_size = 11
 bbcode_enabled = true
 text = "100/100
 "
 scroll_active = false
 script = ExtResource("3_8gkbw")
-_max_size = 12
-_current_font_size = 10
+_max_size = 15
+_current_font_size = 12
 _editor_defaults_set = true
 
 [node name="CardButton" type="Button" parent="Pivot"]
 unique_name_in_owner = true
 self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(144, 184)
-offset_left = -72.0
-offset_top = -90.0
-offset_right = 72.0
-offset_bottom = 94.0
+custom_minimum_size = Vector2(180, 230)
+offset_left = -90.0
+offset_top = -115.0
+offset_right = 90.0
+offset_bottom = 115.0
 button_mask = 3
 metadata/_edit_lock_ = true
 
