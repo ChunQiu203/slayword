@@ -51,7 +51,13 @@
 		"card_add_to_deck_actions": [],
 		"card_remove_from_deck_actions": [],
 		"card_transform_in_deck_actions": [],
-		"card_play_validators": [],
+		"card_play_validators": [
+			{
+				"res://scripts/validators/card_plays/ValidatorStarChart.gd": {
+					"star_houses_occupied": 4
+				}
+			}
+		],
 		"card_glow_validators": [],
 		"card_listeners": [],
 		"card_tags": [],
