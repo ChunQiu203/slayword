@@ -4,8 +4,8 @@
 		"object_id": "card_astrology_constellation_breaker",
 		"card_name": "Constellation Breaker",
 		"card_color_id": "color_blue",
-		"card_description": "Deal 30 damage. Consume all Stars.",
-		"card_energy_cost": 4,
+		"card_description": "Deal 30 damage. Consume up to 3 random Stars, each reduces cost by 1.",
+		"card_energy_cost": 3,
 		"card_type": 0,
 		"card_rarity": 3,
 		"card_requires_target": true,
@@ -19,15 +19,14 @@
 		},
 		"card_play_actions": [
 			{
-				"res://scripts/actions/meta_actions/ActionAttackGenerator.gd": {
-					"actions_on_lethal": [],
-					"time_delay": 0.0
+				"res://scripts/actions/star_chart_actions/ActionConsumeRandomStarsReduceCost.gd": {
+					"max_stars": 3
 				}
 			},
 			{
-				"res://scripts/actions/star_chart_actions/ActionConsumeStar.gd": {
-					"star_house": -1,
-					"star_count": 99
+				"res://scripts/actions/meta_actions/ActionAttackGenerator.gd": {
+					"actions_on_lethal": [],
+					"time_delay": 0.0
 				}
 			}
 		],
@@ -43,7 +42,13 @@
 		"card_transform_in_deck_actions": [],
 		"card_play_validators": [],
 		"card_glow_validators": [],
-		"card_listeners": [],
+		"card_listeners": [
+			{
+				"res://scripts/card_listeners/ListenerStarCostReducer.gd": {
+					"max_reduce": 3
+				}
+			}
+		],
 		"card_tags": [],
 		"card_upgrade_amount": 0,
 		"card_upgrade_amount_max": 1,

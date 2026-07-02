@@ -544,7 +544,7 @@
 	"data.card_astrology_comet_strike.card_name": "彗星打击",
 	"data.card_astrology_comet_strike.card_description": "造成[damage]点伤害。消耗。",
 	"data.card_astrology_constellation_breaker.card_name": "星座破碎者",
-	"data.card_astrology_constellation_breaker.card_description": "造成30点伤害。消耗所有星辰。",
+	"data.card_astrology_constellation_breaker.card_description": "造成30点伤害。随机消耗最多3颗星辰，每消耗1颗费用减1。",
 	"data.card_astrology_constellation_slash.card_name": "星座斩击",
 	"data.card_astrology_constellation_slash.card_description": "造成[damage]点伤害。若智慧星位有星辰，复制此攻击。",
 	"data.card_astrology_cosmic_cleave.card_name": "宇宙劈斩",

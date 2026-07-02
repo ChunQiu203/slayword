@@ -254,6 +254,11 @@ func _on_combat_started(event_id: String):
 	start_turn_animation()
 	
 	Global.player_data.player_energy = Global.player_data.player_energy_max
+	
+	# Apply star chart house passives at combat start
+	var bonuses := StarChartHelper.get_house_passive_bonus()
+	Global.player_data.player_energy += int(bonuses.get("bonus_energy", 0))
+	
 	set_combat_display_visibility(true)
 	update_combat_display()
 	

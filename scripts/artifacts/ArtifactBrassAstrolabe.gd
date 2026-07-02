@@ -30,6 +30,18 @@ func connect_signals() -> void:
 func _on_combat_started_astro(_event_id: String) -> void:
 	_eclipse_triggered_this_cycle = false
 	_alignment_triggered = [false, false, false, false, false, false]
+	# Create UI before placing stars so icons show immediately
+	var player := Global.get_player()
+	if player != null:
+		if _star_chart_ui == null:
+			_star_chart_ui = StarChartUI.new()
+			player.custom_ui_container.add_child(_star_chart_ui)
+			_star_chart_ui.init("custom_ui_star_chart", player)
+		if _star_bonus_ui == null:
+			_star_bonus_ui = StarBonusUI.new()
+			player.custom_ui_container.add_child(_star_bonus_ui)
+			_star_bonus_ui.init("custom_ui_star_bonus", player)
+	# Place 2 random stars
 	var rng: RandomNumberGenerator = Global.player_data.get_player_rng("rng_brass_astrolabe")
 	for _i in range(2):
 		StarChartHelper.place_star(rng.randi_range(0, 5))
@@ -72,15 +84,9 @@ func _on_first_turn_setup() -> void:
 		return
 	if player.get_status_charges("status_effect_star_chart_passives") == 0:
 		player.add_status_effect_charges("status_effect_star_chart_passives", 1)
-	if _star_chart_ui == null:
-		_star_chart_ui = StarChartUI.new()
-		player.custom_ui_container.add_child(_star_chart_ui)
-		_star_chart_ui.init("custom_ui_star_chart", player)
-	Global.player_data.player_values["_star_chart_ui_ref"] = _star_chart_ui
-	if _star_bonus_ui == null:
-		_star_bonus_ui = StarBonusUI.new()
-		player.custom_ui_container.add_child(_star_bonus_ui)
-		_star_bonus_ui.init("custom_ui_star_bonus", player)
+	# UI already created in _on_combat_started_astro, just set reference
+	if _star_chart_ui != null:
+		Global.player_data.player_values["_star_chart_ui_ref"] = _star_chart_ui
 
 func _evaluate_star_conditions() -> void:
 	if not _eclipse_triggered_this_cycle and StarChartHelper.check_eclipse():

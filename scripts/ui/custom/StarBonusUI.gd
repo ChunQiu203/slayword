@@ -11,12 +11,7 @@ const BONUS_ICONS: Array[Dictionary] = [
 	{"key": "bonus_duplicate", "name": "复制", "desc": "每回合首张牌复制", "color": Color(0.25, 0.9, 0.65), "icon": "res://external/sprites/ui/ui_bonus_duplicate.svg"},
 ]
 
-const STATUS_ICONS: Array[Dictionary] = [
-	{"status": "status_effect_weaken", "name": "虚弱", "desc": "伤害×0.75", "color": Color(0.6, 0.6, 0.6), "icon": "res://external/sprites/status_effects/status_effect_weaken.svg"},
-	{"status": "status_effect_vulnerable", "name": "易伤", "desc": "受到伤害×1.5", "color": Color(1.0, 0.3, 0.3), "icon": "res://external/sprites/status_effects/status_effect_vulnerable.svg"},
-	{"status": "status_effect_damage_increase", "name": "力量", "desc": "攻击+伤害", "color": Color(1.0, 0.5, 0.0), "icon": "res://external/sprites/status_effects/status_effect_damage_increase.svg"},
-	{"status": "status_effect_singularity", "name": "奇点", "desc": "被动三倍加成", "color": Color(1.0, 1.0, 0.0), "icon": "res://external/sprites/ui/ui_status_singularity.svg"},
-]
+const STATUS_ICONS: Array[Dictionary] = []
 
 var _icon_buttons: Array[Button] = []
 var _hbox: HBoxContainer
@@ -32,13 +27,14 @@ func init(_custom_ui_object_id: String, _parent_combatant: BaseCombatant) -> voi
 		Signals.star_placed.connect(_on_star_changed)
 		Signals.star_consumed.connect(_on_star_changed)
 		Signals.eclipse_triggered.connect(_on_eclipse)
+		Signals.combat_started.connect(_on_combat_started)
 
 func _setup_ui() -> void:
 	anchors_preset = Control.PRESET_CENTER_BOTTOM
-	offset_left = -120
-	offset_right = 120
-	offset_top = 130
-	offset_bottom = 180
+	offset_left = -150
+	offset_right = 90
+	offset_top = 160
+	offset_bottom = 210
 
 	_hbox = HBoxContainer.new()
 	_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -112,10 +108,12 @@ func _toggle_tooltip(idx: int) -> void:
 		if idx < BONUS_ICONS.size():
 			desc = BONUS_ICONS[idx]["name"] + ": " + BONUS_ICONS[idx]["desc"]
 			color = BONUS_ICONS[idx]["color"]
-		else:
+		elif idx - BONUS_ICONS.size() < STATUS_ICONS.size():
 			var status_idx := idx - BONUS_ICONS.size()
 			desc = STATUS_ICONS[status_idx]["name"] + ": " + STATUS_ICONS[status_idx]["desc"]
 			color = STATUS_ICONS[status_idx]["color"]
+		else:
+			return
 		_tooltip.text = desc
 		_tooltip.add_theme_color_override("font_color", color)
 		_tooltip.visible = true
@@ -124,6 +122,13 @@ func _toggle_tooltip(idx: int) -> void:
 		var tw := create_tween()
 		tw.tween_property(_tooltip, "modulate", Color(1, 1, 1, 1), 0.2)
 		tw.parallel().tween_property(_tooltip, "position:y", _tooltip.position.y - 5, 0.2)
+
+func _on_combat_started(_event_id: String) -> void:
+	_refresh()
+	# Delay refresh to ensure effects are applied
+	var tw := create_tween()
+	tw.tween_interval(0.1)
+	tw.tween_callback(_refresh)
 
 func _on_star_changed(_house: int = -1, _count: int = 0) -> void:
 	_refresh()
@@ -162,13 +167,15 @@ func _refresh() -> void:
 		if player != null:
 			has_status = player.get_status_charges(status_id) > 0
 
-		var btn: Button = _icon_buttons[BONUS_ICONS.size() + i]
-		if has_status and not btn.visible:
-			btn.visible = true
-			btn.modulate = Color(1, 1, 1, 0)
-			var tw := create_tween()
-			tw.tween_property(btn, "modulate", Color(1, 1, 1, 1), 0.2)
-		elif not has_status and btn.visible:
-			var tw := create_tween()
-			tw.tween_property(btn, "modulate", Color(1, 1, 1, 0), 0.15)
-			tw.tween_callback(func(): btn.visible = false)
+		var btn_idx: int = BONUS_ICONS.size() + i
+		if btn_idx < _icon_buttons.size():
+			var btn: Button = _icon_buttons[btn_idx]
+			if has_status and not btn.visible:
+				btn.visible = true
+				btn.modulate = Color(1, 1, 1, 0)
+				var tw := create_tween()
+				tw.tween_property(btn, "modulate", Color(1, 1, 1, 1), 0.2)
+			elif not has_status and btn.visible:
+				var tw := create_tween()
+				tw.tween_property(btn, "modulate", Color(1, 1, 1, 0), 0.15)
+				tw.tween_callback(func(): btn.visible = false)
